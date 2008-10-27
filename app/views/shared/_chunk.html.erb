@@ -1,0 +1,10 @@
+<tr class="<%= chunk.status.downcase %>">
+  <td><%= chunk.status %></td>
+  <td><%= chunk.filename %></td>
+  <td><%= chunk.bytes %></td>
+  <td><%= chunk.instance_id %></td>
+  <td><%= chunk.job_id %></td>
+  <td><%= SEARCHER_HASH[chunk.job.searcher] %></td>
+  <td><%= nice_date(chunk.sent_at) %></td>
+  <td><%= age_in_seconds(chunk.started_at, chunk.finished_at) %></td>
+</tr>

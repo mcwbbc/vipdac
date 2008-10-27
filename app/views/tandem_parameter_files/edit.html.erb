@@ -1,0 +1,12 @@
+<h1>Editing tandem_parameters</h1>
+
+<% form_for(@tandem_parameters) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @tandem_parameters %> |
+<%= link_to 'Back', tandem_parameters_path %>

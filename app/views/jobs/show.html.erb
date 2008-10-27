@@ -1,0 +1,16 @@
+<%= page_title(@job.name) %>
+
+<%= link_to 'Back', jobs_path %>
+<br />
+<br />
+Status: <%=h @job.status %><br />
+Searcher: <%=h SEARCHER_HASH[@job.searcher] %><br />
+Processing Time (in seconds): <%=h age_in_seconds(@job.launched_at, @job.finished_at) %><br />
+Progress: <%= complete_bar(@job) %><br /> 
+Total chunks: <%= @job.chunks.empty? ? 0 : @job.chunks.first.chunk_count %><br />
+Pending chunks: <%=h @job.chunks.pending.size %><br />
+Working chunks: <%=h @job.chunks.working.size %><br />
+Complete chunks: <%=h @job.chunks.complete.size %><br />
+<br />
+<br />
+<%= render(:partial => "shared/chunks", :locals => { :chunks => @job.chunks }) if !@job.chunks.empty? %>

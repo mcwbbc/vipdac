@@ -1,0 +1,7 @@
+<tr>
+  <td><%=h node.instance_id %></td>
+  <td><%=h INSTANCES_HASH[node.instance_type] %></td>
+  <td><%=h age(node.created_at.to_f, Time.now.to_f) %></td>
+  <td><%= link_to 'Show', node_path(:id => node.instance_id) %> 
+  <%= link_to('Destroy', node_path(:id => node.instance_id), :confirm => 'Are you sure?', :method => :delete) if !(node.instance_id == Aws.instance_id) %></td>
+</tr>

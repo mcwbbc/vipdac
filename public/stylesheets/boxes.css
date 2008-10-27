@@ -1,0 +1,135 @@
+.whitebox {
+  display: block
+}
+.whitebox * {
+  display: block;
+  height: 1px;
+  overflow: hidden;
+  font-size: .01em;
+  background: #ffffff
+}
+.whitebox1 {
+  margin-left: 3px;
+  margin-right: 3px;
+  padding-left: 1px;
+  padding-right: 1px;
+  border-left: 1px solid #9cb7cc;
+  border-right: 1px solid #9cb7cc;
+  background: #d3dfe8
+}
+.whitebox2 {
+  margin-left: 1px;
+  margin-right: 1px;
+  padding-right: 1px;
+  padding-left: 1px;
+  border-left: 1px solid #638eae;
+  border-right: 1px solid #638eae;
+  background: #dee7ee
+}
+.whitebox3 {
+  margin-left: 1px;
+  margin-right: 1px;
+  border-left: 1px solid #dee7ee;
+  border-right: 1px solid #dee7ee;
+}
+.whitebox4 {
+  border-left: 1px solid #9cb7cc;
+  border-right: 1px solid #9cb7cc
+}
+.whitebox5 {
+  border-left: 1px solid #d3dfe8;
+  border-right: 1px solid #d3dfe8
+}
+.whiteboxfg {
+  background: #ffffff
+}
+.greenbox {
+  display: block
+}
+.greenbox * {
+  display: block;
+  height: 1px;
+  overflow: hidden;
+  font-size: .01em;
+  background: #007a74
+}
+.greenbox1 {
+  margin-left: 3px;
+  margin-right: 3px;
+  padding-left: 1px;
+  padding-right: 1px;
+  border-left: 1px solid #2e7e90;
+  border-right: 1px solid #2e7e90;
+  background: #147c80
+}
+.greenbox2 {
+  margin-left: 1px;
+  margin-right: 1px;
+  padding-right: 1px;
+  padding-left: 1px;
+  border-left: 1px solid #4981a1;
+  border-right: 1px solid #4981a1;
+  background: #0f7b7d
+}
+.greenbox3 {
+  margin-left: 1px;
+  margin-right: 1px;
+  border-left: 1px solid #0f7b7d;
+  border-right: 1px solid #0f7b7d;
+}
+.greenbox4 {
+  border-left: 1px solid #2e7e90;
+  border-right: 1px solid #2e7e90
+}
+.greenbox5 {
+  border-left: 1px solid #147c80;
+  border-right: 1px solid #147c80
+}
+.greenboxfg {
+  background: #007a74
+}
+.bluebox {
+  display: block
+}
+.bluebox * {
+  display: block;
+  height: 1px;
+  overflow: hidden;
+  font-size: .01em;
+  background: #065590
+}
+.bluebox1 {
+  margin-left: 3px;
+  margin-right: 3px;
+  padding-left: 1px;
+  padding-right: 1px;
+  border-left: 1px solid #316e9c;
+  border-right: 1px solid #316e9c;
+  background: #196095
+}
+.bluebox2 {
+  margin-left: 1px;
+  margin-right: 1px;
+  padding-right: 1px;
+  padding-left: 1px;
+  border-left: 1px solid #4a7da3;
+  border-right: 1px solid #4a7da3;
+  background: #145d94
+}
+.bluebox3 {
+  margin-left: 1px;
+  margin-right: 1px;
+  border-left: 1px solid #145d94;
+  border-right: 1px solid #145d94;
+}
+.bluebox4 {
+  border-left: 1px solid #316e9c;
+  border-right: 1px solid #316e9c
+}
+.bluebox5 {
+  border-left: 1px solid #196095;
+  border-right: 1px solid #196095
+}
+.blueboxfg {
+  background: #065590
+}

@@ -1,0 +1,8 @@
+<tr class="<%= row_color(aws_node[:aws_state]) %>">
+  <td><%=h aws_node[:aws_instance_id] %></td>
+  <td><%=h aws_node[:aws_state] %></td>
+  <td><%=h aws_node[:aws_reason] %></td>
+  <td><%=h aws_node[:dns_name] %></td>
+  <td><%=h aws_node[:aws_image_id] %></td>
+  <td><%=h aws_node[:aws_launch_time] %></td>
+</tr>

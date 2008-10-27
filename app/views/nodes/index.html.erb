@@ -1,0 +1,24 @@
+<%= page_title("Nodes") %>
+<%= link_to('New node', new_node_path) %>
+<br />
+<br />
+<br />
+<%= link_to "All AWS Nodes", aws_nodes_path %>: <%= @aws_nodes.size %><br />
+<%= link_to "Active AWS Nodes", aws_nodes_path %>: <%= @active_nodes.size %><br />
+DB Nodes: <%= @nodes.size %><br />
+<% if @warning %>
+<div class="error">There is a discrepancy between the AWS Nodes and the DB nodes!</div>
+<% end %>
+<br />
+<table width="100%">
+  <tr class="row-header">
+    <th>ID</th>
+    <th>Size</th>
+    <th>Age</th>
+    <th>Action</th>
+  </tr>
+<%= render(:partial => "node", :collection => @nodes) %>
+</table>
+
+<br />
+

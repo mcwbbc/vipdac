@@ -1,0 +1,2 @@
+class TandemPacker < Packer
+end

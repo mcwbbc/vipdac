@@ -1,0 +1,31 @@
+<%= page_title("Jobs") %>
+<%= link_to('New job', new_job_path) %>
+<br />
+<br />
+<table width="100%">
+  <tr class="row-header">
+    <th colspan="6"> </th>
+    <th colspan="2">Job Time</th>
+    <th>Actual</th>
+    <th colspan="3">Chunk Time</th>
+    <th> </th>
+  </tr>
+  <tr class="row-header">
+    <th>ID</th>
+    <th>Name</th>
+    <th>MGF Filename</th>
+    <th>Status</th>
+    <th>Progress</th>
+    <th>Searcher</th>
+    <th>Formatted</th>
+    <th>Seconds</th>
+    <th>Processing Time</th>
+    <th>Max</th>
+    <th>Min</th>
+    <th>Ave</th>
+    <th>Action</th>
+  </tr>
+<%= render(:partial => "job", :collection => @jobs) %>
+</table>
+
+<%= render(:partial => "shared/pagination", :locals => { :items => @jobs }) %>

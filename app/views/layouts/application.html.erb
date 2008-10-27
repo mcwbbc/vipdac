@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<title>BBC ViPDAC</title>
+<%= javascript_include_tag(:all) %>
+<%= stylesheet_link_tag('reset-fonts-grids', 'base', 'main', 'boxes', 'semantic_forms') %>
+</head>
+<body>
+<div id="doc3" class="yui-t2">
+	<div id="hd">
+    <% rounded_box('whitebox') do %>
+      <%= render(:partial => "shared/header") %>
+    <% end %>
+	</div>
+	<div id="bd">
+		<div id="yui-main">
+			<div class="yui-b">
+        <% rounded_box('whitebox') do %>
+			    <div id="main"><%= flash_messages %><%= yield %></div>
+        <% end %>
+			</div>
+		</div>
+		<div class="yui-b">
+      <% rounded_box('bluebox') do %>
+		    <%= render(:partial => "shared/navigation") %>
+      <% end %>
+		</div>
+	</div>
+	<div id="ft">
+    <%= render(:partial => "shared/footer") %>
+	</div>
+</div>
+<iframe style="height:0px;width:0px;visibility:hidden" src="about:blank"> this frame prevents back forward cache </iframe>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<%= page_title("New xTandem Parameter File") %>
+
+<%= all_error_messages_for :tandem_parameter_file, :tandem_modifications %>
+
+<% form_for @tandem_parameter_file do |f| %>
+  <table>
+    <tr valign="top">
+      <td>Name:</td>
+      <td><%= f.text_field :name %></td>
+    </tr>
+    <tr valign="top">
+      <td>Taxonomy:</td>
+      <td><%= f.select(:taxon, [["Choose a taxonomy...",""]] + TandemParameterFile.taxonomies) %></td>
+    </tr>
+    <tr valign="top">
+      <td>Enzyme:</td>
+      <td><%= f.select(:enzyme, TandemParameterFile::ENZYMES) %></td>
+    </tr>
+    <tr valign="top">
+      <td>N-term:</td>
+      <td><%= f.text_field :n_terminal %></td>
+    </tr>
+    <tr valign="top">
+      <td>C-term:</td>
+      <td><%= f.text_field :c_terminal %></td>
+    </tr>
+    <tr valign="top">
+      <td>Ions:</td>
+      <td>
+        <table>
+          <tr>
+        <% TandemParameterFile::IONS.each do |ion| %>
+          <td><%= f.check_box("#{ion.downcase}_ion") %> <%= ion %>-ions</td>
+        <% end %>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td>Modifications:<br />
+        <%= add_modification_link("Add modification") %>
+        </td>
+      <td>
+          <div id="tandem_modifications">
+    	      <div><div class="modification-header">Diff Mass</div><div class="modification-header">Amino Acid(s)</div><br /></div>
+            <%= render(:partial => "tandem_modification", :collection => @tandem_parameter_file.tandem_modifications) %>
+          </div>
+  	  </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><%= f.submit "save", :disable_with => 'saving...' %> <%= f.submit "cancel" %></td>
+    </tr>
+    </table>
+<% end %>

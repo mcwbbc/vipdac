@@ -1,0 +1,12 @@
+<%= page_title("Node - #{@node.instance_id}") %>
+
+<strong>Instance ID:</strong> <%=h @node.instance_id %><br />
+<hr />
+<strong>AWS Parameters</strong><br />
+<%= aws_params(@aws_node) %>
+<br />
+<br />
+
+<%= render(:partial => "shared/chunks", :locals => { :chunks => @node.chunks }) if !@node.chunks.empty? %>
+
+<%= link_to 'Back', nodes_path %>

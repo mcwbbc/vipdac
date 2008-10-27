@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+# node
+#
+# chkconfig: - 85 15
+# description: start, stop, restart reporter
+#              
+# started by monit
+
+RETVAL=0
+
+if ! [ $2 ]
+then
+node_id=1
+else
+node_id=$2
+fi 
+
+start() {
+cd /pipeline/vipdac/lib && /pipeline/vipdac/lib/node_startup.rb $node_id & >> /pipeline/crash.log
+}
+
+stop() {
+kill -9 `cat /pipeline/node-$node_id.pid`
+rm /pipeline/node-$node_id.pid
+}
+
+case "$1" in
+    start)
+      start
+      RETVAL=$?
+  ;;
+    stop)
+      stop
+      RETVAL=$?
+  ;;
+    restart)
+      stop
+      sleep 2
+      start
+      RETVAL=$?
+  ;;
+    *)
+      echo "Usage: node {start|stop|restart} node_number"
+      exit 1
+  ;;
+esac      
+
+exit $RETVAL

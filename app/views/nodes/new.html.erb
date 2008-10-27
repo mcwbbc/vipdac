@@ -1,0 +1,8 @@
+<%= page_title("New Node") %>
+<% form_for @node do |f| %>
+<%= f.error_messages %>
+  <% field_set_tag "Node Details" do %>
+    <%= f.select :instance_type, [["Choose an instance type...",""]] + INSTANCES_ARRAY, :required => true, :label => "Instance Type:" %>
+    <%= f.submit "save", :disable_with => 'saving...' %> <%= f.submit "cancel" %>
+  <% end %>
+<% end %>

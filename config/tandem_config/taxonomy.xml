@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<bioml label="x! taxon-to-file matching list">
+<taxon label="human_ipi">
+  <file format="peptide" URL="/pipeline/dbs/ipi.HUMAN.fasta" />
+</taxon>
+<taxon label="human_uni">
+  <file format="peptide" URL="/pipeline/dbs/25.H_sapiens.fasta" />
+</taxon>
+<taxon label="rat_ipi">
+  <file format="peptide" URL="/pipeline/dbs/ipi.RAT.fasta" />
+</taxon>
+<taxon label="rat_uni">
+  <file format="peptide" URL="/pipeline/dbs/122.R_norvegicus.fasta" />
+</taxon>
+<taxon label="mouse_ipi">
+  <file format="peptide" URL="/pipeline/dbs/ipi.MOUSE.fasta" />
+</taxon>
+<taxon label="mouse_uni">
+  <file format="peptide" URL="/pipeline/dbs/59.M_musculus.fasta" />
+</taxon>
+<taxon label="yeast_uni">
+  <file format="peptide" URL="/pipeline/dbs/40.S_cerevisiae_ATCC_204508.fasta" />
+</taxon>
+<taxon label="yeast_sgd">
+  <file format="peptide" URL="/pipeline/dbs/orf_trans.fasta" />
+</taxon>
+<taxon label="ecoli_uni">
+  <file format="peptide" URL="/pipeline/dbs/18.E_coli_K12.fasta" />
+</taxon>
+</bioml>

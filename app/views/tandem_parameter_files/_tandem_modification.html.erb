@@ -1,0 +1,5 @@
+<div class="modification">
+<% fields_for "tandem_parameter_file[modification_attributes][]", tandem_modification do |m| -%>
+<%= m.text_field :mass %> <%= m.text_field :amino_acid %> <%= link_to_function("remove", "this.up('div.modification').remove()") %>
+<% end -%>
+</div>

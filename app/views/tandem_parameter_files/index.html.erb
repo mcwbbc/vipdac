@@ -1,0 +1,14 @@
+<%= page_title("xTandem Parameter Files") %>
+<%= link_to('New parameter file', new_tandem_parameter_file_path) %>
+<br />
+<br />
+<table width="100%">
+  <tr class="row-header">
+    <th>ID</th>
+    <th width="70%">Name</th>
+    <th>Action</th>
+  </tr>
+<%= render(:partial => "tandem_parameter_file", :collection => @tandem_parameter_files) %>
+</table>
+
+<%= render(:partial => "shared/pagination", :locals => { :items => @tandem_parameter_files }) %>

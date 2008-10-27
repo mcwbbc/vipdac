@@ -1,0 +1,12 @@
+<h1>Editing omssa_parameter_file</h1>
+
+<% form_for(@omssa_parameter_file) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @omssa_parameter_file %> |
+<%= link_to 'Back', omssa_parameter_files_path %>

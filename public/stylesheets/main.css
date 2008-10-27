@@ -1,0 +1,250 @@
+body, html {
+  background-color: #5282a6;
+}
+
+a {
+  color: #000;
+}
+
+img {
+  border: none;
+}
+
+#doc3 {
+  padding-top: 5px;
+}
+
+.page-title {
+  font-size: 182%;
+  font-weight: bold;
+  color: #2C2F22;
+}
+
+#header {
+  height: 80px;
+  margin: 0px;
+  padding: 5px 5px 5px 10px;
+  position: relative;
+}
+
+.bbc-logo {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.mcw-logo {
+  position: absolute;
+  top: 0px;
+  left: 20px;
+}
+
+.vipdac-logo {
+  position: absolute;
+  top: 20px;
+  left: 30%;
+}
+
+#user-bar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 200px;
+  color: #000;
+}
+
+#main {
+  min-height: 500px;
+  margin: 0px;
+  padding: 20px;
+}
+
+#navigation {
+  height: 500px;
+  margin: 0px;
+  padding: 10px;
+}
+
+#navigation a {
+  color: #fff;
+}
+
+#footer {
+  padding: 20px;
+  text-align: center;
+  color: #fff;
+}
+
+.white {
+  color: #fff;
+}
+
+.darkblue {
+  color: #001f7f;
+}
+
+.blue {
+  color: #065590;
+}
+
+.green {
+  color: #007a74;
+}
+
+.lightblue {
+  color: #5282a6;
+}
+
+.complete {
+  background-color: #99ff99;
+}
+.working {
+  background-color: #ffff99;
+}
+.created {
+  background-color: #ff9999;
+}
+
+.row-header {
+  color: #fff;
+  background-color: #000;
+}
+
+/* Pagination */
+.digg_pagination {
+  margin-top: 10px;
+  background: white;
+  /* self-clearing method: */
+}
+.digg_pagination a, .digg_pagination span {
+  padding: .2em .5em;
+  display: block;
+  float: left;
+  margin-right: 1px;
+}
+.digg_pagination span.disabled {
+  color: #999;
+  border: 1px solid #DDD;
+}
+.digg_pagination span.current {
+  font-weight: bold;
+  background: #007a74;
+  color: white;
+  border: 1px solid #007a74;
+}
+.digg_pagination a {
+  text-decoration: none;
+  color: #007a74;
+  border: 1px solid #007a74;
+}
+.digg_pagination a:hover, .digg_pagination a:focus {
+  background-color: #001f7f;
+  color: #003;
+  border-color: #003;
+}
+.digg_pagination .page_info {
+  background: #007a74;
+  color: #fff;
+  padding: .4em .6em;
+  width: 22em;
+  margin-bottom: .3em;
+  text-align: center;
+}
+.digg_pagination .page_info b {
+  color: #007a74;
+  background: #fff;
+  padding: .1em .25em;
+}
+.digg_pagination:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+* html .digg_pagination {
+  height: 1%;
+}
+*:first-child+html .digg_pagination {
+  overflow: hidden;
+}
+
+
+/* Flash Messages */
+
+.notice, .success, .warning, .error, .validation {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  border: 1px solid;
+  margin: 10px 0px;
+  padding: 15px 10px 15px 50px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+}
+.success {
+  color: #4F8A10;
+  background-color: #DFF2BF;
+  background-image: url('/images/icons/success.png');
+}
+.notice {
+  color: #00529B;
+  background-color: #BDE5F8;
+  background-image: url('/images/icons/notice.png');
+}
+.warning {
+  color: #9F6000;
+  background-color: #FEEFB3;
+  background-image: url('/images/icons/warning.png');
+}
+.error {
+  color: #D8000C;
+  background-color: #FFBABA;
+  background-image: url('/images/icons/error.png');
+}
+
+.errorExplanation {
+  background-color: #FFEAE8;
+  border: 1px solid #FF8B7F;
+  color: #000;
+  text-align: left;
+  vertical-align: top;
+  padding-top: 5px;
+  padding-left: 20px;
+  padding-bottom: 10px;
+  margin-top: 3px;
+  margin-bottom: 10px;
+}
+
+.errorExplanation h2 {
+  color: #F0775E;
+}
+
+.errorExplanation ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin: 15px;
+  padding: 3px;
+}
+
+.modification {
+  margin-top: 5px;
+}
+
+.modification-header {
+  width: 20em;
+  border: 1px solid #000;
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  text-align: center;
+  font-weight: bold;
+  background: #000;
+  color: #fff;
+}
+
+.help {
+  color: #000;
+  background-color: #EEF3DC;
+  border: thin solid #666666;
+  padding: 10px;
+}

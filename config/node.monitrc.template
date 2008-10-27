@@ -1,0 +1,3 @@
+check process node-ID with pidfile /pipeline/node-ID.pid
+   start program = "/etc/init.d/node start ID"
+   stop  program = "/etc/init.d/node stop ID"

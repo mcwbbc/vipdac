@@ -1,0 +1,87 @@
+<%= page_title("New OMSSA Parameter File") %>
+
+<%= all_error_messages_for :omssa_parameter_file %>
+
+<% form_for @omssa_parameter_file do |f| %>
+	<table>
+    <tr valign="top">
+			<td>Name</td>
+    	<td>
+				<%= f.text_field :name %>
+    	</td>
+		</tr>
+    <tr valign="top">
+			<td>Database</td>
+			<td>
+				<%= f.select :database, [["Choose a database...",""]] + OmssaOption.databases.sort %>
+			</td>
+		</tr>
+    <tr valign="top">
+			<td>Enzyme</td>
+			<td>
+    		<%= f.select :enzyme, OmssaOption.enzymes.sort %>
+			</td>
+		</tr>
+    <tr valign="top">
+			<td>Number of Allowed Missed Cleavages</td>
+			<td>
+				<%= f.text_field :missed_cleavages %>
+			</td>
+		</tr>
+    <tr valign="top">
+			<td>Precursor Tol. +/-</td>
+			<td>
+				<%= f.text_field :precursor_tol %>
+			</td>
+		</tr>
+    <tr valign="top">
+			<td>Product Tol. +/-</td>
+			<td>
+				<%= f.text_field :product_tol %>
+			</td>
+		</tr>
+    <tr valign="top">
+			<td>Precursor Search</td>
+			<td>
+				<%= f.select :precursor_search, OmssaOption.searches.sort %>
+			</td>
+		</tr>
+    <tr valign="top">
+			<td>Product Search</td>
+			<td>
+				<%= f.select :product_search, OmssaOption.searches.sort %>
+			</td>
+		</tr>
+    <tr valign="top">
+			<td>Minimum Charge to Consider Multiple Charges</td>
+			<td>
+				<%= f.text_field :minimum_charge %>
+			</td>
+		</tr>
+    <tr valign="top">
+			<td>Maximum Charge to Consider, when not 1+</td>
+			<td>
+				<%= f.text_field :max_charge %>
+			</td>
+		</tr>
+    <tr valign="top">
+			<td>Variable Modifications</td>
+			<td>
+				<%= f.select :modifications, OmssaOption.modifications.sort, {}, {:size => 10, :multiple => true, :style => "height:100%;"} %>
+			</td>
+		</tr>
+    <tr valign="top">
+			<td>Ions</td>
+			<td>														
+    		<% OmssaOption.ions.keys.sort.each do |ion| %>
+    			<label><input id="omssa_parameter_file_ions" name="ion<%= OmssaOption.ions[ion]%>" required="true" type="checkbox" value="<%= OmssaOption.ions[ion] %>" <%= @omssa_parameter_file.ions.include?(OmssaOption.ions[ion]) ? "checked" : "" %> /><%= ion %></label>
+    		<% end %>
+    	</td>
+	</tr>
+  <tr>
+    <td></td>
+    <td><%= f.submit "save", :disable_with => 'saving...' %> <%= f.submit "cancel" %></td>
+  </tr>
+  </table>
+<% end %>
+

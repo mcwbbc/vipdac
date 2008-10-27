@@ -1,0 +1,18 @@
+<tr valign="top">
+  <td><%=h job.id %></td>
+  <td><%=h job.name %></td>
+  <td><%=h job.mgf_file_name %></td>
+  <td><%=h job.status %></td>
+  <td><%= complete_bar(job) %></td>
+  <td><%=h SEARCHER_HASH[job.searcher] %></td>
+  <td><%=h age(job.launched_at, job.finished_at) %></td>
+  <td><%=h age_in_seconds(job.launched_at, job.finished_at) %></td>
+  <td><%=h pretty_time(job.processing_time) %></td>
+  <td><%=h pretty_time(job.maximum_chunk_time) %></td>
+  <td><%=h pretty_time(job.minimum_chunk_time) %></td>
+  <td><%=h pretty_time(job.average_chunk_time) %></td>
+    </td>
+  <td><%= link_to 'Show', job %> 
+  <%= link_to('Delete', job, :confirm => 'Are you sure?', :method => :delete) %>
+  <%= link_to('Download Results', job.link) if !job.link.blank? %></td>
+</tr>

@@ -1,0 +1,12 @@
+.DS_Store
+tmp/[^.]*
+log/[^.]*
+doc/api
+doc/app
+*~
+public/datafiles
+public/jobs
+config/node.monitrc
+coverage
+config/database.yml
+.autotest*

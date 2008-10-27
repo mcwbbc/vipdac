@@ -1,0 +1,17 @@
+<%= page_title("Active AWS Nodes") %>
+<br />
+<br />
+<table width="100%">
+  <tr class="row-header">
+    <th>ID</th>
+    <th>State</th>
+    <th>Reason</th>
+    <th>DNS Name</th>
+    <th>AMI</th>
+    <th>Launch Time</th>
+  </tr>
+<%= render(:partial => "aws_node", :collection => @nodes) %>
+</table>
+<br />
+<%= link_to('Back', nodes_path) %>
+

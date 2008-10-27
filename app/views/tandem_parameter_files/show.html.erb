@@ -1,0 +1,13 @@
+<%= page_title("xTandem Parameter File: #{@tandem_parameter_file.name}") %>
+<br />
+<%= link_to 'Back', tandem_parameter_files_path %>
+<br />
+<br />
+<strong>Name:</strong> <%= @tandem_parameter_file.name %><br />
+<strong>Taxonomy:</strong> <%= @tandem_parameter_file.taxon %><br />
+<strong>Enzyme:</strong> <%= @tandem_parameter_file.enzyme %><br />
+<strong>N-Term:</strong> <%= @tandem_parameter_file.n_terminal %><br />
+<strong>C-Term:</strong> <%= @tandem_parameter_file.c_terminal %><br />
+<strong>Ions:</strong> <%= @tandem_parameter_file.ion_names %><br />
+<strong>Modifications:</strong><br />
+<%= render(:partial => "modification", :collection => @tandem_parameter_file.tandem_modifications) %>

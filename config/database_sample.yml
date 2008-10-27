@@ -1,0 +1,20 @@
+login: &login
+  adapter:  mysql
+  username: root
+  password: root
+  encoding: utf8
+  socket: /tmp/mysql.sock
+
+test:
+  <<: *login
+  database: vipdac_test
+
+development:
+  <<: *login
+  database: vipdac_development
+
+production:
+  <<: *login
+  database: vipdac_production
+  password: 
+  socket: /var/run/mysqld/mysqld.sock

@@ -1,0 +1,14 @@
+<%= page_title("OMSSA Parameter Files") %>
+<%= link_to('New parameter file', new_omssa_parameter_file_path) %>
+<br />
+<br />
+<table width="100%">
+  <tr class="row-header">
+    <th>ID</th>
+    <th width="70%">Name</th>
+    <th>Action</th>
+  </tr>
+<%= render(:partial => "omssa_parameter_file", :collection => @omssa_parameter_files) %>
+</table>
+
+<%= render(:partial => "shared/pagination", :locals => { :items => @omssa_parameter_files }) %>

@@ -1,0 +1,30 @@
+<%= page_title("OMSSA Parameter File: " + @omssa_parameter_file.name)%>
+
+<%= link_to 'Back', omssa_parameter_files_path %>
+<br />
+<br />
+<strong>Name:</strong> <%= @omssa_parameter_file.name %><br />
+<strong>Database:</strong> <%= @omssa_parameter_file.database %><br />
+<strong>Enzyme:</strong> <%= OmssaOption.enzymes.invert[@omssa_parameter_file.enzyme.to_s] %><br />
+<strong>Number of Allowed Missed Cleavages:</strong> <%= @omssa_parameter_file.missed_cleavages %><br />
+<strong>Precursor Tolerance +/-:</strong> <%= @omssa_parameter_file.precursor_tol %><br />
+<strong>Product Tolerance +/-:</strong> <%= @omssa_parameter_file.product_tol %><br />
+<strong>Precursor Search:</strong> 
+		<%= OmssaOption.searches.invert["#{@omssa_parameter_file.precursor_search}"] %> <br/>
+<strong>Product Search:</strong>
+		<%= OmssaOption.searches.invert["#{@omssa_parameter_file.product_search}"] %> <br/>
+<strong>Minimum Charge to Consider Multiple Charges:</strong> <%= @omssa_parameter_file.minimum_charge %><br />
+<strong>Maximum Charge to Consider, when not 1+:</strong> <%= @omssa_parameter_file.max_charge %><br />
+<strong>Variable Modifications:</strong>
+		<% if @omssa_parameter_file.modifications.blank? %>
+			None<br/>
+		<% else %>
+			<br/>
+			<%= render :partial => "show_mods", :collection => @omssa_parameter_file.mods_as_array %>
+				
+		<% end %>
+<strong>Ions:</strong><br/>
+		<%unless @omssa_parameter_file.ions.blank? %>
+			<%= render :partial => "show_ions", :collection => @omssa_parameter_file.ions_as_array %>
+		<% end %>
+

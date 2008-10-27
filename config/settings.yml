@@ -1,0 +1,5 @@
+--- 
+aws_secret: SECRET
+aws_access: KEY
+session_key: _vipdac_session
+session_secret: 95f22032c5d0c6b9722b635bd333da45a83a0ab54201b5a22c3855d9b73054b50545290cd2cfe22676b3a03908654df56382683a9b23c21dc945cc0f66d6ae77
