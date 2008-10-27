@@ -87,7 +87,7 @@ describe Watcher do
     end
     it "should sleep if there is no message" do
       @watcher.should_receive(:fetch_message).and_return(nil)
-      @watcher.should_receive(:sleep).with(1).and_return(true)
+      @watcher.should_receive(:sleep).with(15).and_return(true)
       @watcher.check_queue
     end
   end

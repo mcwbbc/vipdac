@@ -33,7 +33,7 @@ class Watcher
     if message
       process(create_worker(convert_message_to_hash(message)), message)
     else
-      sleep(1)
+      sleep(15)
     end
   end
 

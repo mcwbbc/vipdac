@@ -94,9 +94,9 @@ ln -s /pipeline/vipdac/config/apache.conf /etc/apache2/sites-available/default
 
 # download and build monit
 cd /usr/local/src
-wget http://www.tildeslash.com/monit/dist/beta/monit-5.0_beta3.tar.gz
-tar xvfz monit-5.0_beta3.tar.gz
-cd monit-5.0_beta3
+wget http://mmonit.com/monit/dist/beta/monit-5.0_beta4.tar.gz
+tar xvfz monit-5.0_beta4.tar.gz
+cd monit-5.0_beta4
 ./configure
 make
 make install
@@ -171,6 +171,12 @@ passenger-install-apache2-module << EOF
 
 EOF
 
+# download the application from github
+cd /pipeline/
+git clone git://github.com/mcwbbc/vipdac.git
+ln -s /pipeline/vipdac/config/database_sample.yml /pipeline/vipdac/config/database.yml
+chown -R www-data:www-data /pipeline/vipdac
+
 # download, unpack and formatdb the protein databases
 cd /pipeline/dbs
 wget ftp://ftp.ebi.ac.uk/pub/databases/IPI/current/ipi.HUMAN.fasta.gz
@@ -208,12 +214,6 @@ perl /pipeline/vipdac/lib/reformat_db.pl 18.E_coli_K12.fasta 18.E_coli_K12.fasta
 /usr/local/bin/formatdb -i 122.R_norvegicus.fasta-rev -o T -n 122.R_norvegicus
 /usr/local/bin/formatdb -i 40.S_cerevisiae_ATCC_204508.fasta-rev -o T -n 40.S_cerevisiae_ATCC_204508
 /usr/local/bin/formatdb -i 18.E_coli_K12.fasta-rev -o T -n 18.E_coli_K12
-
-# download the application
-cd /pipeline/
-git clone git://github.com/mcwbbc/vipdac.git
-ln -s /pipeline/vipdac/config/database_sample.yml /pipeline/vipdac/config/database.yml
-chown -R www-data:www-data /pipeline/vipdac
 
 # create database conversions for ez2 processing
 /pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/25.H_sapiens.fasta --type=ebi

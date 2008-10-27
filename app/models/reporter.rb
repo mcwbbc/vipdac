@@ -10,7 +10,7 @@ class Reporter
         if @message
           process_head_message(@message)
         else
-          sleep(60)
+          sleep(30)
         end
       end
     end while looping_infinitely
