@@ -6,24 +6,6 @@ describe Reporter do
     @reporter = create_reporter
   end
 
-  def process_head_message(message)
-      report = build_report(message)
-      message_type = report[:type]
-      case message_type
-        when DOWNLOAD
-          set_job_download_link(report, message)
-        when JOBUNPACKING
-          job_status(report, message, "Unpacking")
-        when JOBUNPACKED
-          job_status(report, message, "Processing")
-        when START
-          update_chunk(report, message)
-        when FINISH
-          update_chunk(report, message)
-          check_job_status(report)
-      end
-  end
-
   describe "process head message" do
     before(:each) do
       @report = mock("report")
