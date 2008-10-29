@@ -91,7 +91,7 @@ describe Reporter do
       it "should complete the steps" do
         @reporter.should_receive(:fetch_created_message).and_return(nil)
         @reporter.should_receive(:fetch_head_message).and_return(nil)
-        @reporter.should_receive(:sleep).with(30).and_return(true)
+        @reporter.should_receive(:sleep).with(5).and_return(true)
         @reporter.process_loop(false)
       end
     end

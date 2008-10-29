@@ -3,7 +3,7 @@ class Watcher
   include Utilities
 
   def fetch_message
-    message = Aws.node_queue.receive(1800) # we have thirty minutes to process this message, or it goes back on the queue
+    message = Aws.node_queue.receive(600) # we have ten minutes to process this message, or it goes back on the queue
     if message && message.body.blank?
       message.delete #delete it if it's blank... might cause issues
       return nil

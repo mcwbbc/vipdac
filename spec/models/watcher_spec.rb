@@ -9,7 +9,7 @@ describe Watcher do
     it "should get a message from the queue" do
       @message = mock("message", :body => "body")
       @queue = mock("queue")
-      @queue.should_receive(:receive).with(1800).and_return(@message)
+      @queue.should_receive(:receive).with(600).and_return(@message)
       Aws.should_receive(:node_queue).and_return(@queue)
       message = @watcher.fetch_message
       message.body.should == "body"
@@ -17,7 +17,7 @@ describe Watcher do
 
     it "should return nil if the message doesn't exist" do
       @queue = mock("queue")
-      @queue.should_receive(:receive).with(1800).and_return(nil)
+      @queue.should_receive(:receive).with(600).and_return(nil)
       Aws.should_receive(:node_queue).and_return(@queue)
       message = @watcher.fetch_message
       message.should be_nil
@@ -27,7 +27,7 @@ describe Watcher do
       @message = mock("message", :body => "")
       @message.should_receive(:delete).and_return(true)
       @queue = mock("queue")
-      @queue.should_receive(:receive).with(1800).and_return(@message)
+      @queue.should_receive(:receive).with(600).and_return(@message)
       Aws.should_receive(:node_queue).and_return(@queue)
       message = @watcher.fetch_message
       message.should be_nil
