@@ -29,7 +29,12 @@ class Job < ActiveRecord::Base
   end
 
   def stuck?
-    chunks.complete.first(:order => 'finished_at DESC').finished_at < 10.minutes.ago.to_f
+    chunk = chunks.complete.first(:order => 'finished_at DESC')
+    if chunk
+      chunk.finished_at < 10.minutes.ago.to_f
+    else
+      false
+    end
   end
 
   def resend_stuck_chunks

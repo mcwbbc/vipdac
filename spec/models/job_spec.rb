@@ -25,16 +25,21 @@ describe Job do
   describe "stuck?" do
     before(:each) do
       @chunk = mock_model(Chunk)
-      complete = mock("complete")
-      complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(@chunk)
-      chunks = mock("chunks", :complete => complete)
-      @job.should_receive(:chunks).and_return(chunks)
+      @complete = mock("complete")
+      @chunks = mock("chunks", :complete => @complete)
+      @job.should_receive(:chunks).and_return(@chunks)
+    end
+    it "should be false if no chunks" do
+      @complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(nil)
+      @job.stuck?.should be_false
     end
     it "should be true if it finished more than 10 minutes ago" do
+      @complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(@chunk)
       @chunk.should_receive(:finished_at).and_return(11.minutes.ago.to_f)
       @job.stuck?.should be_true
     end
     it "should be false if it finished less than 10 minutes ago" do
+      @complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(@chunk)
       @chunk.should_receive(:finished_at).and_return(5.minutes.ago.to_f)
       @job.stuck?.should be_false
     end
