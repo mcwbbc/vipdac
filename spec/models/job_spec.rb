@@ -14,6 +14,44 @@ describe Job do
     end
   end
 
+  describe "incomplete" do
+    it "should return jobs that aren't complete" do
+      job = mock_model(Job)
+      Job.should_receive(:find).with(:all, :conditions => ["status != ?", "Complete"]).and_return([job])
+      Job.incomplete.should == [job]
+    end
+  end
+
+  describe "stuck?" do
+    before(:each) do
+      @chunk = mock_model(Chunk)
+      complete = mock("complete")
+      complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(@chunk)
+      chunks = mock("chunks", :complete => complete)
+      @job.should_receive(:chunks).and_return(chunks)
+    end
+    it "should be true if it finished more than 10 minutes ago" do
+      @chunk.should_receive(:finished_at).and_return(11.minutes.ago.to_f)
+      @job.stuck?.should be_true
+    end
+    it "should be false if it finished less than 10 minutes ago" do
+      @chunk.should_receive(:finished_at).and_return(5.minutes.ago.to_f)
+      @job.stuck?.should be_false
+    end
+  end
+
+  describe "resend_stuck_chunks" do
+    it "should resend process messages for incomplete chunks" do
+      chunk = mock_model(Chunk)
+      chunk.should_receive(:send_process_message).and_return(true)
+      incomplete = [chunk]
+      chunks = mock("chunks", :incomplete => incomplete)
+      @job.should_receive(:chunks).and_return(chunks)
+      @job.resend_stuck_chunks
+    end
+  end
+
+
   describe "when displaying chunk times" do
     describe "maximum" do
       it "should show the processing time" do

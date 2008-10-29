@@ -10,6 +10,7 @@ class Reporter
         if @message
           process_head_message(@message)
         else
+          check_for_stuck_chunks
           sleep(5)
         end
       end
@@ -36,6 +37,12 @@ class Reporter
           update_chunk(report, message)
           check_job_status(report)
       end
+  end
+
+  def check_for_stuck_chunks
+    Job.incomplete.each do |job|
+      job.resend_stuck_chunks if job.stuck?
+    end
   end
 
   def process_created_message(message)

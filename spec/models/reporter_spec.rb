@@ -6,6 +6,37 @@ describe Reporter do
     @reporter = create_reporter
   end
 
+  describe "check for stuck chunks" do
+    it "should find all incomplete jobs" do
+      Job.should_receive(:incomplete).and_return([])
+      @reporter.check_for_stuck_chunks
+    end
+
+    describe "given an incomplete job" do
+      it "should check if the job is stuck?" do
+        job = mock_model(Job)
+        job.should_receive(:stuck?).and_return(true)
+        job.should_receive(:resend_stuck_chunks).and_return(true)
+        jobs = [job]
+        Job.should_receive(:incomplete).and_return(jobs)
+        @reporter.check_for_stuck_chunks
+      end
+
+      describe "if stuck" do
+        it "should send process messages for all non finished chunks" do
+          j1 = mock_model(Job)
+          j1.should_receive(:stuck?).and_return(true)
+          j1.should_receive(:resend_stuck_chunks).and_return(true)
+          j2 = mock_model(Job)
+          j2.should_receive(:stuck?).and_return(false)
+          jobs = [j1, j2]
+          Job.should_receive(:incomplete).and_return(jobs)
+          @reporter.check_for_stuck_chunks
+        end
+      end
+    end
+  end
+
   describe "process head message" do
     before(:each) do
       @report = mock("report")
@@ -73,6 +104,7 @@ describe Reporter do
       it "should complete the steps" do
         @reporter.should_receive(:fetch_created_message).and_return(nil)
         @reporter.should_receive(:fetch_head_message).and_return(nil)
+        @reporter.should_receive(:check_for_stuck_chunks).and_return(true)
         @reporter.should_receive(:sleep).with(5).and_return(true)
         @reporter.process_loop(false)
       end

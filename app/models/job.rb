@@ -13,6 +13,31 @@ class Job < ActiveRecord::Base
 
   after_destroy :remove_s3_files
 
+  class << self
+
+    def page(page=1, limit=10)
+      paginate(:page => page,
+               :order => 'created_at DESC',
+               :per_page => limit
+      )
+    end
+
+    def incomplete
+      find(:all, :conditions => ["status != ?", "Complete"])
+    end
+
+  end
+
+  def stuck?
+    chunks.complete.first(:order => 'finished_at DESC').finished_at < 10.minutes.ago.to_f
+  end
+
+  def resend_stuck_chunks
+    chunks.incomplete.each do |chunk|
+      chunk.send_process_message
+    end
+  end
+
   def minimum_chunk_time
     min = chunks.minimum('finished_at-started_at').to_f
     (min < 0) ? 0 : min
@@ -58,13 +83,6 @@ class Job < ActiveRecord::Base
     self.created_at = Time.now
     self.datafile = "pending-jobs/#{zipfile_name}"
     self.hash_key = Digest::SHA1.hexdigest(self.object_id.to_s+self.created_at.to_s)
-  end
-
-  def self.page(page=1, limit=10)
-    paginate(:page => page,
-             :order => 'created_at DESC',
-             :per_page => limit
-    )
   end
 
   def upload_manifest

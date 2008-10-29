@@ -21,6 +21,21 @@ describe Chunk do
     end
   end
 
+  describe "named scopes" do
+    it "should have a 'pending' named scope where started_at is zero" do
+      Chunk.should have_named_scope(:pending, {:conditions => ['started_at = ?', 0]})
+    end
+    it "should have a 'pending' named scope where started_at is > 0 and finished_at is zero" do
+      Chunk.should have_named_scope(:working, {:conditions => ['started_at > ? AND finished_at = ?', 0, 0]})
+    end
+    it "should have a 'pending' named scope where started_at and finished_at are > 0" do
+      Chunk.should have_named_scope(:complete, {:conditions => ['started_at > ? AND finished_at > ?', 0, 0]})
+    end
+    it "should have a 'incomplete' named scope where finished_at = 0" do
+      Chunk.should have_named_scope(:incomplete, {:conditions => ['finished_at = ?', 0]})
+    end
+  end
+
   describe "status" do
     it "should be 'Created' if we haven't started" do
       @chunk.should_receive(:started_at).and_return(0)
