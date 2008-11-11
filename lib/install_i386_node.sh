@@ -12,6 +12,7 @@ mkdir tandem
 # update the image, install needed packages
 apt-get -y update
 apt-get -y upgrade
+apt-get -y dist-upgrade
 DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libevent-dev autoconf automake zlib1g-dev libxml2-dev libssl-dev ruby1.8-dev irb1.8 irb rdoc1.8 libreadline-ruby1.8 sharutils flex bison rubygems git-core apache2 mysql-server libmysqlclient15-dev apache2-prefork-dev libxml-smart-perl libxml-simple-perl libxml-sax-expat-perl libyaml-perl libarchive-zip-perl libtext-csv-perl
 
 #download and build beanstalkd
