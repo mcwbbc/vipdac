@@ -6,6 +6,7 @@ class Monitrc
       logger.debug("Creating monitrc files for #{workers} workers")
       write_node_file
       symlink_reporter if master?
+      symlink_beanstalkd if master?
     end
 
     def configuration
@@ -40,6 +41,11 @@ class Monitrc
     def symlink_reporter
       File.symlink("/pipeline/vipdac/config/reporter.monitrc", "/etc/monit/reporter.monitrc") 
       File.symlink("/pipeline/vipdac/config/init-d-reporter", "/etc/init.d/reporter")
+    end
+
+    def symlink_beanstalkd
+      File.symlink("/pipeline/vipdac/config/beanstalkd.monitrc", "/etc/monit/beanstalkd.monitrc") 
+      File.symlink("/pipeline/vipdac/config/init-d-beanstalkd", "/etc/init.d/beanstalkd")
     end
 
   end

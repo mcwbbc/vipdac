@@ -1,28 +1,22 @@
 #!/bin/bash
 #
-# node
+# beanstalkd
 #
 # chkconfig: - 85 15
-# description: start, stop, restart reporter
+# description: start, stop, restart beanstalkd
 #              
 # started by monit
 
 RETVAL=0
 
-if ! [ $2 ]
-then
-node_id=1
-else
-node_id=$2
-fi 
-
 start() {
-cd /pipeline/vipdac/lib && /pipeline/vipdac/lib/node_startup.rb $node_id &
+/usr/local/bin/beanstalkd -d
+ps aux | grep '[b]eanstalkd' | awk '{print $2}' > /pipeline/beanstalkd.pid
 }
 
 stop() {
-kill -9 `cat /pipeline/node-$node_id.pid`
-rm /pipeline/node-$node_id.pid
+kill -9 `cat /pipeline/beanstalkd.pid`
+rm /pipeline/beanstalkd.pid
 }
 
 case "$1" in
@@ -41,9 +35,12 @@ case "$1" in
       RETVAL=$?
   ;;
     *)
-      echo "Usage: node {start|stop|restart} node_number"
+      echo "Usage: beanstalkd {start|stop|restart}"
       exit 1
   ;;
 esac      
 
 exit $RETVAL
+
+
+

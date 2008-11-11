@@ -13,6 +13,9 @@
 
 rm -rf /etc/monit/reporter*
 rm -rf /etc/init.d/reporter
+rm -rf /etc/monit/beanstalkd*
+rm -rf /etc/init.d/beanstalkd
+
 cd /pipeline/vipdac/lib
 /pipeline/vipdac/lib/build_monitrc.rb
 rm -rf /pipeline/*.pid
@@ -23,7 +26,7 @@ sudo rake db:create:all RAILS_ENV=production
 sudo rake db:migrate RAILS_ENV=production
 chmod 666 /pipeline/vipdac/log/production.log
 sleep 1
-echo "Loading node..."
+echo "Loading application..."
 /usr/local/bin/monit
 
 exit 0

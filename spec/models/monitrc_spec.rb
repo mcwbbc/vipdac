@@ -13,16 +13,18 @@ describe Monitrc do
 
     describe "as a worker" do
       it "should complete the steps" do
-        Monitrc.should_receive(:master?).and_return(false)
+        Monitrc.should_receive(:master?).twice.and_return(false)
         Monitrc.should_not_receive(:symlink_reporter)
+        Monitrc.should_not_receive(:symlink_beanstalkd)
         Monitrc.run
       end
     end
 
     describe "as a master" do
       it "should complete the steps" do
-        Monitrc.should_receive(:master?).and_return(true)
+        Monitrc.should_receive(:master?).twice.and_return(true)
         Monitrc.should_receive(:symlink_reporter).and_return(true)
+        Monitrc.should_receive(:symlink_beanstalkd).and_return(true)
         Monitrc.run
       end
     end
@@ -108,6 +110,14 @@ describe Monitrc do
       File.should_receive(:symlink).with("/pipeline/vipdac/config/reporter.monitrc", "/etc/monit/reporter.monitrc").and_return(true)
       File.should_receive(:symlink).with("/pipeline/vipdac/config/init-d-reporter", "/etc/init.d/reporter").and_return(true)
       Monitrc.symlink_reporter
+    end
+  end
+
+  describe "symlink beanstalkd" do
+    it "should set the symlinks for the beanstalkd" do
+      File.should_receive(:symlink).with("/pipeline/vipdac/config/beanstalkd.monitrc", "/etc/monit/beanstalkd.monitrc").and_return(true)
+      File.should_receive(:symlink).with("/pipeline/vipdac/config/init-d-beanstalkd", "/etc/init.d/beanstalkd").and_return(true)
+      Monitrc.symlink_beanstalkd
     end
   end
 

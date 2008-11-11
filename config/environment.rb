@@ -31,7 +31,8 @@ Rails::Initializer.run do |config|
   config.gem 'right_http_connection'
   config.gem 'mislav-will_paginate', :version => '~> 2.3.2', :lib => 'will_paginate', :source => 'http://gems.github.com'
   config.gem 'rubyist-aasm', :version => '~> 2.0.2', :lib => 'aasm', :source => 'http://gems.github.com'
-
+  config.gem 'beanstalk-client', :version => '~> 1.0.2'
+  
   # Only load the plugins named here, in the order given. By default, all plugins 
   # in vendor/plugins are loaded in alphabetical order.
   # :all can be used as a placeholder for all plugins not explicitly named

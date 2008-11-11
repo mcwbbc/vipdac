@@ -14,6 +14,16 @@ apt-get -y update
 apt-get -y upgrade
 DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential zlib1g-dev libxml2-dev libssl-dev ruby1.8-dev irb1.8 irb rdoc1.8 libreadline-ruby1.8 sharutils flex bison rubygems git-core apache2 mysql-server libmysqlclient15-dev apache2-prefork-dev libxml-smart-perl libxml-simple-perl libxml-sax-expat-perl libyaml-perl libarchive-zip-perl libtext-csv-perl
 
+
+#download and build beanstalkd
+cd /usr/local/src
+git clone git://github.com/kr/beanstalkd.git  
+cd beanstalkd
+./buildconf.sh
+./configure
+make
+mv beanstalkd /usr/local/bin/
+
 # download and copy formatdb
 cd /usr/local/src
 wget ftp://ftp.ncbi.nih.gov/blast/executables/LATEST/blast-2.2.18-ia32-linux.tar.gz
@@ -158,12 +168,8 @@ gem install rspec-rails --no-rdoc --no-ri
 gem install rspec-rails --no-rdoc --no-ri
 gem install hoe --no-rdoc --no-ri
 gem install hoe --no-rdoc --no-ri
-gem install diff-lcs --no-rdoc --no-ri
-gem install diff-lcs --no-rdoc --no-ri
-gem install syntax --no-rdoc --no-ri
-gem install syntax --no-rdoc --no-ri
-gem install spicycode-rcov --source http://gems.github.com/ --no-rdoc --no-ri
-gem install spicycode-rcov --source http://gems.github.com/ --no-rdoc --no-ri
+gem install beanstalk-client --no-rdoc --no-ri
+gem install beanstalk-client --no-rdoc --no-ri
 
 # install the ruby/apache bridge (this will feed the enters to run it from a script)
 passenger-install-apache2-module << EOF
