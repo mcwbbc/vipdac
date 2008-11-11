@@ -38,7 +38,7 @@ class Unpacker
   end
 
   def split_original_mgf
-    # split the mgf file from the zip into 200 ion parts
+    # split the mgf file from the zip into message[:spectra_count] spectra parts (defaults to 200)
     ions = 0
     filecount = 0
     input_name = input_file(mgf_filename).split('.').first
@@ -54,7 +54,7 @@ class Unpacker
       outfile = "#{mgf_dir}/#{input_name}-#{filenumber}.mgf"
       text << line
       ions+=1 if line =~ /END IONS/
-      if (ions == 200)
+      if (ions == message[:spectra_count])
         write_file(outfile, text)
         ions = 0
         filecount+=1

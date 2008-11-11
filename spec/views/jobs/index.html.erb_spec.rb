@@ -22,6 +22,7 @@ describe "/jobs/index.html.erb" do
       job.stub!(:average_chunk_time).and_return(100.0)
       job.stub!(:name).and_return("name")
       job.stub!(:mgf_file_name).and_return("mgf_file_name")
+      job.stub!(:spectra_count).and_return(200)
 
       @jobs << job
     end 

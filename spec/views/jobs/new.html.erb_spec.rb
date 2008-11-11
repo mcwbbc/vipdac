@@ -16,6 +16,7 @@ describe "/jobs/new.html.erb" do
     @job.stub!(:new_record?).and_return(true)
     @job.stub!(:name).and_return("")
     @job.stub!(:parameter_file_id).and_return(nil)
+    @job.stub!(:spectra_count).and_return(200)
     @job.stub!(:errors).and_return(errors)
     @job.stub!(:searcher).and_return("tandem")
 

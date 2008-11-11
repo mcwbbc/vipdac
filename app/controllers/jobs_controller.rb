@@ -16,7 +16,7 @@ class JobsController < ApplicationController
 
   # GET /jobs/new
   def new
-    @job = Job.new
+    @job = Job.new(:spectra_count => 200)
     @parameter_files = OmssaParameterFile.find(:all, :order => 'name')
   end
 

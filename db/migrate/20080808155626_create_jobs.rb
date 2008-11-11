@@ -8,6 +8,7 @@ class CreateJobs < ActiveRecord::Migration
       t.string :datafile
       t.string :hash_key
       t.string :link, :default => ""
+      t.integer :spectra_count
       t.float :launched_at, :limit => 53, :default => 0
       t.float :finished_at, :limit => 53, :default => 0
       t.string :mgf_file_name

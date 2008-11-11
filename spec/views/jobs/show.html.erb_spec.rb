@@ -13,6 +13,7 @@ describe "/jobs/show.html.erb" do
     @job.stub!(:launched_at).and_return(Time.now.to_f)
     @job.stub!(:finished_at).and_return(Time.now.to_f)
     @job.stub!(:name).and_return("name")
+    @job.stub!(:spectra_count).and_return(200)
 
     assigns[:job] = @job
   end
