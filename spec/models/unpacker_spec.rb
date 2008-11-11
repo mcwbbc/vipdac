@@ -180,6 +180,26 @@ describe Unpacker do
       @unpacker.split_original_mgf
     end
 
+    it "should write two files for more than 100 ions" do
+      @unpacker = create_unpacker(:spectra_count => 100)
+      @unpacker.stub!(:mgf_filename).and_return("filename.mgf")
+      file_contents = ["BEGIN IONS","TITLE=060121Yrasprg051025-ct4.1451.1451.1.dta","CHARGE=1+","PEPMASS=707.2231","395.1292 32126.4","END IONS"]
+      big_file = []
+      101.times do
+        big_file << file_contents
+      end
+      big_file.flatten!
+      File.should_receive(:open).with("filename.mgf").and_return(big_file)
+      outfile = mock("outfile")
+      outfile.should_receive(:write).with(big_file[0..599].to_s).and_return(true)
+      File.should_receive(:open).with(/unpack\/mgfs\/filename-0000.mgf/, 'w').and_yield(outfile)
+
+      outfile2 = mock("outfile2")
+      outfile2.should_receive(:write).with(big_file[600..605].to_s).and_return(true)
+      File.should_receive(:open).with(/unpack\/mgfs\/filename-0001.mgf/, 'w').and_yield(outfile2)
+      @unpacker.split_original_mgf
+    end
+
   end
 
   describe "writing the output file" do
@@ -193,7 +213,7 @@ describe Unpacker do
 
   protected
     def create_unpacker(options = {})
-      record = Unpacker.new({:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :searcher => "omssa"}.merge(options))
+      record = Unpacker.new({:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :searcher => "omssa", :spectra_count => 200}.merge(options))
       record
     end
 

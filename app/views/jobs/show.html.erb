@@ -5,6 +5,7 @@
 <br />
 Status: <%=h @job.status %><br />
 Searcher: <%=h SEARCHER_HASH[@job.searcher] %><br />
+Spectra Count: <%=h @job.spectra_count %><br />
 Processing Time (in seconds): <%=h age_in_seconds(@job.launched_at, @job.finished_at) %><br />
 Progress: <%= complete_bar(@job) %><br /> 
 Total chunks: <%= @job.chunks.empty? ? 0 : @job.chunks.first.chunk_count %><br />
