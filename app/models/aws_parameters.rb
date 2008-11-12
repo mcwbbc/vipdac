@@ -22,6 +22,7 @@ class AwsParameters
 
     def get_ec2_meta_data(key)
       # This is the address an EC2 instance calls to get user-data information
+      key = "public-keys/" if key == "public-keys"
       response = Net::HTTP.get_response(URI.parse("http://#{AMAZON_DATA_URL}/latest/meta-data/#{key}"))
       case response
       when Net::HTTPSuccess then 
@@ -33,7 +34,7 @@ class AwsParameters
 
     def run
       # Get and parse user-data (EC2 launch config)
-      metadata = ['ami-id', 'instance-id', 'public-hostname', 'instance-type']
+      metadata = ['ami-id', 'instance-id', 'public-hostname', 'instance-type', 'local-hostname', 'local-ipv4', 'public-keys']
       config_str = self.get_ec2_user_data
       config = {}
       config_str.split(',').each{ |s| k,v = s.split('='); config[k] = v.chomp; }

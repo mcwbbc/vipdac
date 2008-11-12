@@ -1,6 +1,6 @@
 class Aws
 
-  INSTANCE_WORKERS = {'m1.small' => 1, 'c1.medium' => 4}
+  INSTANCE_WORKERS = {'m1.small' => 1, 'c1.medium' => 2}
 
   class << self
     def amis
@@ -41,6 +41,26 @@ class Aws
 
     def ami_id
       keys["ami-id"]
+    end
+
+    def local_hostname
+      keys["local-hostname"]
+    end
+
+    def local_ipv4
+      keys["local-ipv4"]
+    end
+
+    def public_keys
+      keys["public-keys"]
+    end
+
+    def keypair
+      if (key = /0=(.+)/.match(public_keys))
+        key[1] 
+      else
+        nil
+      end
     end
 
     def keys

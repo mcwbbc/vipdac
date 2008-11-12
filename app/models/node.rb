@@ -6,17 +6,25 @@ class Node < ActiveRecord::Base
 
   named_scope :running, :conditions => ['active = ?', true], :order => 'created_at'
 
-  def self.listing
-    Aws.ec2.describe_instances    
+  class << self
+    def listing
+      Aws.ec2.describe_instances    
+    end
+
+    def active_nodes
+      active = listing.inject([]) { |start, node| start << node if ((node[:aws_state] == "running") || (node[:aws_state] == "pending")); start }
+    end
   end
 
   def launch
-    instance = Aws.ec2.launch_instances(Aws.ami_id, {:instance_type => instance_type, :key_name => 'ec2-keypair', :user_data => user_data}).first
+    instance = Aws.ec2.launch_instances(Aws.ami_id, launch_parameters).first
     self.instance_id = instance[:aws_instance_id]
   end
 
-  def self.active_nodes
-    active = listing.inject([]) { |start, node| start << node if ((node[:aws_state] == "running") || (node[:aws_state] == "pending")); start }
+  def launch_parameters
+    parameters = {:instance_type => instance_type, :user_data => user_data}
+    parameters[:key_name] = Aws.keypair if Aws.keypair
+    parameters
   end
 
   def user_data
