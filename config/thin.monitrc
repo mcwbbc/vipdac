@@ -1,7 +1,7 @@
 check process thin
     with pidfile /pipeline/thin.pid
-    start program = "/usr/local/bin/ruby /usr/local/bin/thin start -d -e production -p 80 -P /pipeline/thin.pid -c /pipeline/vipdac"
-    stop program  = "/usr/local/bin/ruby /usr/local/bin/thin stop -P /pipeline/thin.pid"
+    start program = "/usr/bin/ruby /usr/bin/thin start -d -e production -p 80 -P /pipeline/thin.pid -c /pipeline/vipdac"
+    stop program  = "/usr/bin/ruby /usr/bin/thin stop -P /pipeline/thin.pid"
     if totalmem > 90.0 MB for 5 cycles then restart
     if failed port 80 then restart
     if cpu usage > 95% for 3 cycles then restart
