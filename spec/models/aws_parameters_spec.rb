@@ -23,24 +23,39 @@ describe AwsParameters do
   end
     
   describe "get ec2 meta" do
-    before(:each) do
-      @uri = mock("uri")
-      @key = "key"
-      URI.should_receive(:parse).with("http://amazon-user-data.local/latest/meta-data/#{@key}").and_return(@uri)
+
+    describe "public-keys" do
+      it "should return 'body' for a successful load adding a / to the key" do
+        @uri = mock("uri")
+        @key = "public-keys"
+        URI.should_receive(:parse).with("http://amazon-user-data.local/latest/meta-data/#{@key}/").and_return(@uri)
+        @response = Net::HTTPSuccess.new(1, 200, "OK")
+        @response.should_receive(:body).and_return("body")
+        Net::HTTP.should_receive(:get_response).with(@uri).and_return(@response)
+        AwsParameters.get_ec2_meta_data(@key).should == "body"
+      end
     end
 
-    it "should return 'body' for a successful load" do
-      @response = Net::HTTPSuccess.new(1, 200, "OK")
-      @response.should_receive(:body).and_return("body")
-      Net::HTTP.should_receive(:get_response).with(@uri).and_return(@response)
-      AwsParameters.get_ec2_meta_data(@key).should == "body"
-    end
+    describe "regular keytype" do
+      before(:each) do
+        @uri = mock("uri")
+        @key = "key"
+        URI.should_receive(:parse).with("http://amazon-user-data.local/latest/meta-data/#{@key}").and_return(@uri)
+      end
 
-    it "should return '' for a failed load" do
-      response = mock("response")
-      response.should_not_receive(:body)
-      Net::HTTP.should_receive(:get_response).with(@uri).and_return(response)
-      AwsParameters.get_ec2_meta_data(@key).should == ""
+      it "should return 'body' for a successful load" do
+        @response = Net::HTTPSuccess.new(1, 200, "OK")
+        @response.should_receive(:body).and_return("body")
+        Net::HTTP.should_receive(:get_response).with(@uri).and_return(@response)
+        AwsParameters.get_ec2_meta_data(@key).should == "body"
+      end
+
+      it "should return '' for a failed load" do
+        response = mock("response")
+        response.should_not_receive(:body)
+        Net::HTTP.should_receive(:get_response).with(@uri).and_return(response)
+        AwsParameters.get_ec2_meta_data(@key).should == ""
+      end
     end
   end
     
@@ -52,7 +67,7 @@ describe AwsParameters do
   describe "run" do
     before(:each) do
       AwsParameters.should_receive(:get_ec2_user_data).and_return("hello=there,one=two")
-      ['ami-id', 'instance-id', 'public-hostname', 'instance-type'].each do |md|
+      ['ami-id', 'instance-id', 'public-hostname', 'instance-type', 'local-hostname', 'local-ipv4', 'public-keys'].each do |md|
         AwsParameters.should_receive(:get_ec2_meta_data).with(md).and_return(md)
       end
       @config = AwsParameters.run

@@ -115,7 +115,9 @@ describe Aws do
       Aws.stub!(:ec2).and_return(@ec2)
       Aws.stub!(:sqs).and_return(@sqs)
       Aws.stub!(:s3i).and_return(@s3i)
-      Aws.stub!(:keys).and_return({'aws_access' => 'access', 'aws_secret' => 'secret', 'public-hostname' => 'hostname', 'instance-id' => 'instance-id', 'instance-type' => 'instance-type'})
+      Aws.stub!(:keys).and_return({'aws_access' => 'access', 'aws_secret' => 'secret', 'public-hostname' => 'hostname',
+                                   'instance-id' => 'instance-id', 'instance-type' => 'instance-type',
+                                   'local-hostname' => 'local-hostname', 'local-ipv4' => 'local-ipv4', 'public-keys' => '0=ec2-keypair'})
     end
     describe "current hostname" do
       it "should be 'test' for test environment" do
@@ -140,6 +142,46 @@ describe Aws do
       end
     end
 
+    describe "local-hostname" do
+      it "should be the local-hostname" do
+        Aws.local_hostname.should == "local-hostname"
+      end
+    end
+
+    describe "local-ipv4" do
+      it "should be the local-ipv4" do
+        Aws.local_ipv4.should == "local-ipv4"
+      end
+    end
+
+    describe "public-keys" do
+      it "should be the public-keys" do
+        Aws.public_keys.should == "0=ec2-keypair"
+      end
+    end
+
+    describe "keypair" do
+      it "should be the keypair name if it exists" do
+        Aws.stub!(:public_keys).and_return("0=ec2-keypair")
+        Aws.keypair.should == "ec2-keypair"
+      end
+
+      it "should be blank for odd name" do
+        Aws.stub!(:public_keys).and_return("ec2-keypair")
+        Aws.keypair.should be_nil
+      end
+
+      it "should be blank for empty string" do
+        Aws.stub!(:public_keys).and_return("")
+        Aws.keypair.should be_nil
+      end
+
+      it "should be blank for nil" do
+        Aws.stub!(:public_keys).and_return(nil)
+        Aws.keypair.should be_nil
+      end
+    end
+
     describe "amis" do
       it "should return an ami for i386 with id ami-12345" do
         Aws.stub!(:ami_id).and_return("ami-12345")
@@ -150,7 +192,7 @@ describe Aws do
     describe "workers" do
       it "should return a number of wokers based on the instance type" do
         Aws.workers("m1.small").should == 1
-        Aws.workers("c1.medium").should == 4
+        Aws.workers("c1.medium").should == 2
       end
     end
 
