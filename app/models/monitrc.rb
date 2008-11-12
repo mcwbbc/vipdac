@@ -7,6 +7,7 @@ class Monitrc
       write_node_file
       symlink_reporter if master?
       symlink_beanstalkd if master?
+      symlink_thin if master?
     end
 
     def configuration
@@ -46,6 +47,10 @@ class Monitrc
     def symlink_beanstalkd
       File.symlink("/pipeline/vipdac/config/beanstalkd.monitrc", "/etc/monit/beanstalkd.monitrc") 
       File.symlink("/pipeline/vipdac/config/init-d-beanstalkd", "/etc/init.d/beanstalkd")
+    end
+
+    def symlink_thin
+      File.symlink("/pipeline/vipdac/config/thin.monitrc", "/etc/monit/thin.monitrc") 
     end
 
   end

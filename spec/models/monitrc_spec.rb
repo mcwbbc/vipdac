@@ -13,18 +13,20 @@ describe Monitrc do
 
     describe "as a worker" do
       it "should complete the steps" do
-        Monitrc.should_receive(:master?).twice.and_return(false)
+        Monitrc.should_receive(:master?).exactly(3).times.and_return(false)
         Monitrc.should_not_receive(:symlink_reporter)
         Monitrc.should_not_receive(:symlink_beanstalkd)
+        Monitrc.should_not_receive(:symlink_thin)
         Monitrc.run
       end
     end
 
     describe "as a master" do
       it "should complete the steps" do
-        Monitrc.should_receive(:master?).twice.and_return(true)
+        Monitrc.should_receive(:master?).exactly(3).times.and_return(true)
         Monitrc.should_receive(:symlink_reporter).and_return(true)
         Monitrc.should_receive(:symlink_beanstalkd).and_return(true)
+        Monitrc.should_receive(:symlink_thin).and_return(true)
         Monitrc.run
       end
     end
@@ -118,6 +120,13 @@ describe Monitrc do
       File.should_receive(:symlink).with("/pipeline/vipdac/config/beanstalkd.monitrc", "/etc/monit/beanstalkd.monitrc").and_return(true)
       File.should_receive(:symlink).with("/pipeline/vipdac/config/init-d-beanstalkd", "/etc/init.d/beanstalkd").and_return(true)
       Monitrc.symlink_beanstalkd
+    end
+  end
+
+  describe "symlink thin" do
+    it "should set the symlinks for thin" do
+      File.should_receive(:symlink).with("/pipeline/vipdac/config/thin.monitrc", "/etc/monit/thin.monitrc").and_return(true)
+      Monitrc.symlink_thin
     end
   end
 
