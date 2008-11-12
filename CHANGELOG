@@ -1,0 +1,9 @@
+*(November 12th, 2008)*
+
+* Remove apache web server and replace with thin
+
+*(November 11th, 2008)*
+
+* Add beanstalkd queue for move away from SQS
+* Add spectra count per chunk to jobs to allow smaller chunks for difficult searches
+

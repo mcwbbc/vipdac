@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# CHANGELOG
+# 11/12/2008
+# remove apache, add thin as the web server
+#
+# 11/11/2008
+# do a dist-upgrade for packages
+# add beanstalkd 
+
 # build the directory structure
 cd /
 mkdir pipeline
@@ -13,7 +21,7 @@ mkdir tandem
 apt-get -y update
 apt-get -y upgrade
 apt-get -y dist-upgrade
-DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libevent-dev autoconf automake zlib1g-dev libxml2-dev libssl-dev ruby1.8-dev irb1.8 irb rdoc1.8 libreadline-ruby1.8 sharutils flex bison rubygems git-core apache2 mysql-server libmysqlclient15-dev apache2-prefork-dev libxml-smart-perl libxml-simple-perl libxml-sax-expat-perl libyaml-perl libarchive-zip-perl libtext-csv-perl
+DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libevent-dev autoconf automake zlib1g-dev libxml2-dev libssl-dev ruby1.8-dev irb1.8 irb rdoc1.8 libreadline-ruby1.8 sharutils flex bison rubygems git-core mysql-server libmysqlclient15-dev libxml-smart-perl libxml-simple-perl libxml-sax-expat-perl libyaml-perl libarchive-zip-perl libtext-csv-perl
 
 #download and build beanstalkd
 cd /usr/local/src
@@ -99,10 +107,6 @@ EOF
 patch -p0 < patchfile
 rm patchfile
 
-# link the apache config
-rm /etc/apache2/sites-available/default
-ln -s /pipeline/vipdac/config/apache.conf /etc/apache2/sites-available/default
-
 # download and build monit
 cd /usr/local/src
 wget http://mmonit.com/monit/dist/beta/monit-5.0_beta4.tar.gz
@@ -158,8 +162,6 @@ gem install rubyzip --no-rdoc --no-ri
 gem install rubyzip --no-rdoc --no-ri
 gem install mysql --no-rdoc --no-ri
 gem install mysql --no-rdoc --no-ri
-gem install passenger --no-rdoc --no-ri
-gem install passenger --no-rdoc --no-ri
 gem install rails --no-rdoc --no-ri
 gem install rails --no-rdoc --no-ri
 gem install rubyist-aasm mislav-will_paginate --source http://gems.github.com/ --no-rdoc --no-ri
@@ -171,12 +173,8 @@ gem install hoe --no-rdoc --no-ri
 gem install hoe --no-rdoc --no-ri
 gem install beanstalk-client --no-rdoc --no-ri
 gem install beanstalk-client --no-rdoc --no-ri
-
-# install the ruby/apache bridge (this will feed the enters to run it from a script)
-passenger-install-apache2-module << EOF
-
-
-EOF
+gem install thin --no-rdoc --no-ri
+gem install thin --no-rdoc --no-ri
 
 # download the application from github
 cd /pipeline/
