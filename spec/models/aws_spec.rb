@@ -160,24 +160,25 @@ describe Aws do
       end
     end
 
+    describe "keypairs" do
+      it "should return an empty array for an exception" do
+        @ec2.should_receive(:describe_key_pairs).and_throw(Exception)
+        Aws.keypairs.should == []
+      end
+      it "should return an array of hashes" do
+        @ec2.should_receive(:describe_key_pairs).and_return([{:aws_fingerprint=> "01:02", :aws_key_name=>"key-1"}])
+        Aws.keypairs.should == [{:aws_fingerprint=> "01:02", :aws_key_name=>"key-1"}]
+      end
+    end
+
     describe "keypair" do
       it "should be the keypair name if it exists" do
-        Aws.stub!(:public_keys).and_return("0=ec2-keypair")
-        Aws.keypair.should == "ec2-keypair"
-      end
-
-      it "should be blank for odd name" do
-        Aws.stub!(:public_keys).and_return("ec2-keypair")
-        Aws.keypair.should be_nil
-      end
-
-      it "should be blank for empty string" do
-        Aws.stub!(:public_keys).and_return("")
-        Aws.keypair.should be_nil
+        Aws.stub!(:keypairs).and_return([{:aws_fingerprint=> "01:02", :aws_key_name=>"key-1"}])
+        Aws.keypair.should == "key-1"
       end
 
       it "should be blank for nil" do
-        Aws.stub!(:public_keys).and_return(nil)
+        Aws.stub!(:keypairs).and_return([])
         Aws.keypair.should be_nil
       end
     end

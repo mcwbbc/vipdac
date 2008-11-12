@@ -136,29 +136,29 @@ describe Node do
     end
 
     it "should include the instance type" do
+      Aws.stub!(:keypairs).and_return([])
       @node.launch_parameters.key?(:instance_type).should be_true
       @node.launch_parameters[:instance_type].should == "m1.small"
     end
 
     it "should include the user data" do
+      Aws.stub!(:keypairs).and_return([])
       @node.should_receive(:user_data).twice.and_return("userdata")
       @node.launch_parameters.key?(:user_data).should be_true
       @node.launch_parameters[:user_data].should == "userdata"
     end
 
     it "should include the key name if the keypair exists" do
-      Aws.should_receive(:keypair).exactly(4).times.and_return("key")
+      Aws.should_receive(:keypairs).twice.and_return([{:aws_fingerprint=> "01:02", :aws_key_name=>"key-1"}])
+      Aws.should_receive(:keypair).twice.and_return("key-1")
       @node.launch_parameters.key?(:key_name).should be_true
-      @node.launch_parameters[:key_name].should == "key"
+      @node.launch_parameters[:key_name].should == "key-1"
     end
 
     it "should not include the key name if the keypair doesn't exist" do
-      Aws.should_receive(:keypair).and_return(nil)
+      Aws.stub!(:keypairs).and_return([])
       @node.launch_parameters.key?(:key_name).should be_false
     end
   end
-
-
-
 
 end

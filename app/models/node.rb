@@ -23,7 +23,7 @@ class Node < ActiveRecord::Base
 
   def launch_parameters
     parameters = {:instance_type => instance_type, :user_data => user_data}
-    parameters[:key_name] = Aws.keypair if Aws.keypair
+    parameters[:key_name] = Aws.keypair if Aws.keypairs.any?
     parameters
   end
 

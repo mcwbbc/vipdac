@@ -56,10 +56,16 @@ class Aws
     end
 
     def keypair
-      if (key = /0=(.+)/.match(public_keys))
-        key[1] 
-      else
-        nil
+      if keypairs.any?
+        keypairs.first[:aws_key_name]
+      end
+    end
+
+    def keypairs
+      begin
+        ec2.describe_key_pairs
+      rescue Exception
+        []
       end
     end
 

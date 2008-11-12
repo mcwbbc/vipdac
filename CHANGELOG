@@ -1,6 +1,7 @@
 *(November 12th, 2008)*
 
 * Remove apache web server and replace with thin
+* Fix keypair launch bug
 
 *(November 11th, 2008)*
 
