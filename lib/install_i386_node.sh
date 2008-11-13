@@ -175,6 +175,8 @@ gem install beanstalk-client --no-rdoc --no-ri
 gem install beanstalk-client --no-rdoc --no-ri
 gem install thin --no-rdoc --no-ri
 gem install thin --no-rdoc --no-ri
+gem install ruby-debug --no-rdoc --no-ri
+gem install ruby-debug --no-rdoc --no-ri
 
 # download the application from github
 cd /pipeline/
