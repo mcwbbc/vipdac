@@ -11,6 +11,7 @@ class Job < ActiveRecord::Base
   validates_presence_of :searcher, :message => "^Search method is required"
   validates_presence_of :parameter_file_id, :message => "^Parameter file is required"
   validates_presence_of :spectra_count, :message => "^Spectra count is required"
+  validates_presence_of :priority, :message => "^Priority is required"
   validates_numericality_of :spectra_count, :message => "^Spectra count is not a number"
 
   after_destroy :remove_s3_files
@@ -147,8 +148,8 @@ class Job < ActiveRecord::Base
   end
 
   def send_message(type)
-    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :datafile => datafile, :output_file => output_file, :searcher => searcher, :spectra_count => spectra_count}
-    Aws.send_node_message(hash.to_yaml)
+    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :datafile => datafile, :output_file => output_file, :searcher => searcher, :spectra_count => spectra_count, :priority => priority}
+    MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => 50)
   end
 
   def bundle_datafile

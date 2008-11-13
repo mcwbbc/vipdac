@@ -7,7 +7,7 @@ describe Job do
   end
 
   describe "create" do
-    [:name, :searcher, :parameter_file_id, :mgf_file_name, :spectra_count].each do |key|
+    [:name, :searcher, :parameter_file_id, :mgf_file_name, :spectra_count, :priority].each do |key|
       it "should not create a new instance without '#{key}'" do
         create_job(key => nil).should_not be_valid
       end
@@ -115,7 +115,6 @@ describe Job do
       @job.chunks.should_receive(:maximum).and_return(25.0)
       @job.processing_time.should eql(15.0)
     end
-
   end
 
   describe "remove_s3_files" do
@@ -217,6 +216,8 @@ describe Job do
 
   describe "when creating the local zip file" do
     before(:each) do
+      Object.send(:remove_const, 'Job')
+      load 'job.rb'
       @job.id = 12
     end
     it "should have an id partition" do
@@ -304,16 +305,17 @@ describe Job do
       @job.should_receive(:output_file).and_return("file")
       @job.should_receive(:id).and_return(12)
       @job.should_receive(:spectra_count).and_return(100)
+      @job.should_receive(:priority).and_return(1000)
       @job.should_receive(:datafile).and_return("datafile")
       Aws.should_receive(:bucket_name).and_return("bucket")
     end
     it "should send a pack node message via Aws" do
-      Aws.should_receive(:send_node_message).with({:type => PACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, }.to_yaml).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50).and_return(true)
       @job.send_message(PACK)
     end
 
     it "should send an unpack node message via Aws" do
-      Aws.should_receive(:send_node_message).with({:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100}.to_yaml).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50).and_return(true)
       @job.send_message(UNPACK)
     end
   end
@@ -363,7 +365,7 @@ describe Job do
 
   protected
     def create_job(options = {})
-      record = Job.new({ :name => "jobname", :mgf_file_name => 'mgf_file', :mgf_content_type => 'text/plain', :mgf_file_size => 20, :searcher => "omssa", :parameter_file_id => 1, :spectra_count => 200 }.merge(options))
+      record = Job.new({ :name => "jobname", :mgf_file_name => 'mgf_file', :mgf_content_type => 'text/plain', :mgf_file_size => 20, :searcher => "omssa", :parameter_file_id => 1, :spectra_count => 200, :priority => 1000 }.merge(options))
       record
     end
 end

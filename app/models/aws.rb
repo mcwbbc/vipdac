@@ -15,18 +15,6 @@ class Aws
       keys['aws_access']+"-vipdac"
     end
 
-    def node_queue_name
-      keys['aws_access']+"-vipdac-node"
-    end
-
-    def head_queue_name
-      keys['aws_access']+"-vipdac-head"
-    end
-
-    def created_chunk_queue_name
-      keys['aws_access']+"-vipdac-created-chunk"
-    end
-    
     def current_hostname
       Rails.env.test? ? "test" : keys["public-hostname"]
     end
@@ -89,36 +77,9 @@ class Aws
       s3i.delete_folder(bucket_name, name)
     end
 
-    def send_node_message(message)
-      node_queue.send_message(message)
-    end
-
-    def send_head_message(message)
-      head_queue.send_message(message)
-    end
-
-    def send_created_chunk_message(message)
-      created_chunk_queue.send_message(message)
-    end
-
     def create_bucket
       # create the storage bucket
       @bucket ||= s3i.create_bucket(bucket_name)
-    end
-
-    def node_queue
-      # Create SQS object and queue so we can pass info to and from the named queue
-      @node_queue ||= sqs.queue(node_queue_name, true)
-    end
-
-    def head_queue
-      # Create SQS object and queue so we can pass info to and from the named queue
-      @head_queue ||= sqs.queue(head_queue_name, true)
-    end
-
-    def created_chunk_queue
-      # Create SQS object and queue so we can pass info to and from the named queue
-      @created_chunk_queue ||= sqs.queue(created_chunk_queue_name, true)
     end
 
     def ec2

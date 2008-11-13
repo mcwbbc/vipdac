@@ -48,7 +48,7 @@ class Packer
   
   def send_job_message
     hash = {:type => DOWNLOAD, :job_id => message[:job_id], :bucket_name => Aws.bucket_name}
-    Aws.send_head_message(hash.to_yaml)
+    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 100)
   end
 
   def bucket_object(file_path)

@@ -2,11 +2,11 @@ class Reporter
 
   def process_loop(looping_infinitely = true)
     begin
-      @created_message = fetch_created_message
+      @created_message = MessageQueue.get(:name => 'created_chunk', :timeout => 60)
       if @created_message
         process_created_message(@created_message)
       else
-        @message = fetch_head_message
+        @message = MessageQueue.get(:name => 'head', :timeout => 60)
         if @message
           process_head_message(@message)
         else
@@ -47,24 +47,6 @@ class Reporter
 
   def process_created_message(message)
     update_chunk(build_report(message), message, true)
-  end
-
-  def fetch_created_message
-    message = Aws.created_chunk_queue.receive(60) # we have one minutes to process this message, or it goes back on the queue
-    if message && message.body.blank?
-      message.delete #delete it if it's blank... might cause issues
-      return nil
-    end
-    message
-  end
-
-  def fetch_head_message
-    message = Aws.head_queue.receive(60) # we have one minutes to process this message, or it goes back on the queue
-    if message && message.body.blank?
-      message.delete #delete it if it's blank... might cause issues
-      return nil
-    end
-    message
   end
 
   def run

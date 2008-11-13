@@ -8,6 +8,10 @@
     <td>Name:</td>
     <td><%= f.text_field :name %></td>
   </tr>
+  <tr valign="top">
+		<td>Priority:</td>
+		<td><%= f.select :priority, PRIORITY_ARRAY %></td>
+	</tr>
   <tr>
     <td>Spectra count per chunk:</td>
     <td><%= f.text_field(:spectra_count) %></td>

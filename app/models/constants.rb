@@ -16,6 +16,16 @@
      result
    end
 
+  PRIORITY_ARRAY = [ ['Low', 1000],
+                     ['Medium', 500],
+                     ['High', 200]
+                   ]
+
+  PRIORITY_HASH = PRIORITY_ARRAY.inject({}) do |result, element|
+    result[element.last] = element.first
+    result
+  end
+
   DEBUG = false
 
   PIPELINE = '/pipeline'

@@ -2,15 +2,6 @@ class Watcher
 
   include Utilities
 
-  def fetch_message
-    message = Aws.node_queue.receive(600) # we have ten minutes to process this message, or it goes back on the queue
-    if message && message.body.blank?
-      message.delete #delete it if it's blank... might cause issues
-      return nil
-    end
-    message
-  end
-
   def convert_message_to_hash(message)
     YAML.load(message.body)    
   end
@@ -29,7 +20,7 @@ class Watcher
 
   def check_queue
     # If we have messages on the queue
-    message = fetch_message
+    message = MessageQueue.get(:name => 'node', :timeout => 600)
     if message
       process(create_worker(convert_message_to_hash(message)), message)
     else

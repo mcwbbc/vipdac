@@ -1,6 +1,10 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe Aws do
+  before(:each) do
+    Object.send(:remove_const, 'Aws')
+    load 'aws.rb'
+  end
 
   describe "keys" do
     it "should return the values from AwsParameters" do
@@ -43,51 +47,6 @@ describe Aws do
 
   end
 
-
-  describe "sqs actions" do
-    before(:each) do
-      @sqs = mock("sqs")
-      Aws.stub!(:sqs).and_return(@sqs)
-    end
-
-    describe "creating queues" do
-      it "should make a head queue" do
-        Aws.should_receive(:head_queue_name).and_return("head_queue")
-        @sqs.should_receive(:queue).with("head_queue", true).and_return(true)
-        Aws.head_queue.should be_true
-      end
-      it "should make a node queue" do
-        Aws.should_receive(:node_queue_name).and_return("node_queue")
-        @sqs.should_receive(:queue).with("node_queue", true).and_return(true)
-        Aws.node_queue.should be_true
-      end
-      it "should make a created chunk queue" do
-        Aws.should_receive(:created_chunk_queue_name).and_return("chunk_queue")
-        @sqs.should_receive(:queue).with("chunk_queue", true).and_return(true)
-        Aws.created_chunk_queue.should be_true
-      end
-    end
-
-    describe "sending messages" do
-      before(:each) do
-        @queue = mock("queue")
-        @queue.should_receive(:send_message).with("hello").and_return(true)
-      end
-      it "should send a node message" do
-        Aws.should_receive(:node_queue).and_return(@queue)
-        Aws.send_node_message("hello").should be_true
-      end
-      it "should send a head message" do
-        Aws.should_receive(:head_queue).and_return(@queue)
-        Aws.send_head_message("hello").should be_true
-      end
-      it "should send a node message" do
-        Aws.should_receive(:created_chunk_queue).and_return(@queue)
-        Aws.send_created_chunk_message("hello").should be_true
-      end
-    end
-  end
-
   describe "create interfaces" do
     before(:each) do
       Aws.should_receive(:keys).twice.and_return({'aws_access' => 'access', 'aws_secret' => 'secret'})
@@ -108,15 +67,13 @@ describe Aws do
 
   describe "with mocks" do
     before(:each) do
-      @sqs = mock("sqs")
       @s3i = mock("s3i")
       @ec2 = mock("ec2")
 
       Aws.stub!(:ec2).and_return(@ec2)
-      Aws.stub!(:sqs).and_return(@sqs)
       Aws.stub!(:s3i).and_return(@s3i)
       Aws.stub!(:keys).and_return({'aws_access' => 'access', 'aws_secret' => 'secret', 'public-hostname' => 'hostname',
-                                   'instance-id' => 'instance-id', 'instance-type' => 'instance-type',
+                                   'instance-id' => 'instance-id', 'instance-type' => 'instance-type', 'ami-id' => 'ami-1234',
                                    'local-hostname' => 'local-hostname', 'local-ipv4' => 'local-ipv4', 'public-keys' => '0=ec2-keypair'})
     end
     describe "current hostname" do
@@ -160,6 +117,12 @@ describe Aws do
       end
     end
 
+    describe "ami-id" do
+      it "should be the ami-id" do
+        Aws.ami_id.should == "ami-1234"
+      end
+    end
+
     describe "keypairs" do
       it "should return an empty array for an exception" do
         @ec2.should_receive(:describe_key_pairs).and_throw(Exception)
@@ -200,24 +163,6 @@ describe Aws do
     describe "bucket" do
       it "should have a name" do
         Aws.bucket_name.should == "access-vipdac"
-      end
-    end
-
-    describe "head queue" do
-      it "should have a name" do
-        Aws.head_queue_name.should eql("access-vipdac-head")
-      end
-    end
-
-    describe "node queue" do
-      it "should have a name" do
-        Aws.node_queue_name.should eql("access-vipdac-node")
-      end
-    end
-
-    describe "created chunk queue" do
-      it "should have a name" do
-        Aws.created_chunk_queue_name.should eql("access-vipdac-created-chunk")
       end
     end
   end

@@ -35,6 +35,7 @@ ActiveRecord::Schema.define(:version => 20081002180447) do
     t.string   "hash_key"
     t.string   "link",              :default => ""
     t.integer  "spectra_count"
+    t.integer  "priority"
     t.float    "launched_at",       :default => 0.0
     t.float    "finished_at",       :default => 0.0
     t.string   "mgf_file_name"

@@ -87,23 +87,23 @@ describe Reporter do
   describe "process loop" do
     describe "with created message" do
       it "should complete the steps" do
-        @reporter.should_receive(:fetch_created_message).and_return("message")
+        MessageQueue.should_receive(:get).with(:name => 'created_chunk', :timeout => 60).and_return("message")
         @reporter.should_receive(:process_created_message).with("message").and_return(true)
         @reporter.process_loop(false)
       end
     end
     describe "with head message" do
       it "should complete the steps" do
-        @reporter.should_receive(:fetch_created_message).and_return(nil)
-        @reporter.should_receive(:fetch_head_message).and_return("headmessage")
+        MessageQueue.should_receive(:get).with(:name => 'created_chunk', :timeout => 60).and_return(nil)
+        MessageQueue.should_receive(:get).with(:name => 'head', :timeout => 60).and_return("headmessage")
         @reporter.should_receive(:process_head_message).with("headmessage").and_return(true)
         @reporter.process_loop(false)
       end
     end
     describe "with no message" do
       it "should complete the steps" do
-        @reporter.should_receive(:fetch_created_message).and_return(nil)
-        @reporter.should_receive(:fetch_head_message).and_return(nil)
+        MessageQueue.should_receive(:get).with(:name => 'created_chunk', :timeout => 60).and_return(nil)
+        MessageQueue.should_receive(:get).with(:name => 'head', :timeout => 60).and_return(nil)
         @reporter.should_receive(:check_for_stuck_chunks).and_return(true)
         @reporter.should_receive(:sleep).with(5).and_return(true)
         @reporter.process_loop(false)
@@ -142,64 +142,6 @@ describe Reporter do
       @reporter.should_receive(:write_pid).and_return(true)
       @reporter.should_receive(:process_loop).and_return(true)
       @reporter.run
-    end
-  end
-
-  describe "fetch created message" do
-    it "should get a message from the created queue" do
-      @message = mock("message", :body => "body")
-      @queue = mock("queue")
-      @queue.should_receive(:receive).with(60).and_return(@message)
-      Aws.should_receive(:created_chunk_queue).and_return(@queue)
-      message = @reporter.fetch_created_message
-      message.body.should == "body"
-    end
-
-    it "should return nil if the message doesn't exist" do
-      @queue = mock("queue")
-      @queue.should_receive(:receive).with(60).and_return(nil)
-      Aws.should_receive(:created_chunk_queue).and_return(@queue)
-      message = @reporter.fetch_created_message
-      message.should be_nil
-    end
-
-    it "should delete the message if the body is blank and return nil" do
-      @message = mock("message", :body => "")
-      @message.should_receive(:delete).and_return(true)
-      @queue = mock("queue")
-      @queue.should_receive(:receive).with(60).and_return(@message)
-      Aws.should_receive(:created_chunk_queue).and_return(@queue)
-      message = @reporter.fetch_created_message
-      message.should be_nil
-    end
-  end
-
-  describe "fetch head message" do
-    it "should get a message from the created queue" do
-      @message = mock("message", :body => "body")
-      @queue = mock("queue")
-      @queue.should_receive(:receive).with(60).and_return(@message)
-      Aws.should_receive(:head_queue).and_return(@queue)
-      message = @reporter.fetch_head_message
-      message.body.should == "body"
-    end
-
-    it "should return nil if the message doesn't exist" do
-      @queue = mock("queue")
-      @queue.should_receive(:receive).with(60).and_return(nil)
-      Aws.should_receive(:head_queue).and_return(@queue)
-      message = @reporter.fetch_head_message
-      message.should be_nil
-    end
-
-    it "should delete the message if the body is blank and return nil" do
-      @message = mock("message", :body => "")
-      @message.should_receive(:delete).and_return(true)
-      @queue = mock("queue")
-      @queue.should_receive(:receive).with(60).and_return(@message)
-      Aws.should_receive(:head_queue).and_return(@queue)
-      message = @reporter.fetch_head_message
-      message.should be_nil
     end
   end
 

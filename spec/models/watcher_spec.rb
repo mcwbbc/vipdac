@@ -5,35 +5,6 @@ describe Watcher do
     @watcher = create_watcher
   end
 
-  describe "fetch message" do
-    it "should get a message from the queue" do
-      @message = mock("message", :body => "body")
-      @queue = mock("queue")
-      @queue.should_receive(:receive).with(600).and_return(@message)
-      Aws.should_receive(:node_queue).and_return(@queue)
-      message = @watcher.fetch_message
-      message.body.should == "body"
-    end
-
-    it "should return nil if the message doesn't exist" do
-      @queue = mock("queue")
-      @queue.should_receive(:receive).with(600).and_return(nil)
-      Aws.should_receive(:node_queue).and_return(@queue)
-      message = @watcher.fetch_message
-      message.should be_nil
-    end
-
-    it "should delete the message if the body is blank and return nil" do
-      @message = mock("message", :body => "")
-      @message.should_receive(:delete).and_return(true)
-      @queue = mock("queue")
-      @queue.should_receive(:receive).with(600).and_return(@message)
-      Aws.should_receive(:node_queue).and_return(@queue)
-      message = @watcher.fetch_message
-      message.should be_nil
-    end
-  end
-
   describe "convert message to hash" do
     it "should return a hash for the yaml encoded message" do
       message = mock("message", :body => "key:text")
@@ -79,14 +50,14 @@ describe Watcher do
 
   describe "check queue" do
     it "should process the message if we have one" do
-      @watcher.should_receive(:fetch_message).and_return("message")
+      MessageQueue.should_receive(:get).with(:name => 'node', :timeout => 600).and_return("message")
       @watcher.should_receive(:convert_message_to_hash).with("message").and_return("hash")
       @watcher.should_receive(:create_worker).and_return("worker")
       @watcher.should_receive(:process).with("worker", "message").and_return(true)
       @watcher.check_queue
     end
     it "should sleep if there is no message" do
-      @watcher.should_receive(:fetch_message).and_return(nil)
+      MessageQueue.should_receive(:get).with(:name => 'node', :timeout => 600).and_return(nil)
       @watcher.should_receive(:sleep).with(15).and_return(true)
       @watcher.check_queue
     end

@@ -109,6 +109,8 @@ describe Node do
 
     describe "chunks" do
       it "should have 1 chunk" do
+        Object.send(:remove_const, 'Node')
+        load 'node.rb'
         @node.chunks.size.should eql(2)
       end
     end
