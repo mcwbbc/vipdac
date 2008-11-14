@@ -20,12 +20,8 @@ class Watcher
 
   def check_queue
     # If we have messages on the queue
-    message = MessageQueue.get(:name => 'node', :timeout => 600)
-    if message
-      process(create_worker(convert_message_to_hash(message)), message)
-    else
-      sleep(15)
-    end
+    message = MessageQueue.get(:name => 'node', :peek => false)
+    process(create_worker(convert_message_to_hash(message)), message)
   end
 
   def run(looping_infinitely = true)

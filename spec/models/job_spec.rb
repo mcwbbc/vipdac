@@ -310,12 +310,12 @@ describe Job do
       Aws.should_receive(:bucket_name).and_return("bucket")
     end
     it "should send a pack node message via Aws" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
       @job.send_message(PACK)
     end
 
     it "should send an unpack node message via Aws" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
       @job.send_message(UNPACK)
     end
   end

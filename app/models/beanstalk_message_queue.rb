@@ -10,7 +10,7 @@ class BeanstalkMessageQueue
     # the workers can just hang on waiting until something appears
     def get_message(name, peek=false)
       if peek
-        get_queue(name).peek_ready ? get_queue(name).reserve : nil
+        get_queue(name).reserve if get_queue(name).peek_ready
       else
         get_queue(name).reserve
       end
@@ -20,6 +20,9 @@ class BeanstalkMessageQueue
     # ttr is time to release job once picked by a worker, this is like SQS when getting a message receive(ttr)
     # we give each job 10 mintues to finish by default
     def send_message(name, message, priority=DEFAULT_PRIORITY, delay=0, ttr=TTR)
+      priority ||= DEFAULT_PRIORITY
+      delay ||= 0
+      ttr ||= TTR
       get_queue(name).put(message, priority, delay, ttr)
     end
 
@@ -42,11 +45,7 @@ class BeanstalkMessageQueue
     end
 
     def create_queue(name)
-      queue = Beanstalk::Pool.new(["#{server_ip}:#{DEFAULT_PORT}"])
-      queue.watch(name)
-      queue.use(name)
-      queue.ignore('default')
-      queue_hash[name] = queue
+      queue_hash[name] = Beanstalk::Pool.new(["#{server_ip}:#{DEFAULT_PORT}"], name)
     end
 
   end

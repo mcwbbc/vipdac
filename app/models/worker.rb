@@ -64,7 +64,7 @@ class Worker
 
   def send_message(type, starttime, finishtime)
     hash = {:type => type, :bytes => message[:bytes], :filename => message[:filename], :parameter_filename => message[:parameter_filename], :sendtime => message[:sendtime], :chunk_key => message[:chunk_key], :job_id => message[:job_id], :instance_id => "#{Aws.instance_id}-#{$$}", :starttime => starttime, :finishtime => finishtime}
-    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 100)
+    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 100, :ttr => 60)
   end
   
   def local_output_filename

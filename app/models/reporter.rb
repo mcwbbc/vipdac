@@ -1,20 +1,20 @@
 class Reporter
 
   def process_loop(looping_infinitely = true)
+    @started = Time.now
     begin
-      @created_message = MessageQueue.get(:name => 'created_chunk', :timeout => 60)
-      if @created_message
-        process_created_message(@created_message)
+      @message = MessageQueue.get(:name => 'head', :peek => true)
+      if @message
+        process_head_message(@message)
+        @started = Time.now
       else
-        @message = MessageQueue.get(:name => 'head', :timeout => 60)
-        if @message
-          process_head_message(@message)
-        else
-          check_for_stuck_chunks
-          sleep(5)
-        end
+        check_for_stuck_chunks if minute_ago?(@started)
       end
     end while looping_infinitely
+  end
+
+  def minute_ago?(time)
+    time.to_f < (Time.now.to_f - 60)
   end
 
   def build_report(message)
@@ -25,17 +25,19 @@ class Reporter
       report = build_report(message)
       message_type = report[:type]
       case message_type
-        when DOWNLOAD
-          set_job_download_link(report, message)
-        when JOBUNPACKING
-          job_status(report, message, "Unpacking")
-        when JOBUNPACKED
-          job_status(report, message, "Processing")
         when START
           update_chunk(report, message)
         when FINISH
           update_chunk(report, message)
           check_job_status(report)
+        when CREATED
+          update_chunk(report, message, true)
+        when JOBUNPACKING
+          job_status(report, message, "Unpacking")
+        when JOBUNPACKED
+          job_status(report, message, "Processing")
+        when DOWNLOAD
+          set_job_download_link(report, message)
       end
   end
 
@@ -43,10 +45,6 @@ class Reporter
     Job.incomplete.each do |job|
       job.resend_stuck_chunks if job.stuck?
     end
-  end
-
-  def process_created_message(message)
-    update_chunk(build_report(message), message, true)
   end
 
   def run

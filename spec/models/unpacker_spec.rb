@@ -95,7 +95,7 @@ describe Unpacker do
 
   describe "send job message" do
     it "should send a message to the head queue" do
-      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => "message", :job_id => 12}.to_yaml, :priority => 100).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => "message", :job_id => 12}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
       @unpacker.send_job_message("message").should be_true
     end
   end
@@ -107,7 +107,7 @@ describe Unpacker do
       Digest::SHA1.should_receive(:hexdigest).and_return("hex")
       @unpacker.should_receive(:mgf_filenames).and_return(["filename"])
       msg = {:type => CREATED, :chunk_count => 1, :bytes => 1234, :sendtime => 1.0, :chunk_key => "hex", :job_id => 12, :filename => "12/file", :parameter_filename => "12/parameters.conf", :bucket_name => "bucket", :searcher => "omssa"}.to_yaml
-      MessageQueue.should_receive(:put).with(:name => 'created_chunk', :message => msg, :priority => 10).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => msg, :priority => 10, :ttr => 60).and_return(true)
       @unpacker.send_created_message("file").should be_true
     end
   end

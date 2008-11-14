@@ -149,7 +149,7 @@ class Job < ActiveRecord::Base
 
   def send_message(type)
     hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :datafile => datafile, :output_file => output_file, :searcher => searcher, :spectra_count => spectra_count, :priority => priority}
-    MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => 50)
+    MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => 50, :ttr => 600)
   end
 
   def bundle_datafile

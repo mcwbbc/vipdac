@@ -84,7 +84,7 @@ describe Chunk do
       job.should_receive(:searcher).and_return("omssa")
       @chunk = create_chunk(:chunk_count => 1, :bytes => 10, :sent_at => 1.0, :filename => "filename", :parameter_filename => "parameter_filename")
       @chunk.should_receive(:job).exactly(3).times.and_return(job)
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => hash.to_yaml, :priority => 100).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => hash.to_yaml, :priority => 100, :ttr => 600).and_return(true)
       Aws.should_receive(:bucket_name).and_return("bucket")
       @chunk.send_process_message.should be_true
     end

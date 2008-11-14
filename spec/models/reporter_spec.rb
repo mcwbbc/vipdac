@@ -54,6 +54,13 @@ describe Reporter do
       end
     end
 
+    describe "created message" do
+      it "should set the job download link" do
+        @report.should_receive(:[]).with(:type).and_return(CREATED)
+        @reporter.should_receive(:update_chunk).with(@report, "message", true).and_return(true)
+      end
+    end
+
     describe "unpacking message" do
       it "should set the job status" do
         @report.should_receive(:[]).with(:type).and_return(JOBUNPACKING)
@@ -85,42 +92,43 @@ describe Reporter do
   end
 
   describe "process loop" do
-    describe "with created message" do
-      it "should complete the steps" do
-        MessageQueue.should_receive(:get).with(:name => 'created_chunk', :timeout => 60).and_return("message")
-        @reporter.should_receive(:process_created_message).with("message").and_return(true)
-        @reporter.process_loop(false)
-      end
-    end
     describe "with head message" do
       it "should complete the steps" do
-        MessageQueue.should_receive(:get).with(:name => 'created_chunk', :timeout => 60).and_return(nil)
-        MessageQueue.should_receive(:get).with(:name => 'head', :timeout => 60).and_return("headmessage")
+        MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
         @reporter.should_receive(:process_head_message).with("headmessage").and_return(true)
         @reporter.process_loop(false)
       end
     end
-    describe "with no message" do
+    describe "with no message and less than a minute ago" do
       it "should complete the steps" do
-        MessageQueue.should_receive(:get).with(:name => 'created_chunk', :timeout => 60).and_return(nil)
-        MessageQueue.should_receive(:get).with(:name => 'head', :timeout => 60).and_return(nil)
+        MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return(nil)
+        @reporter.should_receive(:minute_ago?).and_return(false)
+        @reporter.should_not_receive(:check_for_stuck_chunks)
+        @reporter.process_loop(false)
+      end
+    end
+    describe "with no message and more than a minute ago" do
+      it "should complete the steps" do
+        MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return(nil)
+        @reporter.should_receive(:minute_ago?).and_return(true)
         @reporter.should_receive(:check_for_stuck_chunks).and_return(true)
-        @reporter.should_receive(:sleep).with(5).and_return(true)
         @reporter.process_loop(false)
       end
     end
   end
   
-  describe "process created message" do
-    it "should update the chunk for the message" do
-      message = mock("message")
-      report = mock("report")
-      @reporter.should_receive(:build_report).with(message).and_return(report)
-      @reporter.should_receive(:update_chunk).with(report, message, true).and_return(true)
-      @reporter.process_created_message(message)
+  describe "minute_ago?" do
+    it "should return false if now less than 1 minute ago" do
+      time_now = Time.now
+      @reporter.minute_ago?(time_now).should be_false
+    end
+
+    it "should return true if now more than 1 minute ago" do
+      time_now = 5.minutes.ago
+      @reporter.minute_ago?(time_now).should be_true
     end
   end
-
+  
   describe "run" do
     before(:each) do
       @node = mock_model(Node)

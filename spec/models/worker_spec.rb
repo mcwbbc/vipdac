@@ -153,11 +153,11 @@ describe Worker do
       Aws.should_receive(:instance_id).and_return("instance")
     end
     it "should send a start node message via Aws" do
-      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => START, :bytes => 10, :filename => "filename", :parameter_filename => "parameter_filename", :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :instance_id => "instance-#{$$}", :starttime => 2.0, :finishtime => 0.0}.to_yaml, :priority => 100).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => START, :bytes => 10, :filename => "filename", :parameter_filename => "parameter_filename", :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :instance_id => "instance-#{$$}", :starttime => 2.0, :finishtime => 0.0}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
       @worker.send_message(START, 2.0, 0.0)
     end
     it "should send a finish node message via Aws" do
-      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => FINISH, :bytes => 10, :filename => "filename", :parameter_filename => "parameter_filename", :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :instance_id => "instance-#{$$}", :starttime => 2.0, :finishtime => 3.0}.to_yaml, :priority => 100).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => FINISH, :bytes => 10, :filename => "filename", :parameter_filename => "parameter_filename", :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :instance_id => "instance-#{$$}", :starttime => 2.0, :finishtime => 3.0}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
       @worker.send_message(FINISH, 2.0, 3.0)
     end
   end

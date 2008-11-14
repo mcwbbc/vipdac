@@ -50,15 +50,10 @@ describe Watcher do
 
   describe "check queue" do
     it "should process the message if we have one" do
-      MessageQueue.should_receive(:get).with(:name => 'node', :timeout => 600).and_return("message")
+      MessageQueue.should_receive(:get).with(:name => 'node', :peek => false).and_return("message")
       @watcher.should_receive(:convert_message_to_hash).with("message").and_return("hash")
       @watcher.should_receive(:create_worker).and_return("worker")
       @watcher.should_receive(:process).with("worker", "message").and_return(true)
-      @watcher.check_queue
-    end
-    it "should sleep if there is no message" do
-      MessageQueue.should_receive(:get).with(:name => 'node', :timeout => 600).and_return(nil)
-      @watcher.should_receive(:sleep).with(15).and_return(true)
       @watcher.check_queue
     end
   end

@@ -37,6 +37,14 @@ describe BeanstalkMessageQueue do
         BeanstalkMessageQueue.should_receive(:get_queue).with('cheese').and_return(queue)
         BeanstalkMessageQueue.get_message('cheese', false).should == message
       end
+
+      it "should return a message if it exists nil peek" do
+        message = mock("message")
+        queue = mock("queue")
+        queue.should_receive(:reserve).and_return(message)
+        BeanstalkMessageQueue.should_receive(:get_queue).with('cheese').and_return(queue)
+        BeanstalkMessageQueue.get_message('cheese', nil).should == message
+      end
     end
   end
 
@@ -54,16 +62,20 @@ describe BeanstalkMessageQueue do
       BeanstalkMessageQueue.should_receive(:get_queue).with('cheese').and_return(queue)
       BeanstalkMessageQueue.send_message('cheese', 'message', 10, 0, 60)
     end
+
+    it "should send a message with the nil parameters" do
+      queue = mock("queue")
+      queue.should_receive(:put).with('message', 65536, 0, 600)
+      BeanstalkMessageQueue.should_receive(:get_queue).with('cheese').and_return(queue)
+      BeanstalkMessageQueue.send_message('cheese', 'message', nil, 0, nil)
+    end
   end
 
   describe "create queue" do
     it "should create a queue with the specific name" do
       queue = mock("queue")
-      queue.should_receive(:watch).with('cheese').and_return(true)
-      queue.should_receive(:use).with('cheese').and_return(true)
-      queue.should_receive(:ignore).with('default').and_return(true)
       BeanstalkMessageQueue.should_receive(:server_ip).and_return("127.0.0.1")
-      Beanstalk::Pool.should_receive(:new).with(["127.0.0.1:11300"]).and_return(queue)
+      Beanstalk::Pool.should_receive(:new).with(["127.0.0.1:11300"], 'cheese').and_return(queue)
       BeanstalkMessageQueue.should_receive(:queue_hash).and_return({})
       BeanstalkMessageQueue.create_queue('cheese').should == queue
     end

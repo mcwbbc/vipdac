@@ -62,7 +62,7 @@ describe Packer do
     it "should send an Aws message" do
       @packer = create_packer(:job_id => 1)
       Aws.should_receive(:bucket_name).and_return("name")
-      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => DOWNLOAD, :job_id => 1, :bucket_name => "name"}.to_yaml, :priority => 100).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => DOWNLOAD, :job_id => 1, :bucket_name => "name"}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
       @packer.send_job_message.should be_true
     end
   end

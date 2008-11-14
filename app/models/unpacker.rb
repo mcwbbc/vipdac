@@ -66,7 +66,7 @@ class Unpacker
 
   def send_job_message(type)
     hash = {:type => type, :job_id => message[:job_id]}
-    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 100)
+    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 100, :ttr => 60)
   end
 
   def upload_split_mgf_files
@@ -81,7 +81,7 @@ class Unpacker
     sendtime = Time.now.to_f
     chunk_key = Digest::SHA1.hexdigest("#{bucket_object(file)}--#{sendtime}")
     created = {:type => CREATED, :chunk_count => mgf_filenames.size, :bytes => bytes, :sendtime => sendtime, :chunk_key => chunk_key, :job_id => message[:job_id], :filename => bucket_object(file), :parameter_filename => bucket_object(PARAMETER_FILENAME), :bucket_name => message[:bucket_name], :searcher => message[:searcher]}
-    MessageQueue.put(:name => 'created_chunk', :message => created.to_yaml, :priority => 10)
+    MessageQueue.put(:name => 'head', :message => created.to_yaml, :priority => 10, :ttr => 60)
   end
 
   def bucket_object(file_path)
