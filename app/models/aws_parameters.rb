@@ -33,13 +33,15 @@ class AwsParameters
     end
 
     def run
-      # Get and parse user-data (EC2 launch config)
-      metadata = ['ami-id', 'instance-id', 'public-hostname', 'instance-type', 'local-hostname', 'local-ipv4', 'public-keys']
-      config_str = self.get_ec2_user_data
-      config = {}
-      config_str.split(',').each{ |s| k,v = s.split('='); config[k] = v.chomp; }
-      metadata.each {|meta| config[meta] = self.get_ec2_meta_data(meta)}
-      config = DEFAULTS.merge(config)
+      @config ||= begin
+        # Get and parse user-data (EC2 launch config)
+        metadata = ['ami-id', 'instance-id', 'public-hostname', 'instance-type', 'local-hostname', 'local-ipv4', 'public-keys']
+        config_str = self.get_ec2_user_data
+        config = {}
+        config_str.split(',').each{ |s| k,v = s.split('='); config[k] = v.chomp; }
+        metadata.each {|meta| config[meta] = self.get_ec2_meta_data(meta)}
+        DEFAULTS.merge(config)
+      end
     end
 
     def load_yaml

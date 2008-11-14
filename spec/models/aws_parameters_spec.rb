@@ -66,6 +66,8 @@ describe AwsParameters do
 
   describe "run" do
     before(:each) do
+      Object.send(:remove_const, 'AwsParameters')
+      load 'aws_parameters.rb'
       AwsParameters.should_receive(:get_ec2_user_data).and_return("hello=there,one=two")
       ['ami-id', 'instance-id', 'public-hostname', 'instance-type', 'local-hostname', 'local-ipv4', 'public-keys'].each do |md|
         AwsParameters.should_receive(:get_ec2_meta_data).with(md).and_return(md)
