@@ -52,13 +52,6 @@ describe NodeRunner do
     end
   end
 
-  config = AwsParameters.run
-  # Abort if AWS access key id or secret access key were not provided
-  if !config.has_key?('aws_access') || !config.has_key?('aws_secret') || !config.has_key?('instance-id') then
-    raise "Instance must be launched with aws_access, aws_secret and instance_id parameters, but got: \"#{config_str}\""
-  end
-
-  
   describe "setup logger" do
     it "should create a new logger" do
       @logger = mock_model(Logger)
