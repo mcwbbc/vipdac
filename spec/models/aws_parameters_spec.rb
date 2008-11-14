@@ -72,7 +72,7 @@ describe AwsParameters do
       ['ami-id', 'instance-id', 'public-hostname', 'instance-type', 'local-hostname', 'local-ipv4', 'public-keys'].each do |md|
         AwsParameters.should_receive(:get_ec2_meta_data).with(md).and_return(md)
       end
-      @config = AwsParameters.run
+      3.times {@config = AwsParameters.run}
     end
 
     it "should return information for all the meta data" do
