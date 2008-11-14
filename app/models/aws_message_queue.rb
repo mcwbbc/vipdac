@@ -16,15 +16,15 @@ class AwsMessageQueue
     end
 
     def node_queue_name
-      Aws.keys['aws_access']+"-vipdac-node"
+      "#{Aws.access_key}-vipdac-node"
     end
 
     def head_queue_name
-      Aws.keys['aws_access']+"-vipdac-head"
+      "#{Aws.access_key}-vipdac-head"
     end
 
     def created_chunk_queue_name
-      Aws.keys['aws_access']+"-vipdac-created-chunk"
+      "#{Aws.access_key}-vipdac-created-chunk"
     end
 
     def node_queue

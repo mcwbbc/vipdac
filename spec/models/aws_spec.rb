@@ -87,6 +87,18 @@ describe Aws do
       end
     end
 
+    describe "access_key" do
+      it "should be the aws access key" do
+        Aws.access_key.should == "access"
+      end
+    end
+
+    describe "secret_key" do
+      it "should be the aws secret key" do
+        Aws.secret_key.should == "secret"
+      end
+    end
+
     describe "instance id" do
       it "should be the instance id key" do
         Aws.instance_id.should == "instance-id"

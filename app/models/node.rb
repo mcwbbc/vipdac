@@ -28,7 +28,7 @@ class Node < ActiveRecord::Base
   end
 
   def user_data
-    "aws_access=#{Aws.keys['aws_access']},aws_secret=#{Aws.keys['aws_secret']},workers=#{Aws.workers(instance_type)},role=worker"
+    "aws_access=#{Aws.access_key},aws_secret=#{Aws.secret_key},workers=#{Aws.workers(instance_type)},role=worker,beanstalkd=#{Aws.local_ipv4}"
   end
   
   def ami_type

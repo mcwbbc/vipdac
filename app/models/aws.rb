@@ -12,7 +12,7 @@ class Aws
     end
 
     def bucket_name
-      keys['aws_access']+"-vipdac"
+      "#{access_key}-vipdac"
     end
 
     def current_hostname
@@ -41,6 +41,14 @@ class Aws
 
     def public_keys
       keys["public-keys"]
+    end
+
+    def access_key
+      keys["aws_access"]
+    end
+
+    def secret_key
+      keys["aws_secret"]
     end
 
     def keypair
@@ -83,15 +91,15 @@ class Aws
     end
 
     def ec2
-      @ec2 ||= RightAws::Ec2.new(keys['aws_access'], keys['aws_secret'])
+      @ec2 ||= RightAws::Ec2.new(access_key, secret_key)
     end
 
     def sqs
-      @sqs ||= RightAws::SqsGen2.new(keys['aws_access'], keys['aws_secret'])
+      @sqs ||= RightAws::SqsGen2.new(access_key, secret_key)
     end  
 
     def s3i
-      @s3i ||= RightAws::S3Interface.new(keys['aws_access'], keys['aws_secret'])
+      @s3i ||= RightAws::S3Interface.new(access_key, secret_key)
     end
 
   end

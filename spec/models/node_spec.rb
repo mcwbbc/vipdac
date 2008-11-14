@@ -10,7 +10,7 @@ describe Node do
       @ec2_mock.stub!(:terminate_instances).and_return(true)
 
       Aws.stub!(:ec2).and_return(@ec2_mock)
-      Aws.stub!(:keys).and_return({'aws_access' => 'access', 'aws_secret' => 'secret'})
+      Aws.stub!(:keys).and_return({'aws_access' => 'access', 'aws_secret' => 'secret', 'local-ipv4' => '100.100.100.100'})
       Aws.stub!(:amis).and_return({'x86_64' => 'bigone', 'i386' => 'smallone'})
       Aws.stub!(:workers).with('m1.small').and_return(1)
       Aws.stub!(:workers).with('c1.medium').and_return(4)
@@ -86,12 +86,12 @@ describe Node do
 
     describe "requesting user_data" do
       it "should return a string with the user data with 1 worker for a small instance" do
-        @node.user_data.should eql("aws_access=access,aws_secret=secret,workers=1,role=worker")
+        @node.user_data.should eql("aws_access=access,aws_secret=secret,workers=1,role=worker,beanstalkd=100.100.100.100")
       end
 
       it "should return a string with the user data with 4 worker for a meduim instance" do
         @node.instance_type = "c1.medium"
-        @node.user_data.should eql("aws_access=access,aws_secret=secret,workers=4,role=worker")
+        @node.user_data.should eql("aws_access=access,aws_secret=secret,workers=4,role=worker,beanstalkd=100.100.100.100")
       end
     end
 
