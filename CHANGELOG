@@ -1,3 +1,8 @@
+*(November 13th, 2008)*
+
+* Add priority to jobs (for new queue)
+* Refactor MessageQueues to allow for easier switching
+
 *(November 12th, 2008)*
 
 * Remove apache web server and replace with thin
