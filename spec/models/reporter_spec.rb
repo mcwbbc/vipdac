@@ -189,6 +189,7 @@ describe Reporter do
       @reporter.stub!(:logger).and_return(@logger)
       Job.stub!(:find).and_raise(Exception)
       job = @reporter.load_job("id")
+      job.should  be_nil
     end
   end
   
@@ -288,17 +289,30 @@ describe Reporter do
   end
 
   describe "job status" do
-    before(:each) do
-      @job = mock_model(Job)
-      @job.should_receive(:status=).and_return(true)
-      @message = mock("message")
-      @report = mock("report")
-      @report.should_receive(:[]).with(:job_id).and_return(1234)
-      @reporter.should_receive(:load_job).with(1234).and_return(@job)
-    end
     describe "success" do
       it "should update the status of the job" do
+        @job = mock_model(Job)
+        @job.should_receive(:status=).and_return(true)
+        @message = mock("message")
+        @report = mock("report")
+        @report.should_receive(:[]).with(:job_id).and_return(1234)
+        @reporter.should_receive(:load_job).with(1234).and_return(@job)
+
         @job.should_receive(:save).and_return(true)
+        @message.should_receive(:delete).and_return(true)
+        @reporter.job_status(@report, @message, "status")
+      end
+    end
+
+    describe "failure" do
+      it "should delete the message if the job doesn't exist" do
+        @job = mock_model(Job)
+        @message = mock("message")
+        @report = mock("report")
+        @report.should_receive(:[]).with(:job_id).and_return(1234)
+        @reporter.should_receive(:load_job).with(1234).and_return(nil)
+        @job.should_not_receive(:save)
+        @job.should_not_receive(:status=)
         @message.should_receive(:delete).and_return(true)
         @reporter.job_status(@report, @message, "status")
       end

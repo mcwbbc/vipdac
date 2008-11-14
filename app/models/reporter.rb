@@ -92,8 +92,10 @@ class Reporter
 
   def job_status(report, message, status)
     job = load_job(report[:job_id])
-    job.status = status
-    job.save
+    if job
+      job.status = status
+      job.save
+    end
     message.delete
   end
 
@@ -110,6 +112,7 @@ class Reporter
       logger.error {"#{e.inspect}"}
       logger.error {"#{e.backtrace.join('\n')}"}
       logger.error {"INVALID JOB ID!: #{e}"}
+      nil
   end
 
 end
