@@ -13,6 +13,7 @@ require 'zip/zip'
 require 'zip/zipfilesystem'
 require 'fileutils'
 require 'logger'
+require 'beanstalk-client'
 
 # load order is important
 require '../app/models/constants'
