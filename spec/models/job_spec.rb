@@ -140,6 +140,14 @@ describe Job do
     end
   end
 
+  describe "destroy" do
+    it "should remove the s3 files" do
+      @job.should_receive(:remove_s3_files).and_return(true)
+      @job.should_receive(:remove_s3_working_folder).and_return(true)
+      @job.destroy
+    end
+  end
+
   describe "pending" do
     it "should return true for status == 'Pending'" do
       @job.should_receive(:status).and_return("Pending")

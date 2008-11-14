@@ -14,7 +14,7 @@ class Job < ActiveRecord::Base
   validates_presence_of :priority, :message => "^Priority is required"
   validates_numericality_of :spectra_count, :message => "^Spectra count is not a number"
 
-  after_destroy :remove_s3_files
+  after_destroy :remove_s3_files, :remove_s3_working_folder
 
   class << self
 

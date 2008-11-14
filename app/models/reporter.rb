@@ -72,15 +72,17 @@ class Reporter
 
   def set_job_download_link(report, message)
     job = load_job(report[:job_id])
-    job.link = create_job_link(report, job)
-    job.save
+    if job
+      job.link = create_job_link(report, job)
+      job.save
+      job.remove_s3_working_folder
+    end
     message.delete
-    job.remove_s3_working_folder
   end
   
   def check_job_status(report)
     job = load_job(report[:job_id])
-    if ((job.processed?) && !(job.complete?))
+    if (job && ((job.processed?) && !(job.complete?)))
       job.status = "Complete"
       job.finished_at = Time.now.to_f
       job.save

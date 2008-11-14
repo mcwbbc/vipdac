@@ -238,6 +238,17 @@ describe Reporter do
         @reporter.check_job_status(@report)
       end
     end
+    describe "don't send message if nil" do
+      it "should not be processed" do
+        @reporter.should_receive(:load_job).with(1234).and_return(nil)
+        @job.should_not_receive(:processed?)
+        @job.should_not_receive(:complete?)
+        @job.should_not_receive(:save)
+        @job.should_not_receive(:send_pack_request)
+        @reporter.check_job_status(@report)
+      end
+    end
+
   end
 
   describe "set job download link" do
@@ -255,6 +266,16 @@ describe Reporter do
         @job.should_receive(:remove_s3_working_folder).and_return(true)
         @message.should_receive(:delete).and_return(true)
         @reporter.should_receive(:load_job).with(1234).and_return(@job)
+        @reporter.set_job_download_link(@report, @message)
+      end
+    end
+
+    describe "failure" do
+      it "should not set a link and delete the message" do
+        @job.should_not_receive(:save)
+        @job.should_not_receive(:remove_s3_working_folder)
+        @message.should_receive(:delete).and_return(true)
+        @reporter.should_receive(:load_job).with(1234).and_return(nil)
         @reporter.set_job_download_link(@report, @message)
       end
     end
