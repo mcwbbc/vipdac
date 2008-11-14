@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # CHANGELOG
+# 11/14/2008
+# use the apt package for ruby/mysql as it's newer than the gem
+#
 # 11/12/2008
 # remove apache, add thin as the web server
 #
@@ -21,7 +24,7 @@ mkdir tandem
 apt-get -y update
 apt-get -y upgrade
 apt-get -y dist-upgrade
-DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libevent-dev autoconf automake zlib1g-dev libxml2-dev libssl-dev ruby1.8-dev irb1.8 irb rdoc1.8 libreadline-ruby1.8 sharutils flex bison rubygems git-core mysql-server libmysqlclient15-dev libxml-smart-perl libxml-simple-perl libxml-sax-expat-perl libyaml-perl libarchive-zip-perl libtext-csv-perl
+DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libevent-dev autoconf automake zlib1g-dev libxml2-dev libssl-dev ruby1.8-dev irb1.8 irb rdoc1.8 libmysql-ruby1.8 libreadline-ruby1.8 sharutils flex bison rubygems git-core mysql-server libmysqlclient15-dev libxml-smart-perl libxml-simple-perl libxml-sax-expat-perl libyaml-perl libarchive-zip-perl libtext-csv-perl
 
 #download and build beanstalkd
 cd /usr/local/src
@@ -160,8 +163,6 @@ gem install libxml-ruby --no-rdoc --no-ri
 gem install libxml-ruby --no-rdoc --no-ri
 gem install rubyzip --no-rdoc --no-ri
 gem install rubyzip --no-rdoc --no-ri
-gem install mysql --no-rdoc --no-ri
-gem install mysql --no-rdoc --no-ri
 gem install rails --no-rdoc --no-ri
 gem install rails --no-rdoc --no-ri
 gem install rubyist-aasm mislav-will_paginate --source http://gems.github.com/ --no-rdoc --no-ri
