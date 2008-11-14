@@ -21,6 +21,7 @@ require '../app/models/utilities'
 require '../app/models/aws'
 require '../app/models/aws_parameters'
 require '../app/models/aws_message_queue'
+require '../app/models/beanstalk_message_queue'
 require '../app/models/message_queue'
 
 require '../app/models/searcher'
