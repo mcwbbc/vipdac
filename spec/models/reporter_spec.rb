@@ -15,8 +15,7 @@ describe Reporter do
     describe "given an incomplete job" do
       it "should check if the job is stuck?" do
         job = mock_model(Job)
-        job.should_receive(:stuck?).and_return(true)
-        job.should_receive(:resend_stuck_chunks).and_return(true)
+        job.should_receive(:stuck?).and_return(false)
         jobs = [job]
         Job.should_receive(:incomplete).and_return(jobs)
         @reporter.check_for_stuck_chunks
@@ -26,6 +25,8 @@ describe Reporter do
         it "should send process messages for all non finished chunks" do
           j1 = mock_model(Job)
           j1.should_receive(:stuck?).and_return(true)
+          j1.should_receive(:priority=).with(50).and_return(true)
+          j1.should_receive(:save!).and_return(true)
           j1.should_receive(:resend_stuck_chunks).and_return(true)
           j2 = mock_model(Job)
           j2.should_receive(:stuck?).and_return(false)

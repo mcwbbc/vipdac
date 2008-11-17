@@ -48,9 +48,15 @@ class Reporter
       end
   end
 
+  # check for stuck chunks, if we have any, set the priority to 50 so we process them right away
+
   def check_for_stuck_chunks
     Job.incomplete.each do |job|
-      job.resend_stuck_chunks if job.stuck?
+      if job.stuck?
+        job.priority = 50
+        job.save!
+        job.resend_stuck_chunks 
+      end
     end
   end
 
