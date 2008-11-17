@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # CHANGELOG
+# 11/17/2008
+# run the cleanup script by default
+#
 # 11/14/2008
 # use the apt package for ruby/mysql as it's newer than the gem
 #
@@ -233,4 +236,6 @@ perl /pipeline/vipdac/lib/reformat_db.pl 18.E_coli_K12.fasta 18.E_coli_K12.fasta
 /pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/ipi.HUMAN.fasta --type=ipi
 /pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/ipi.MOUSE.fasta --type=ipi
 /pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/ipi.RAT.fasta --type=ipi
+
+/pipeline/vipdac/lib/cleanup_image.sh
 
