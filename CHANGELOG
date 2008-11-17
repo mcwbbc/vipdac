@@ -1,6 +1,8 @@
 *(November 17th, 2008)*
 
 * Add Hoptoad Notifier for exception handling.
+* Update reporter to check for stuck chunks every minute
+* Reporter sleeps for 1 second if there is no message
 
 *(November 14th, 2008)*
 

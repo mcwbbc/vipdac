@@ -16,8 +16,8 @@ class Reporter
   end
 
   def minute_ago?
-    if (@started < (Time.now.to_f - 60))
-      @started = Time.now.to_f 
+    if (@started < (Time.now - 60))
+      @started = Time.now 
       true
     else
       false

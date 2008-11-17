@@ -100,6 +100,7 @@ describe Reporter do
           @reporter.should_not_receive(:check_for_stuck_chunks)
           @reporter.should_receive(:minute_ago?).and_return(false)
           @reporter.process_loop(false)
+          @reporter.started.should be_instance_of(Time)
         end
       end
       describe "more than a minute" do
@@ -109,6 +110,7 @@ describe Reporter do
           @reporter.should_receive(:check_for_stuck_chunks).and_return(true)
           @reporter.should_receive(:minute_ago?).and_return(true)
           @reporter.process_loop(false)
+          @reporter.started.should be_instance_of(Time)
         end
       end
     end
@@ -121,6 +123,7 @@ describe Reporter do
           @reporter.should_receive(:minute_ago?).and_return(false)
           @reporter.should_not_receive(:check_for_stuck_chunks)
           @reporter.process_loop(false)
+          @reporter.started.should be_instance_of(Time)
         end
       end
       
@@ -131,6 +134,7 @@ describe Reporter do
           @reporter.should_receive(:minute_ago?).and_return(true)
           @reporter.should_receive(:check_for_stuck_chunks).and_return(true)
           @reporter.process_loop(false)
+          @reporter.started.should be_instance_of(Time)
         end
       end
     end
@@ -138,18 +142,20 @@ describe Reporter do
   
   describe "minute_ago?" do
     it "should return false if now less than 1 minute ago" do
-      time_now = Time.now.to_f
+      time_now = Time.now
       Time.stub!(:now).and_return(time_now)
       @reporter.started = time_now
       @reporter.minute_ago?.should be_false
+      @reporter.started.should be_instance_of(Time)
     end
 
     it "should return true if now more than 1 minute ago" do
-      time_then = 5.minutes.ago.to_f
-      time_now = Time.now.to_f
+      time_then = 5.minutes.ago
+      time_now = Time.now
       Time.stub!(:now).and_return(time_now)
       @reporter.started = time_then
       @reporter.minute_ago?.should be_true
+      @reporter.started.should be_instance_of(Time)
     end
   end
   
