@@ -1,20 +1,27 @@
 class Reporter
 
+  attr_accessor :started
+
   def process_loop(looping_infinitely = true)
     @started = Time.now
     begin
       @message = MessageQueue.get(:name => 'head', :peek => true)
       if @message
         process_head_message(@message)
-        @started = Time.now
       else
-        check_for_stuck_chunks if minute_ago?(@started)
+        sleep(1)
       end
+      check_for_stuck_chunks if minute_ago?
     end while looping_infinitely
   end
 
-  def minute_ago?(time)
-    time.to_f < (Time.now.to_f - 60)
+  def minute_ago?
+    if (@started < (Time.now.to_f - 60))
+      @started = Time.now.to_f 
+      true
+    else
+      false
+    end
   end
 
   def build_report(message)

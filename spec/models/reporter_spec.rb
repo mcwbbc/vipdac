@@ -93,39 +93,63 @@ describe Reporter do
 
   describe "process loop" do
     describe "with head message" do
-      it "should complete the steps" do
-        MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
-        @reporter.should_receive(:process_head_message).with("headmessage").and_return(true)
-        @reporter.process_loop(false)
+      describe "less than a minute" do
+        it "should complete the steps" do
+          MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
+          @reporter.should_receive(:process_head_message).with("headmessage").and_return(true)
+          @reporter.should_not_receive(:check_for_stuck_chunks)
+          @reporter.should_receive(:minute_ago?).and_return(false)
+          @reporter.process_loop(false)
+        end
+      end
+      describe "more than a minute" do
+        it "should complete the steps" do
+          MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
+          @reporter.should_receive(:process_head_message).with("headmessage").and_return(true)
+          @reporter.should_receive(:check_for_stuck_chunks).and_return(true)
+          @reporter.should_receive(:minute_ago?).and_return(true)
+          @reporter.process_loop(false)
+        end
       end
     end
-    describe "with no message and less than a minute ago" do
-      it "should complete the steps" do
-        MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return(nil)
-        @reporter.should_receive(:minute_ago?).and_return(false)
-        @reporter.should_not_receive(:check_for_stuck_chunks)
-        @reporter.process_loop(false)
+
+    describe "with no message" do
+      describe "less than a minute" do
+        it "should complete the steps" do
+          MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return(nil)
+          @reporter.should_receive(:sleep).with(1).and_return(true)
+          @reporter.should_receive(:minute_ago?).and_return(false)
+          @reporter.should_not_receive(:check_for_stuck_chunks)
+          @reporter.process_loop(false)
+        end
       end
-    end
-    describe "with no message and more than a minute ago" do
-      it "should complete the steps" do
-        MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return(nil)
-        @reporter.should_receive(:minute_ago?).and_return(true)
-        @reporter.should_receive(:check_for_stuck_chunks).and_return(true)
-        @reporter.process_loop(false)
+      
+      describe "more than a minute" do
+        it "should complete the steps" do
+          MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return(nil)
+          @reporter.should_receive(:sleep).with(1).and_return(true)
+          @reporter.should_receive(:minute_ago?).and_return(true)
+          @reporter.should_receive(:check_for_stuck_chunks).and_return(true)
+          @reporter.process_loop(false)
+        end
       end
     end
   end
   
   describe "minute_ago?" do
     it "should return false if now less than 1 minute ago" do
-      time_now = Time.now
-      @reporter.minute_ago?(time_now).should be_false
+      time_now = Time.now.to_f
+      Time.stub!(:now).and_return(time_now)
+      @reporter.started = time_now
+      @reporter.minute_ago?.should be_false
     end
 
     it "should return true if now more than 1 minute ago" do
-      time_now = 5.minutes.ago
-      @reporter.minute_ago?(time_now).should be_true
+      time_then = 5.minutes.ago.to_f
+      time_now = Time.now.to_f
+      Time.stub!(:now).and_return(time_now)
+      @reporter.started = time_then
+      @reporter.minute_ago?.should be_true
     end
   end
   
