@@ -1,3 +1,11 @@
+*(November 17th, 2008)*
+
+* Add Hoptoad Notifier for exception handling.
+
+*(November 14th, 2008)*
+
+* Change to use beanstalkd queue
+
 *(November 13th, 2008)*
 
 * Add priority to jobs (for new queue)
