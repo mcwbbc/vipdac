@@ -37,6 +37,8 @@ require '../app/models/omssa_packer'
 require '../app/models/watcher'
 require '../app/models/worker'
 require '../app/models/node_runner'
+require '../vendor/plugins/hoptoad_notifier/lib/hoptoad_notifier'
+require '../config/initializers/hoptoad'
 
   NodeRunner.run(ARGV)
 
