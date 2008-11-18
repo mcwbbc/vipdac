@@ -12,12 +12,12 @@ class Worker
     begin
       make_directory(PIPELINE_TMP)
       case message[:type]
-        when PACK
-          launch_packer
-        when UNPACK
-          launch_unpacker
         when PROCESS
           launch_process
+        when UNPACK
+          launch_unpacker
+        when PACK
+          launch_packer
       end
     end
     ensure
@@ -43,8 +43,10 @@ class Worker
   end
 
   def launch_packer
+    send_message(JOBPACKING, 0.0, 0.0)
     packer = (message[:searcher] == "omssa") ? OmssaPacker.new(message) : TandemPacker.new(message)
     packer.run
+    send_message(JOBPACKED, 0.0, 0.0)
   end
 
   def process_file
@@ -63,7 +65,7 @@ class Worker
   end
 
   def send_message(type, starttime, finishtime)
-    hash = {:type => type, :bytes => message[:bytes], :filename => message[:filename], :parameter_filename => message[:parameter_filename], :sendtime => message[:sendtime], :chunk_key => message[:chunk_key], :job_id => message[:job_id], :instance_id => "#{Aws.instance_id}-#{$$}", :starttime => starttime, :finishtime => finishtime}
+    hash = {:type => type, :bytes => message[:bytes], :filename => message[:filename], :parameter_filename => message[:parameter_filename], :sendtime => message[:sendtime], :chunk_key => message[:chunk_key], :job_id => message[:job_id], :bucket_name => Aws.bucket_name, :instance_id => "#{Aws.instance_id}-#{$$}", :starttime => starttime, :finishtime => finishtime}
     MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 100, :ttr => 60)
   end
   

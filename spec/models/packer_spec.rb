@@ -58,15 +58,6 @@ describe Packer do
     end
   end
 
-  describe "send job message" do
-    it "should send an Aws message" do
-      @packer = create_packer(:job_id => 1)
-      Aws.should_receive(:bucket_name).and_return("name")
-      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => DOWNLOAD, :job_id => 1, :bucket_name => "name"}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
-      @packer.send_job_message.should be_true
-    end
-  end
-
   describe "send file" do
     it "should send a file to s3" do
       file = "dir/filename"
@@ -123,7 +114,6 @@ describe Packer do
       @packer.should_receive(:download_results_files).and_return(true)
       @packer.should_receive(:zip_files).and_return(true)
       @packer.should_receive(:send_file).and_return(true)
-      @packer.should_receive(:send_job_message).and_return(true)
       @packer.should_receive(:remove_item).and_return(true)
       @packer.run
     end

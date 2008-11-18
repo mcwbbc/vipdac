@@ -50,6 +50,8 @@ describe Worker do
     describe "omssa" do
       it "should create and run the packer" do
         OmssaPacker.should_receive(:new).and_return(@packer)
+        @worker.should_receive(:send_message).with(JOBPACKING, 0.0, 0.0).and_return(true)
+        @worker.should_receive(:send_message).with(JOBPACKED, 0.0, 0.0).and_return(true)
         @worker.launch_packer.should be_true
       end
     end
@@ -57,6 +59,8 @@ describe Worker do
       it "should create and run the packer" do
         @worker = create_worker(:searcher => "tandem")
         TandemPacker.should_receive(:new).and_return(@packer)
+        @worker.should_receive(:send_message).with(JOBPACKING, 0.0, 0.0).and_return(true)
+        @worker.should_receive(:send_message).with(JOBPACKED, 0.0, 0.0).and_return(true)
         @worker.launch_packer.should be_true
       end
     end
@@ -151,14 +155,26 @@ describe Worker do
   describe "send message" do
     before(:each) do
       Aws.should_receive(:instance_id).and_return("instance")
+      Aws.should_receive(:bucket_name).and_return("bucket")
     end
-    it "should send a start node message via Aws" do
-      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => START, :bytes => 10, :filename => "filename", :parameter_filename => "parameter_filename", :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :instance_id => "instance-#{$$}", :starttime => 2.0, :finishtime => 0.0}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
+
+    it "should send a start node message" do
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => START, :bytes => 10, :filename => "filename", :parameter_filename => "parameter_filename", :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :bucket_name => "bucket", :instance_id => "instance-#{$$}", :starttime => 2.0, :finishtime => 0.0}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
       @worker.send_message(START, 2.0, 0.0)
     end
-    it "should send a finish node message via Aws" do
-      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => FINISH, :bytes => 10, :filename => "filename", :parameter_filename => "parameter_filename", :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :instance_id => "instance-#{$$}", :starttime => 2.0, :finishtime => 3.0}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
+
+    it "should send a finish node message" do
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => FINISH, :bytes => 10, :filename => "filename", :parameter_filename => "parameter_filename", :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :bucket_name => "bucket", :instance_id => "instance-#{$$}", :starttime => 2.0, :finishtime => 3.0}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
       @worker.send_message(FINISH, 2.0, 3.0)
+    end
+
+    it "should send a job packing" do
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => JOBPACKING, :bytes => 10, :filename => "filename", :parameter_filename => "parameter_filename", :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :bucket_name => "bucket", :instance_id => "instance-#{$$}", :starttime => 0.0, :finishtime => 0.0}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
+      @worker.send_message(JOBPACKING, 0.0, 0.0)
+    end
+    it "should send a job packed" do
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => JOBPACKED, :bytes => 10, :filename => "filename", :parameter_filename => "parameter_filename", :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :bucket_name => "bucket", :instance_id => "instance-#{$$}", :starttime => 0.0, :finishtime => 0.0}.to_yaml, :priority => 100, :ttr => 60).and_return(true)
+      @worker.send_message(JOBPACKED, 0.0, 0.0)
     end
   end
   

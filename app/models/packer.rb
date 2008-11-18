@@ -14,7 +14,6 @@ class Packer
       download_results_files
       zip_files
       send_file(local_zipfile) # this will upload and send the messages, since we can have other nodes start on them
-      send_job_message
     end
     ensure
       remove_item(PACK_DIR)
@@ -34,10 +33,6 @@ class Packer
     "#{PACK_DIR}/"+message[:output_file]
   end
 
-  def remove_zipfile
-    
-  end
-
   def zip_files
     Zip::ZipFile.open(local_zipfile, Zip::ZipFile::CREATE) { |zipfile|
       output_filenames.each do |filename|
@@ -46,11 +41,6 @@ class Packer
     }
   end
   
-  def send_job_message
-    hash = {:type => DOWNLOAD, :job_id => message[:job_id], :bucket_name => Aws.bucket_name}
-    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 100, :ttr => 60)
-  end
-
   def bucket_object(file_path)
     "completed-jobs/"+input_file(file_path)
   end

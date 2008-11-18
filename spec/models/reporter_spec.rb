@@ -41,52 +41,67 @@ describe Reporter do
   describe "process head message" do
     before(:each) do
       @report = mock("report")
-      @reporter.should_receive(:build_report).with("message").and_return(@report)
+      @message = mock("message")
+      @reporter.should_receive(:build_report).with(@message).and_return(@report)
     end
 
     after(:each) do
-      @reporter.process_head_message("message")
+      @reporter.process_head_message(@message)
     end
 
-    describe "download message" do
-      it "should set the job download link" do
-        @report.should_receive(:[]).with(:type).and_return(DOWNLOAD)
-        @reporter.should_receive(:set_job_download_link).with(@report, "message").and_return(true)
+    describe "unknown message" do
+      it "should update the chunk and check the status" do
+        @report.should_receive(:[]).with(:type).and_return("cheese")
+        @message.should_receive(:delete).and_return(true)
       end
     end
 
     describe "created message" do
       it "should set the job download link" do
         @report.should_receive(:[]).with(:type).and_return(CREATED)
-        @reporter.should_receive(:update_chunk).with(@report, "message", true).and_return(true)
+        @reporter.should_receive(:update_chunk).with(@report, @message, true).and_return(true)
       end
     end
 
     describe "unpacking message" do
       it "should set the job status" do
         @report.should_receive(:[]).with(:type).and_return(JOBUNPACKING)
-        @reporter.should_receive(:job_status).with(@report, "message", "Unpacking").and_return(true)
+        @reporter.should_receive(:job_status).with(@report, @message, "Unpacking").and_return(true)
       end
     end
 
     describe "unpacked message" do
       it "should set the job status" do
         @report.should_receive(:[]).with(:type).and_return(JOBUNPACKED)
-        @reporter.should_receive(:job_status).with(@report, "message", "Processing").and_return(true)
+        @reporter.should_receive(:job_status).with(@report, @message, "Processing").and_return(true)
+      end
+    end
+
+    describe "packing message" do
+      it "should set the job status" do
+        @report.should_receive(:[]).with(:type).and_return(JOBPACKING)
+        @reporter.should_receive(:job_status).with(@report, @message, "Packing").and_return(true)
+      end
+    end
+
+    describe "packed message" do
+      it "should set the job status" do
+        @report.should_receive(:[]).with(:type).and_return(JOBPACKED)
+        @reporter.should_receive(:set_job_download_link).with(@report, @message).and_return(true)
       end
     end
 
     describe "start message" do
       it "should update the chunk" do
         @report.should_receive(:[]).with(:type).and_return(START)
-        @reporter.should_receive(:update_chunk).with(@report, "message").and_return(true)
+        @reporter.should_receive(:update_chunk).with(@report, @message).and_return(true)
       end
     end
 
     describe "finish message" do
       it "should update the chunk and check the status" do
         @report.should_receive(:[]).with(:type).and_return(FINISH)
-        @reporter.should_receive(:update_chunk).with(@report, "message").and_return(true)
+        @reporter.should_receive(:update_chunk).with(@report, @message).and_return(true)
         @reporter.should_receive(:check_job_status).with(@report).and_return(true)
       end
     end
@@ -94,6 +109,30 @@ describe Reporter do
 
   describe "process loop" do
     describe "with head message" do
+      describe "with exceptions" do
+        it "should fail getting the message" do
+          MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_raise(Exception)
+          HoptoadNotifier.should_receive(:notify).with({:error_message=>"Special Error: Exception", :request=>{:params=>nil}, :error_class=>"Reporter Error"}).and_return(true)
+          @reporter.process_loop(false)
+        end
+
+        it "should fail processing the message" do
+          MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
+          @reporter.should_receive(:process_head_message).with("headmessage").and_raise(Exception)
+          HoptoadNotifier.should_receive(:notify).with({:error_message=>"Special Error: Exception", :request=>{:params=>"headmessage"}, :error_class=>"Reporter Error"}).and_return(true)
+          @reporter.process_loop(false)
+        end
+
+        it "should fail checking for chunks" do
+          MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
+          @reporter.should_receive(:process_head_message).with("headmessage").and_return(true)
+          @reporter.should_receive(:minute_ago?).and_return(true)
+          @reporter.should_receive(:check_for_stuck_chunks).and_raise(Exception)
+          HoptoadNotifier.should_receive(:notify).with({:error_message=>"Special Error: Exception", :request=>{:params=>"headmessage"}, :error_class=>"Reporter Error"}).and_return(true)
+          @reporter.process_loop(false)
+        end
+      end
+
       describe "less than a minute" do
         it "should complete the steps" do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
@@ -104,6 +143,7 @@ describe Reporter do
           @reporter.started.should be_instance_of(Time)
         end
       end
+
       describe "more than a minute" do
         it "should complete the steps" do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
@@ -193,17 +233,6 @@ describe Reporter do
     end
   end
 
-  describe "logger" do
-    before(:each) do
-      File.should_receive(:join).and_return("reporter.log")
-      Logger.should_receive(:new).with("reporter.log").and_return("logger")
-    end
-
-    it "should open a new log file and return a new logger" do
-      @reporter.logger.should == "logger"
-    end
-  end
-
   describe "write pid" do
     it "should write the current process id to a file" do
       File.should_receive(:join).and_return("reporter.pid")
@@ -223,9 +252,7 @@ describe Reporter do
     end
 
     it "should log an exception if the job doesn't exist" do
-      @logger = mock_model(Logger)
-      @logger.should_receive(:error).exactly(3).times.and_return(true)
-      @reporter.stub!(:logger).and_return(@logger)
+      HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>"id"}, :error_message=>"Special Error: Exception", :error_class=>"Invalid Job"}).and_return(true)
       Job.stub!(:find).and_raise(Exception)
       job = @reporter.load_job("id")
       job.should  be_nil
@@ -237,16 +264,12 @@ describe Reporter do
       @report = mock("report")
       @report.should_receive(:[]).with(:job_id).and_return(1234)
       @job = mock_model(Job)
-      Time.stub!(:now).and_return(1)
     end
     describe "processed and not complete" do
       it "should update the job status and send a pack request" do
         @reporter.should_receive(:load_job).with(1234).and_return(@job)
         @job.should_receive(:processed?).and_return(true)
         @job.should_receive(:complete?).and_return(false)
-        @job.should_receive(:status=).with("Complete").and_return(true)
-        @job.should_receive(:finished_at=).with(1.0).and_return(true)
-        @job.should_receive(:save).and_return(true)
         @job.should_receive(:send_pack_request).and_return(true)
         @reporter.check_job_status(@report)
       end
@@ -288,12 +311,15 @@ describe Reporter do
       @report.should_receive(:[]).with(:job_id).and_return(1234)
       @message = mock("message")
       @job = mock_model(Job)
+      Time.stub!(:now).and_return(1)
     end
     describe "success" do
       it "should have a valid job link" do
         @reporter.should_receive(:create_job_link).and_return("job_link")
         @job.should_receive(:link=).with("job_link").and_return(true)
-        @job.should_receive(:save).and_return(true)
+        @job.should_receive(:status=).with("Complete").and_return(true)
+        @job.should_receive(:finished_at=).with(1.0).and_return(true)
+        @job.should_receive(:save!).and_return(true)
         @job.should_receive(:remove_s3_working_folder).and_return(true)
         @message.should_receive(:delete).and_return(true)
         @reporter.should_receive(:load_job).with(1234).and_return(@job)
@@ -303,7 +329,7 @@ describe Reporter do
 
     describe "failure" do
       it "should not set a link and delete the message" do
-        @job.should_not_receive(:save)
+        @job.should_not_receive(:save!)
         @job.should_not_receive(:remove_s3_working_folder)
         @message.should_receive(:delete).and_return(true)
         @reporter.should_receive(:load_job).with(1234).and_return(nil)
@@ -331,7 +357,7 @@ describe Reporter do
 
     describe "success for create" do
       it "should create a chunk and send the process message" do
-        @chunk.should_receive(:save).and_return(true)
+        @chunk.should_receive(:save!).and_return(true)
         @chunk.should_receive(:send_process_message).and_return(true)
         @message.should_receive(:delete).and_return(true)
         @reporter.update_chunk("report", @message, true)
@@ -340,7 +366,7 @@ describe Reporter do
 
     describe "success for update" do
       it "should update a chunk" do
-        @chunk.should_receive(:save).and_return(true)
+        @chunk.should_receive(:save!).and_return(true)
         @chunk.should_not_receive(:send_process_message).and_return(true)
         @message.should_receive(:delete).and_return(true)
         @reporter.update_chunk("report", @message)
@@ -358,7 +384,7 @@ describe Reporter do
         @report.should_receive(:[]).with(:job_id).and_return(1234)
         @reporter.should_receive(:load_job).with(1234).and_return(@job)
 
-        @job.should_receive(:save).and_return(true)
+        @job.should_receive(:save!).and_return(true)
         @message.should_receive(:delete).and_return(true)
         @reporter.job_status(@report, @message, "status")
       end
@@ -371,7 +397,7 @@ describe Reporter do
         @report = mock("report")
         @report.should_receive(:[]).with(:job_id).and_return(1234)
         @reporter.should_receive(:load_job).with(1234).and_return(nil)
-        @job.should_not_receive(:save)
+        @job.should_not_receive(:save!)
         @job.should_not_receive(:status=)
         @message.should_receive(:delete).and_return(true)
         @reporter.job_status(@report, @message, "status")
