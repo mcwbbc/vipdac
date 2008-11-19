@@ -248,3 +248,17 @@ img {
   border: thin solid #666666;
   padding: 10px;
 }
+
+.bar {
+  width: 100%;
+}
+ 
+#progress {
+  border: 1px solid #229316;
+}
+
+#progressbar {
+  width: 0px;
+  height: 24px;
+  background: #229316;
+}

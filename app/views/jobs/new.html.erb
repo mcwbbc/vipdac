@@ -2,7 +2,7 @@
 
 <%= all_error_messages_for :job %>
 
-<% form_for @job, :html => { :multipart => true }  do |f| %>
+<% form_for @job, :html => { :id => 'upload', :multipart => true }  do |f| %>
 <table>
   <tr valign="top">
     <td>Name:</td>
@@ -28,6 +28,10 @@
   <tr>
     <td>Parameter File:</td>
     <td><div id="parameter_files"><%= render(:partial => "parameter_files", :locals => { :f => f }) %></div></td>
+  </tr>
+  <tr>
+    <td>Upload progress:</td>
+    <td><div id="progress" class="bar"><div id="progressbar">&nbsp;</div></div></td>
   </tr>
   <tr>
     <td></td>
