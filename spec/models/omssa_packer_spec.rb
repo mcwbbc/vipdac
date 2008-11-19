@@ -89,7 +89,6 @@ describe OmssaPacker do
       @packer.should_receive(:zip_files).and_return(true)
       @packer.should_receive(:generate_ez2_file).and_return(true)
       @packer.should_receive(:send_file).with("local_zipfile").and_return(true)
-      @packer.should_receive(:send_job_message).and_return(true)
       @packer.should_receive(:remove_item).with(/\/pipeline\/tmp-(.+?)\/pack/).and_return(true)
       @packer.run
     end
