@@ -12,6 +12,7 @@ class CreateJobs < ActiveRecord::Migration
       t.integer :priority
       t.float :launched_at, :limit => 53, :default => 0
       t.float :finished_at, :limit => 53, :default => 0
+      t.float :started_pack_at, :limit => 53, :default => 0
       t.string :mgf_file_name
       t.string :mgf_content_type
       t.integer :mgf_file_size

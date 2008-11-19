@@ -17,7 +17,6 @@ class Job < ActiveRecord::Base
   after_destroy :remove_s3_files, :remove_s3_working_folder
 
   class << self
-
     def page(page=1, limit=10)
       paginate(:page => page,
                :order => 'created_at DESC',
@@ -28,10 +27,13 @@ class Job < ActiveRecord::Base
     def incomplete
       find(:all, :conditions => ["status != ?", "Complete"])
     end
-
   end
 
-  def stuck?
+  def stuck_packing?
+    packing? && started_pack_at < 10.minutes.ago.to_f
+  end
+
+  def stuck_chunks?
     chunk = chunks.complete.first(:order => 'finished_at DESC')
     if chunk
       chunk.finished_at < 10.minutes.ago.to_f
@@ -104,6 +106,10 @@ class Job < ActiveRecord::Base
     @list
   end
 
+  def packing?
+    ((status == "Packing") || (status == "Requested packing"))
+  end
+
   def pending?
     status == "Pending"
   end
@@ -139,7 +145,13 @@ class Job < ActiveRecord::Base
   end
 
   def send_pack_request
-    send_message(PACK) if upload_manifest
+    begin
+      uploaded = upload_manifest
+    end while !uploaded
+    self.started_pack_at = Time.now.to_f
+    self.status = "Requested packing" #remove the launch link
+    self.save!
+    send_message(PACK)
   end
 
   def output_file

@@ -14,7 +14,7 @@ class Reporter
       else
         sleep(1)
       end
-      check_for_stuck_chunks if minute_ago?
+      check_for_stuck_jobs if minute_ago?
     rescue Exception => e
       HoptoadNotifier.notify(
         :error_class => "Reporter Error", 
@@ -67,14 +67,17 @@ class Reporter
       end
   end
 
-  # check for stuck chunks, if we have any, set the priority to 50 so we process them right away
+  # check for stuck jobs, if we have any, set the priority to 50 so we process them right away
+  # if the job is stuck because of packing, re-send the pack request
 
-  def check_for_stuck_chunks
+  def check_for_stuck_jobs
     Job.incomplete.each do |job|
-      if job.stuck?
+      if job.stuck_chunks?
         job.priority = 50
         job.save!
         job.resend_stuck_chunks 
+      elsif job.stuck_packing?
+       job.send_pack_request
       end
     end
   end

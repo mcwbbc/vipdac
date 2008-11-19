@@ -6,33 +6,40 @@ describe Reporter do
     @reporter = create_reporter
   end
 
-  describe "check for stuck chunks" do
+  describe "check for stuck jobs" do
     it "should find all incomplete jobs" do
       Job.should_receive(:incomplete).and_return([])
-      @reporter.check_for_stuck_chunks
+      @reporter.check_for_stuck_jobs
     end
 
     describe "given an incomplete job" do
-      it "should check if the job is stuck?" do
-        job = mock_model(Job)
-        job.should_receive(:stuck?).and_return(false)
-        jobs = [job]
-        Job.should_receive(:incomplete).and_return(jobs)
-        @reporter.check_for_stuck_chunks
-      end
-
-      describe "if stuck" do
+      describe "with stuck chunks" do
         it "should send process messages for all non finished chunks" do
           j1 = mock_model(Job)
-          j1.should_receive(:stuck?).and_return(true)
+          j1.should_receive(:stuck_chunks?).and_return(true)
           j1.should_receive(:priority=).with(50).and_return(true)
           j1.should_receive(:save!).and_return(true)
           j1.should_receive(:resend_stuck_chunks).and_return(true)
           j2 = mock_model(Job)
-          j2.should_receive(:stuck?).and_return(false)
+          j2.should_receive(:stuck_chunks?).and_return(false)
+          j2.should_receive(:stuck_packing?).and_return(false)
           jobs = [j1, j2]
           Job.should_receive(:incomplete).and_return(jobs)
-          @reporter.check_for_stuck_chunks
+          @reporter.check_for_stuck_jobs
+        end
+      end
+      describe "with stuck packing" do
+        it "should send process messages for all non finished chunks" do
+          j1 = mock_model(Job)
+          j1.should_receive(:stuck_chunks?).and_return(false)
+          j1.should_receive(:stuck_packing?).and_return(false)
+          j2 = mock_model(Job)
+          j2.should_receive(:stuck_chunks?).and_return(false)
+          j2.should_receive(:stuck_packing?).and_return(true)
+          j2.should_receive(:send_pack_request)
+          jobs = [j1, j2]
+          Job.should_receive(:incomplete).and_return(jobs)
+          @reporter.check_for_stuck_jobs
         end
       end
     end
@@ -127,7 +134,7 @@ describe Reporter do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
           @reporter.should_receive(:process_head_message).with("headmessage").and_return(true)
           @reporter.should_receive(:minute_ago?).and_return(true)
-          @reporter.should_receive(:check_for_stuck_chunks).and_raise(Exception)
+          @reporter.should_receive(:check_for_stuck_jobs).and_raise(Exception)
           HoptoadNotifier.should_receive(:notify).with({:error_message=>"Reporter Error: Exception", :request=>{:params=>"headmessage"}, :error_class=>"Reporter Error"}).and_return(true)
           @reporter.process_loop(false)
         end
@@ -137,7 +144,7 @@ describe Reporter do
         it "should complete the steps" do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
           @reporter.should_receive(:process_head_message).with("headmessage").and_return(true)
-          @reporter.should_not_receive(:check_for_stuck_chunks)
+          @reporter.should_not_receive(:check_for_stuck_jobs)
           @reporter.should_receive(:minute_ago?).and_return(false)
           @reporter.process_loop(false)
           @reporter.started.should be_instance_of(Time)
@@ -148,7 +155,7 @@ describe Reporter do
         it "should complete the steps" do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
           @reporter.should_receive(:process_head_message).with("headmessage").and_return(true)
-          @reporter.should_receive(:check_for_stuck_chunks).and_return(true)
+          @reporter.should_receive(:check_for_stuck_jobs).and_return(true)
           @reporter.should_receive(:minute_ago?).and_return(true)
           @reporter.process_loop(false)
           @reporter.started.should be_instance_of(Time)
@@ -162,7 +169,7 @@ describe Reporter do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return(nil)
           @reporter.should_receive(:sleep).with(1).and_return(true)
           @reporter.should_receive(:minute_ago?).and_return(false)
-          @reporter.should_not_receive(:check_for_stuck_chunks)
+          @reporter.should_not_receive(:check_for_stuck_jobs)
           @reporter.process_loop(false)
           @reporter.started.should be_instance_of(Time)
         end
@@ -173,7 +180,7 @@ describe Reporter do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return(nil)
           @reporter.should_receive(:sleep).with(1).and_return(true)
           @reporter.should_receive(:minute_ago?).and_return(true)
-          @reporter.should_receive(:check_for_stuck_chunks).and_return(true)
+          @reporter.should_receive(:check_for_stuck_jobs).and_return(true)
           @reporter.process_loop(false)
           @reporter.started.should be_instance_of(Time)
         end

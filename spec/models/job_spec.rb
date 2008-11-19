@@ -28,7 +28,30 @@ describe Job do
     end
   end
 
-  describe "stuck?" do
+  describe "stuck_packing?" do
+    describe "when not stuck" do
+      it "should return false if we're not packing" do
+        @job.should_receive(:packing?).and_return(false)
+        @job.stuck_packing?.should be_false
+      end
+
+      it "should be false if it started packing less than 10 minutes ago" do
+        @job.should_receive(:packing?).and_return(true)
+        @job.should_receive(:started_pack_at).and_return(5.minutes.ago.to_f)
+        @job.stuck_packing?.should be_false
+      end
+    end
+
+    describe "when stuck" do
+      it "should be true if we're packing at it's been more than 10 minutes since we started" do
+        @job.should_receive(:packing?).and_return(true)
+        @job.should_receive(:started_pack_at).and_return(11.minutes.ago.to_f)
+        @job.stuck_packing?.should be_true
+      end
+    end
+  end
+
+  describe "stuck_chunks?" do
     before(:each) do
       @chunk = mock_model(Chunk)
       @complete = mock("complete")
@@ -37,17 +60,17 @@ describe Job do
     end
     it "should be false if no chunks" do
       @complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(nil)
-      @job.stuck?.should be_false
+      @job.stuck_chunks?.should be_false
     end
     it "should be true if it finished more than 10 minutes ago" do
       @complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(@chunk)
       @chunk.should_receive(:finished_at).and_return(11.minutes.ago.to_f)
-      @job.stuck?.should be_true
+      @job.stuck_chunks?.should be_true
     end
     it "should be false if it finished less than 10 minutes ago" do
       @complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(@chunk)
       @chunk.should_receive(:finished_at).and_return(5.minutes.ago.to_f)
-      @job.stuck?.should be_false
+      @job.stuck_chunks?.should be_false
     end
   end
 
@@ -61,7 +84,6 @@ describe Job do
       @job.resend_stuck_chunks
     end
   end
-
 
   describe "when displaying chunk times" do
     describe "maximum" do
@@ -145,6 +167,23 @@ describe Job do
       @job.should_receive(:remove_s3_files).and_return(true)
       @job.should_receive(:remove_s3_working_folder).and_return(true)
       @job.destroy
+    end
+  end
+
+  describe "packing" do
+    it "should return true for status == 'Packing'" do
+      @job.should_receive(:status).and_return("Packing")
+      @job.packing?.should be_true
+    end
+
+    it "should return true for status == 'Requested packing'" do
+      @job.should_receive(:status).twice.and_return("Requested packing")
+      @job.packing?.should be_true
+    end
+
+    it "should return false for status != 'Packing' || 'Requested packing'" do
+      @job.should_receive(:status).twice.and_return("cheese")
+      @job.packing?.should be_false
     end
   end
 
@@ -330,13 +369,22 @@ describe Job do
 
   describe "send pack request" do
     it "should send the pack message if the manifest uploaded" do
+      Time.stub!(:now).and_return(1.0)
       @job.should_receive(:upload_manifest).and_return(true)
+      @job.should_receive(:started_pack_at=).with(1.0).and_return(true)
+      @job.should_receive(:status=).with("Requested packing").and_return(true)
+      @job.should_receive(:save!).and_return(true)
       @job.should_receive(:send_message).with(PACK).and_return(true)
       @job.send_pack_request
     end
-    it "should not send the pack message if the manifest upload failed" do
-      @job.should_receive(:upload_manifest).and_return(false)
-      @job.should_not_receive(:send_message).with(PACK)
+
+    it "should retry the upload until successful" do
+      Time.stub!(:now).and_return(1.0)
+      @job.should_receive(:upload_manifest).twice.and_return(false, true)
+      @job.should_receive(:started_pack_at=).with(1.0).and_return(true)
+      @job.should_receive(:status=).with("Requested packing").and_return(true)
+      @job.should_receive(:save!).and_return(true)
+      @job.should_receive(:send_message).with(PACK).and_return(true)
       @job.send_pack_request
     end
   end
@@ -357,9 +405,6 @@ describe Job do
       @job.should_receive(:save).and_return(true)
       Time.stub!(:now).and_return(1.0)
       @job.launch
-    end
-
-    it "should complete all steps" do
     end
 
     it "should set status to launching" do

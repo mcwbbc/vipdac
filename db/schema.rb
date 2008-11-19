@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(:version => 20081002180447) do
     t.integer  "priority"
     t.float    "launched_at",       :default => 0.0
     t.float    "finished_at",       :default => 0.0
+    t.float    "started_pack_at",   :default => 0.0
     t.string   "mgf_file_name"
     t.string   "mgf_content_type"
     t.integer  "mgf_file_size"

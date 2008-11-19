@@ -3,6 +3,10 @@
 * add exception handling to watcher, reporter, beanstalk message queue
 * force the node startup to run in production so it sends hoptoad messages
 * sleep and retry if we get an unable to connect to beanstalkd error
+* add logic into jobs to check for packing status
+* check for stuck packing jobs in reporter in addition to chunks
+* add started_pack_at into job table for assistance in checking for jobs stuck packing 
+* keep trying to upload the manifest until successful in a job
 
 *(November 17th, 2008)*
 
