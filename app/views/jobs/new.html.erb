@@ -2,6 +2,15 @@
 
 <%= all_error_messages_for :job %>
 
+<script type="text/javascript">
+  Event.observe(window, 'load', function() {
+    $('upload').uploadProgress({
+      prototypePath: "/javascripts/prototype.js",
+      uploadProgressPath: "/javascripts/upload_progress.js"
+    });
+  });
+</script>
+
 <% form_for @job, :html => { :id => 'upload', :multipart => true }  do |f| %>
 <table>
   <tr valign="top">
