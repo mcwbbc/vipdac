@@ -58,13 +58,13 @@ describe Watcher do
         @watcher.should_receive(:convert_message_to_hash).with("message").and_return("hash")
         @watcher.should_receive(:create_worker).and_return("worker")
         @watcher.should_receive(:process).with("worker", "message").and_raise(Exception)
-        HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>{:message=>"message"}}, :error_message=>"Watcher Error: Exception", :error_class=>"Watcher Error"}).and_return(true)
+        HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>{:message=>"message"}}, :error_message=>"Exception: Exception", :error_class=>"Exception"}).and_return(true)
         @watcher.check_queue
       end
 
       it "should report deadline soon errors" do
         MessageQueue.should_receive(:get).with(:name => 'node', :peek => false).and_raise(Beanstalk::DeadlineSoonError)
-        HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>{:message=>nil}}, :error_message=>"Watcher Error: Beanstalk::DeadlineSoonError", :error_class=>"Watcher Error"}).and_return(true)
+        HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>{:message=>nil}}, :error_message=>"Beanstalk::DeadlineSoonError: Beanstalk::DeadlineSoonError", :error_class=>"Beanstalk::DeadlineSoonError"}).and_return(true)
         @watcher.check_queue
       end
     end

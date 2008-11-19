@@ -119,14 +119,14 @@ describe Reporter do
       describe "with exceptions" do
         it "should fail getting the message" do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_raise(Exception)
-          HoptoadNotifier.should_receive(:notify).with({:error_message=>"Reporter Error: Exception", :request=>{:params=>nil}, :error_class=>"Reporter Error"}).and_return(true)
+          HoptoadNotifier.should_receive(:notify).with({:error_message=>"Exception: Exception", :request=>{:params=>nil}, :error_class=>"Exception"}).and_return(true)
           @reporter.process_loop(false)
         end
 
         it "should fail processing the message" do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
           @reporter.should_receive(:process_head_message).with("headmessage").and_raise(Exception)
-          HoptoadNotifier.should_receive(:notify).with({:error_message=>"Reporter Error: Exception", :request=>{:params=>"headmessage"}, :error_class=>"Reporter Error"}).and_return(true)
+          HoptoadNotifier.should_receive(:notify).with({:error_message=>"Exception: Exception", :request=>{:params=>"headmessage"}, :error_class=>"Exception"}).and_return(true)
           @reporter.process_loop(false)
         end
 
@@ -135,7 +135,7 @@ describe Reporter do
           @reporter.should_receive(:process_head_message).with("headmessage").and_return(true)
           @reporter.should_receive(:minute_ago?).and_return(true)
           @reporter.should_receive(:check_for_stuck_jobs).and_raise(Exception)
-          HoptoadNotifier.should_receive(:notify).with({:error_message=>"Reporter Error: Exception", :request=>{:params=>"headmessage"}, :error_class=>"Reporter Error"}).and_return(true)
+          HoptoadNotifier.should_receive(:notify).with({:error_message=>"Exception: Exception", :request=>{:params=>"headmessage"}, :error_class=>"Exception"}).and_return(true)
           @reporter.process_loop(false)
         end
       end
@@ -259,7 +259,7 @@ describe Reporter do
     end
 
     it "should log an exception if the job doesn't exist" do
-      HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>"id"}, :error_message=>"Special Error: Exception", :error_class=>"Invalid Job"}).and_return(true)
+      HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>"id"}, :error_message=>"Job Load Error: Exception", :error_class=>"Invalid Job"}).and_return(true)
       Job.stub!(:find).and_raise(Exception)
       job = @reporter.load_job("id")
       job.should  be_nil

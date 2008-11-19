@@ -17,8 +17,8 @@ class Reporter
       check_for_stuck_jobs if minute_ago?
     rescue Exception => e
       HoptoadNotifier.notify(
-        :error_class => "Reporter Error", 
-        :error_message => "Reporter Error: #{e.message}", 
+        :error_class => e.class.name, 
+        :error_message => "#{e.class.name}: #{e.message}", 
         :request => { :params => @message }
       )
     end while looping_infinitely
@@ -159,7 +159,7 @@ class Reporter
     rescue Exception => e
       HoptoadNotifier.notify(
         :error_class => "Invalid Job", 
-        :error_message => "Special Error: #{e.message}", 
+        :error_message => "Job Load Error: #{e.message}", 
         :request => { :params => id }
       )
       nil
