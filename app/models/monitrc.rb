@@ -7,7 +7,6 @@ class Monitrc
       write_node_file
       symlink_reporter if master?
       symlink_beanstalkd if master?
-      symlink_thin if master?
     end
 
     def configuration

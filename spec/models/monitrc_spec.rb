@@ -13,20 +13,18 @@ describe Monitrc do
 
     describe "as a worker" do
       it "should complete the steps" do
-        Monitrc.should_receive(:master?).exactly(3).times.and_return(false)
+        Monitrc.should_receive(:master?).exactly(2).times.and_return(false)
         Monitrc.should_not_receive(:symlink_reporter)
         Monitrc.should_not_receive(:symlink_beanstalkd)
-        Monitrc.should_not_receive(:symlink_thin)
         Monitrc.run
       end
     end
 
     describe "as a master" do
       it "should complete the steps" do
-        Monitrc.should_receive(:master?).exactly(3).times.and_return(true)
+        Monitrc.should_receive(:master?).exactly(2).times.and_return(true)
         Monitrc.should_receive(:symlink_reporter).and_return(true)
         Monitrc.should_receive(:symlink_beanstalkd).and_return(true)
-        Monitrc.should_receive(:symlink_thin).and_return(true)
         Monitrc.run
       end
     end
