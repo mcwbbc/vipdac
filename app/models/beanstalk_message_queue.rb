@@ -9,10 +9,15 @@ class BeanstalkMessageQueue
     # we need this for the reporter since it needs to fall through so we can do stuck chunk checks
     # the workers can just hang on waiting until something appears
     def get_message(name, peek=false)
-      if peek
-        get_queue(name).reserve if get_queue(name).peek_ready
-      else
-        get_queue(name).reserve
+      begin
+        if peek
+          get_queue(name).reserve if get_queue(name).peek_ready
+        else
+          get_queue(name).reserve
+        end
+      rescue Beanstalk::NotConnected => e
+        sleep(10)
+        retry if !Rails.env.test?
       end
     end
 
@@ -23,7 +28,12 @@ class BeanstalkMessageQueue
       priority ||= DEFAULT_PRIORITY
       delay ||= 0
       ttr ||= TTR
-      get_queue(name).put(message, priority, delay, ttr)
+      begin
+        get_queue(name).put(message, priority, delay, ttr)
+      rescue Beanstalk::NotConnected => e
+        sleep(10)
+        retry if !Rails.env.test?
+      end
     end
 
     def server_ip

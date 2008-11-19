@@ -18,7 +18,7 @@ class Reporter
     rescue Exception => e
       HoptoadNotifier.notify(
         :error_class => "Reporter Error", 
-        :error_message => "Special Error: #{e.message}", 
+        :error_message => "Reporter Error: #{e.message}", 
         :request => { :params => @message }
       )
     end while looping_infinitely

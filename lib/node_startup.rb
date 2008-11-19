@@ -40,6 +40,9 @@ require '../app/models/node_runner'
 require '../vendor/plugins/hoptoad_notifier/lib/hoptoad_notifier'
 require '../config/initializers/hoptoad'
 
+RAILS_ROOT = "#{File.dirname(__FILE__)}/.." unless defined?(RAILS_ROOT)
+RAILS_ENV = 'production'
+
   NodeRunner.run(ARGV)
 
 exit(1)

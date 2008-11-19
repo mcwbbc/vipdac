@@ -1,3 +1,9 @@
+*(November 19th, 2008)*
+
+* add exception handling to watcher, reporter, beanstalk message queue
+* force the node startup to run in production so it sends hoptoad messages
+* sleep and retry if we get an unable to connect to beanstalkd error
+
 *(November 17th, 2008)*
 
 * Add Hoptoad Notifier for exception handling.

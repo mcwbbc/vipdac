@@ -34,11 +34,6 @@ describe Watcher do
       @watcher.process(@worker, @message)
     end
 
-    it "should delete the message if an exception occurs" do
-      @worker.should_receive(:run).and_raise(RightAws::AwsError)
-      @message.should_receive(:delete).and_return(true)
-      @watcher.process(@worker, @message)
-    end
   end
 
   describe "run" do
@@ -55,6 +50,23 @@ describe Watcher do
       @watcher.should_receive(:create_worker).and_return("worker")
       @watcher.should_receive(:process).with("worker", "message").and_return(true)
       @watcher.check_queue
+    end
+  
+    describe "with an exception" do
+      it "should delete the message if it's NoSuchKey" do
+        MessageQueue.should_receive(:get).with(:name => 'node', :peek => false).and_return("message")
+        @watcher.should_receive(:convert_message_to_hash).with("message").and_return("hash")
+        @watcher.should_receive(:create_worker).and_return("worker")
+        @watcher.should_receive(:process).with("worker", "message").and_raise(Exception)
+        HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>{:message=>"message"}}, :error_message=>"Watcher Error: Exception", :error_class=>"Watcher Error"}).and_return(true)
+        @watcher.check_queue
+      end
+
+      it "should report deadline soon errors" do
+        MessageQueue.should_receive(:get).with(:name => 'node', :peek => false).and_raise(Beanstalk::DeadlineSoonError)
+        HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>{:message=>nil}}, :error_message=>"Watcher Error: Beanstalk::DeadlineSoonError", :error_class=>"Watcher Error"}).and_return(true)
+        @watcher.check_queue
+      end
     end
   end
 

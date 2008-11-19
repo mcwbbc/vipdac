@@ -22,6 +22,16 @@ describe BeanstalkMessageQueue do
     end
 
     describe "without peek" do
+      describe "with not connected error" do
+        it "should sleep for 10 seconds" do
+          queue = mock("queue")
+          queue.should_receive(:reserve).and_raise(Beanstalk::NotConnected)
+          BeanstalkMessageQueue.should_receive(:get_queue).with('cheese').and_return(queue)
+          BeanstalkMessageQueue.should_receive(:sleep).with(10).and_return(false)
+          BeanstalkMessageQueue.get_message('cheese')
+        end
+      end
+
       it "should return a message if it exists" do
         message = mock("message")
         queue = mock("queue")
@@ -49,6 +59,17 @@ describe BeanstalkMessageQueue do
   end
 
   describe "send message" do
+
+    describe "with not connected error" do
+      it "should sleep for 10 seconds" do
+        queue = mock("queue")
+        queue.should_receive(:put).with('message', 65536, 0, 600).and_raise(Beanstalk::NotConnected)
+        BeanstalkMessageQueue.should_receive(:get_queue).with('cheese').and_return(queue)
+        BeanstalkMessageQueue.should_receive(:sleep).with(10).and_return(false)
+        BeanstalkMessageQueue.send_message('cheese', 'message')
+      end
+    end
+    
     it "should send a message with the default parameters" do
       queue = mock("queue")
       queue.should_receive(:put).with('message', 65536, 0, 600)
@@ -121,8 +142,7 @@ describe BeanstalkMessageQueue do
   
     it "should use the local_ipv4 if we're on the head" do
       AwsParameters.should_receive(:run).and_return({'local-ipv4' => '127.0.0.1'})
-      3.times { @ip = BeanstalkMessageQueue.server_ip }
-      @ip.should == '127.0.0.1'
+      3.times { BeanstalkMessageQueue.server_ip.should == '127.0.0.1' }
     end
 
     it "should use the beanstalkd if we're on a worker" do
