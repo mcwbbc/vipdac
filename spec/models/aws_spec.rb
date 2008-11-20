@@ -25,6 +25,12 @@ describe Aws do
       Aws.put_object("object", "data")
     end
 
+    it "should put an object on s3 verifying the md5" do
+      hash = {"x-amz-id-2"=>"IZN3XsH4FlBU0+XYkFTfHwaiF1tNzrm6dIW2EM/cthKvl71nldfVC0oVQyydzWpb", "content-length"=>"0"}
+      @s3.should_receive(:store_object_and_verify).with(:bucket => "bucket", :key => "object", :md5 => "md5", :data => "data", :headers => {}).and_return(hash)
+      Aws.put_verified_object("object", "data", "md5").should == hash
+    end
+
     it "should get an object from s3" do
       @s3.should_receive(:get).with("bucket", "object")
       Aws.get_object("object")

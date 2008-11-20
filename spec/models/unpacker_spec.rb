@@ -10,20 +10,6 @@ describe Unpacker do
       @unpacker.message[:bucket_name].should eql("bucket")
     end
   end
-
-  describe "cleanup working directory" do
-    it "should remove the directory if it exists" do
-      File.should_receive(:exists?).and_return(true)
-      FileUtils.should_receive(:rm_r).and_return(true)
-      @unpacker.remove_item("temp")
-    end
-
-    it "should not remove the directory if it doesn't exist" do
-      File.should_receive(:exists?).and_return(false)
-      FileUtils.should_not_receive(:rm_r)
-      @unpacker.remove_item("temp")
-    end
-  end
   
   describe "local zipfile" do
     it "should return a filename string" do
@@ -34,38 +20,6 @@ describe Unpacker do
   describe "local parameter file" do
     it "should return a filename string" do
       @unpacker.local_parameter_file.should match(/unpack\/parameters.conf/)
-    end
-  end
-
-  describe "make directory" do
-    it "should create the pack directory" do
-      File.should_receive(:exists?).and_return(false)
-      Dir.should_receive(:mkdir).and_return(true)
-      @unpacker.make_directory("test")
-    end
-
-    it "should not create the pack directory" do
-      File.should_receive(:exists?).and_return(true)
-      Dir.should_not_receive(:mkdir).and_return(true)
-      @unpacker.make_directory("test")
-    end
-  end
-
-  describe "unzip file" do
-    it "should unzip the zip file into the target" do
-      entry = "entry"
-      dir = mock("dir")
-      dir.should_receive(:entries).with('.').and_return([entry])
-      zipfile = mock("zipfile")
-      zipfile.should_receive(:dir).and_return(dir)
-      zipfile.should_receive(:extract).with("entry", "target/entry").and_return(true)
-      Zip::ZipFile.should_receive(:open).with("source").and_yield(zipfile)
-      @unpacker.unzip_file("source", "target")
-    end
-
-    it "should return nil for an exception" do
-      Zip::ZipFile.should_receive(:open).with("source").and_raise(Zip::ZipDestinationFileExistsError)
-      @unpacker.unzip_file("source", "target").should be_nil
     end
   end
 
@@ -115,7 +69,7 @@ describe Unpacker do
   describe "update split mgf files" do
     it "should send a file to s3" do
       @unpacker.should_receive(:mgf_filenames).and_return(["filename"])
-      @unpacker.should_receive(:send_file).with("filename").and_return(true)
+      @unpacker.should_receive(:send_file).with("12/filename", "filename").and_return(true)
       @unpacker.should_receive(:send_created_message).with("filename").and_return(true)
       @unpacker.upload_split_mgf_files
     end
@@ -128,7 +82,8 @@ describe Unpacker do
       @unpacker.should_receive(:download_file).and_return(true)
       @unpacker.should_receive(:unzip_file).and_return(true)
       @unpacker.should_receive(:split_original_mgf).and_return(true)
-      @unpacker.should_receive(:send_file).and_return(true)
+      @unpacker.should_receive(:local_parameter_file).twice.and_return("parameters.conf")
+      @unpacker.should_receive(:send_file).with("12/parameters.conf", "parameters.conf").and_return(true)
       @unpacker.should_receive(:upload_split_mgf_files).and_return(true)
       @unpacker.should_receive(:remove_item).and_return(true)
       @unpacker.run

@@ -95,35 +95,6 @@ describe Worker do
     end
   end
 
-  describe "remove item" do
-    it "should remove the worker directory" do
-      File.should_receive(:exists?).and_return(true)
-      FileUtils.should_receive(:rm_r).and_return(true)
-      @worker.remove_item("dir")
-    end
-
-    it "should not remove the worker directory" do
-      File.should_receive(:exists?).and_return(false)
-      FileUtils.should_not_receive(:rm_r).and_return(true)
-      @worker.remove_item("dir")
-    end
-  end
-
-  describe "make directory" do
-    it "should create the working directory" do
-      File.should_receive(:exists?).and_return(false)
-      Dir.should_receive(:mkdir).and_return(true)
-      @worker.make_directory("test")
-    end
-
-    it "should not create the working directory" do
-      File.should_receive(:exists?).and_return(true)
-      Dir.should_not_receive(:mkdir).and_return(true)
-      @worker.make_directory("test")
-    end
-  end
-
-
   describe "process file" do
     describe "omssa" do
       it "should create a new ommsa searcher" do
@@ -196,7 +167,6 @@ describe Worker do
 
   describe "local input filename" do
     it "should return a filename" do
-      @worker
       @worker.local_input_filename.should match(%r|pipeline/tmp-(\d+?)/filename|)
     end
   end

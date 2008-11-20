@@ -1,12 +1,20 @@
 class Reporter
 
+  include Utilities
+
   attr_accessor :started
 
-  # loop forever checking the queue for messages and processing them
-  # every minute we check for stuck jobs
+  # when we're first loaded, insert the node into the db
+  # then save the PID and run the loop
+  
+  def run
+    node = Node.new(:instance_type => Aws.instance_type, :instance_id => Aws.instance_id)
+    node.save
+    write_pid
+    process_loop
+  end
 
-  def process_loop(looping_infinitely = true)
-    @started = Time.now
+  def process
     begin
       @message = MessageQueue.get(:name => 'head', :peek => true)
       if @message
@@ -15,12 +23,32 @@ class Reporter
         sleep(1)
       end
       check_for_stuck_jobs if minute_ago?
+    rescue Interrupt, SignalException
+      # quit when we get one of these exceptions
+      exit
     rescue Exception => e
       HoptoadNotifier.notify(
         :error_class => e.class.name, 
         :error_message => "#{e.class.name}: #{e.message}", 
         :request => { :params => @message }
-      )
+      ) unless self.ignore?(e)
+    end
+  end
+
+  # ignore certain exceptions
+
+  def ignore?(exception) #:nodoc:
+    ignore_these = HoptoadNotifier.ignore.flatten
+    ignore_these.include?(exception.class) || ignore_these.include?(exception.class.name)
+  end
+
+  # loop forever checking the queue for messages and processing them
+  # every minute we check for stuck jobs
+
+  def process_loop(looping_infinitely = true)
+    @started = Time.now
+    begin
+      process
     end while looping_infinitely
   end
 
@@ -80,16 +108,6 @@ class Reporter
        job.send_pack_request
       end
     end
-  end
-
-  # when we're first loaded, insert the node into the db
-  # then save the PID and run the loop
-  
-  def run
-    node = Node.new(:instance_type => Aws.instance_type, :instance_id => Aws.instance_id)
-    node.save
-    write_pid
-    process_loop
   end
 
   # write the PID to a file for monit

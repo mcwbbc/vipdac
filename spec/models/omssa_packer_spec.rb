@@ -80,7 +80,7 @@ describe OmssaPacker do
   describe "run" do
     it "should complete all the steps" do
       @packer = create_packer(:output_file => "file")
-      @packer.should_receive(:local_zipfile).and_return("local_zipfile")
+      @packer.should_receive(:local_zipfile).twice.and_return("local_zipfile")
       @packer.should_receive(:local_datafile).and_return("local_datafile")
       @packer.should_receive(:make_directory).with(PACK_DIR).and_return(true)
       @packer.should_receive(:download_results_files).and_return(true)
@@ -88,7 +88,7 @@ describe OmssaPacker do
       @packer.should_receive(:unzip_file).with("local_datafile", PACK_DIR).and_return(true)
       @packer.should_receive(:zip_files).and_return(true)
       @packer.should_receive(:generate_ez2_file).and_return(true)
-      @packer.should_receive(:send_file).with("local_zipfile").and_return(true)
+      @packer.should_receive(:send_file).with("completed-jobs/local_zipfile", "local_zipfile").and_return(true)
       @packer.should_receive(:remove_item).with(/\/pipeline\/tmp-(.+?)\/pack/).and_return(true)
       @packer.run
     end

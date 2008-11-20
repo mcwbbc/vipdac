@@ -13,6 +13,7 @@ require 'zip/zip'
 require 'zip/zipfilesystem'
 require 'fileutils'
 require 'logger'
+require 'digest/md5'
 require 'beanstalk-client'
 
 # load order is important
@@ -40,7 +41,7 @@ require '../app/models/node_runner'
 require '../vendor/plugins/hoptoad_notifier/lib/hoptoad_notifier'
 require '../config/initializers/hoptoad'
 
-RAILS_ROOT = "#{File.dirname(__FILE__)}/.." unless defined?(RAILS_ROOT)
+RAILS_ROOT = "/pipeline/vipdac/" unless defined?(RAILS_ROOT)
 RAILS_ENV = 'production'
 
   NodeRunner.run(ARGV)

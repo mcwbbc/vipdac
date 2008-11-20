@@ -23,47 +23,10 @@ describe Packer do
     end
   end
 
-  describe "cleanup pack" do
-    it "should remove the pack directory" do
-      File.should_receive(:exists?).and_return(true)
-      FileUtils.should_receive(:rm_r).and_return(true)
-      @packer.remove_item("dir")
-    end
-
-    it "should not remove the pack directory" do
-      File.should_receive(:exists?).and_return(false)
-      FileUtils.should_not_receive(:rm_r).and_return(true)
-      @packer.remove_item("dir")
-    end
-  end
-
   describe "local zipfile" do
     it "should return the zipfile name" do
       @packer = create_packer(:output_file => "file")
       @packer.local_zipfile.should match(/pipeline\/tmp-.+\/pack\/file/)
-    end
-  end
-
-  describe "make directory" do
-    it "should create the pack directory" do
-      File.should_receive(:exists?).and_return(false)
-      Dir.should_receive(:mkdir).and_return(true)
-      @packer.make_directory("test")
-    end
-
-    it "should not create the pack directory" do
-      File.should_receive(:exists?).and_return(true)
-      Dir.should_not_receive(:mkdir).and_return(true)
-      @packer.make_directory("test")
-    end
-  end
-
-  describe "send file" do
-    it "should send a file to s3" do
-      file = "dir/filename"
-      File.should_receive(:open).and_return(true)
-      Aws.should_receive(:put_object).and_return(true)
-      @packer.send_file(file).should be_true
     end
   end
 
@@ -112,8 +75,9 @@ describe Packer do
       @packer = create_packer(:output_file => "file")
       @packer.should_receive(:make_directory).and_return(true)
       @packer.should_receive(:download_results_files).and_return(true)
+      @packer.should_receive(:local_zipfile).twice.and_return("local_zipfile")
       @packer.should_receive(:zip_files).and_return(true)
-      @packer.should_receive(:send_file).and_return(true)
+      @packer.should_receive(:send_file).with("completed-jobs/local_zipfile", "local_zipfile").and_return(true)
       @packer.should_receive(:remove_item).and_return(true)
       @packer.run
     end

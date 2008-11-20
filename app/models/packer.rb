@@ -13,7 +13,7 @@ class Packer
       make_directory(PACK_DIR)
       download_results_files
       zip_files
-      send_file(local_zipfile) # this will upload and send the messages, since we can have other nodes start on them
+      send_file(bucket_object(local_zipfile), local_zipfile) # this will upload the finished file
     end
     ensure
       remove_item(PACK_DIR)

@@ -115,19 +115,47 @@ describe Reporter do
   end
 
   describe "process loop" do
+    it "should set the started time" do
+      Time.stub!(:now).and_return(1.0)
+      @reporter.should_receive(:process).and_return(true)
+      @reporter.process_loop(false)
+      @reporter.started.should == 1.0
+    end
+
+    it "should complete the steps" do
+      @reporter.should_receive(:process).and_return(true)
+      @reporter.process_loop(false)
+    end
+  end
+
+  describe "process" do
     describe "with head message" do
       describe "with exceptions" do
         it "should fail getting the message" do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_raise(Exception)
           HoptoadNotifier.should_receive(:notify).with({:error_message=>"Exception: Exception", :request=>{:params=>nil}, :error_class=>"Exception"}).and_return(true)
-          @reporter.process_loop(false)
+          @reporter.process
+        end
+
+        it "should exit on SignalException errors" do
+          HoptoadNotifier.should_not_receive(:notify)
+          MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_raise(SignalException.new("TERM"))
+          @reporter.should_receive(:exit).and_return(true)
+          @reporter.process
+        end
+
+        it "should exit on Interrupt errors" do
+          HoptoadNotifier.should_not_receive(:notify)
+          MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_raise(Interrupt.new("EXIT"))
+          @reporter.should_receive(:exit).and_return(true)
+          @reporter.process
         end
 
         it "should fail processing the message" do
           MessageQueue.should_receive(:get).with(:name => 'head', :peek => true).and_return("headmessage")
           @reporter.should_receive(:process_head_message).with("headmessage").and_raise(Exception)
           HoptoadNotifier.should_receive(:notify).with({:error_message=>"Exception: Exception", :request=>{:params=>"headmessage"}, :error_class=>"Exception"}).and_return(true)
-          @reporter.process_loop(false)
+          @reporter.process
         end
 
         it "should fail checking for chunks" do
@@ -136,7 +164,7 @@ describe Reporter do
           @reporter.should_receive(:minute_ago?).and_return(true)
           @reporter.should_receive(:check_for_stuck_jobs).and_raise(Exception)
           HoptoadNotifier.should_receive(:notify).with({:error_message=>"Exception: Exception", :request=>{:params=>"headmessage"}, :error_class=>"Exception"}).and_return(true)
-          @reporter.process_loop(false)
+          @reporter.process
         end
       end
 

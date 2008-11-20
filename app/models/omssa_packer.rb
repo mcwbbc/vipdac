@@ -8,7 +8,7 @@ class OmssaPacker < Packer
       unzip_file(local_datafile, PACK_DIR)
       generate_ez2_file
       zip_files
-      send_file(local_zipfile) # this will upload and send the messages, since we can have other nodes start on them
+      send_file(bucket_object(local_zipfile), local_zipfile) # this will upload the file
     end
     ensure
       remove_item(PACK_DIR)

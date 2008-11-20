@@ -15,7 +15,7 @@ class Unpacker
       download_file(local_zipfile, message[:datafile])
       unzip_file(local_zipfile, UNPACK_DIR)
       split_original_mgf
-      send_file(local_parameter_file)
+      send_file(bucket_object(local_parameter_file), local_parameter_file)
       upload_split_mgf_files
       send_job_message(JOBUNPACKED)
     end
@@ -71,7 +71,7 @@ class Unpacker
 
   def upload_split_mgf_files
     mgf_filenames.each do |file|
-      send_file(file)
+      send_file(bucket_object(file), file)
       send_created_message(file)
     end
   end

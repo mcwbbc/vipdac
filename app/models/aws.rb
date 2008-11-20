@@ -73,6 +73,10 @@ class Aws
       s3i.put(bucket_name, object_name, object_data, headers)
     end
 
+    def put_verified_object(object_name, object_data, md5, headers={})
+      s3i.store_object_and_verify(:bucket => bucket_name, :key => object_name, :md5 => md5, :data => object_data, :headers => headers) 
+    end
+
     def get_object(object_name)
       s3i.get(bucket_name, object_name)
     end
