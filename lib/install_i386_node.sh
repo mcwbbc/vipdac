@@ -1,10 +1,11 @@
 #!/bin/bash
 
 # CHANGELOG
-# 11/17/2008
-# back to apache as prep for upload progress
+# 11/24/2008
+# remove apparmor
 #
 # 11/17/2008
+# back to apache as prep for upload progress
 # run the cleanup script by default
 #
 # 11/14/2008
@@ -27,6 +28,7 @@ cd bin
 mkdir tandem
 
 # update the image, install needed packages
+apt-get remove -y apparmor apparmor-utils
 apt-get -y update
 apt-get -y upgrade
 apt-get -y dist-upgrade
