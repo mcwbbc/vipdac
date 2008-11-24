@@ -1,5 +1,6 @@
 *(November 24th, 2008)*
 
+* add google analytics tracking so we know if anyone is launching it
 * do file uploading to s3 in the background on the reporter
 * update to rails 2.2.2
 * clean up models moving code into the Utilities, remove the unneeded tests from the models
