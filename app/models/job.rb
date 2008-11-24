@@ -130,7 +130,7 @@ class Job < ActiveRecord::Base
     self.save
     create_parameter_file
     bundle_datafile
-    send_message(BACKGROUNDUPLOAD)
+    send_background_upload_message
   end
 
   def background_s3_upload
