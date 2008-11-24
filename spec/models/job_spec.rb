@@ -337,12 +337,10 @@ describe Job do
   end
 
   describe "upload data file to s3" do
-    before(:each) do
-      Aws.stub!(:put_object).and_return(true)
-      File.should_receive(:open).and_return("file")
-    end
-
     it "should put the zip file on s3" do
+      @job.should_receive(:zipfile_name).and_return("zipfile_name")
+      @job.should_receive(:local_zipfile).and_return("local_zipfile")
+      @job.should_receive(:send_file).with("pending-jobs/zipfile_name","local_zipfile").and_return(true)
       @job.upload_datafile_to_s3.should be_true
     end
   end

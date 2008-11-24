@@ -1,5 +1,7 @@
 class Job < ActiveRecord::Base
 
+  include Utilities
+
   before_create :set_defaults
 
   has_many :chunks, :dependent => :destroy, :order => 'filename'
@@ -182,7 +184,7 @@ class Job < ActiveRecord::Base
   end
 
   def upload_datafile_to_s3
-    Aws.put_object("pending-jobs/#{zipfile_name}", File.open(local_zipfile))
+    send_file("pending-jobs/#{zipfile_name}", local_zipfile)
   end
   
   def zipfile_name
