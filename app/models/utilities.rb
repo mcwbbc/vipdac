@@ -67,7 +67,7 @@ module Utilities
     else
       @md5 = Digest::MD5.hexdigest(item)
     end
-    @md5
+    @md5.to_s
   end
 
 end
