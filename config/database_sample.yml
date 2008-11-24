@@ -3,6 +3,8 @@ login: &login
   username: root
   password: root
   encoding: utf8
+  pool: 10
+  wait_timeout: 10
   socket: /tmp/mysql.sock
 
 test:
