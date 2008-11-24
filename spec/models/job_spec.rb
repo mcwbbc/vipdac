@@ -212,8 +212,8 @@ describe Job do
   describe "upload manifest" do
     it "should put the manifest file on s3" do
       @job.should_receive(:id).and_return(12)
-      @job.should_receive(:output_files).and_return("hello")
-      Aws.should_receive(:put_object).with("12/manifest.yml", "hello".to_yaml).and_return(true)
+      @job.should_receive(:output_files).twice.and_return("hello")
+      @job.should_receive(:send_verified_data).with("12/manifest.yml", "hello".to_yaml, "6e6d6e9bfe05ac6c395d93627a764f84", {}).and_return(true)
       @job.upload_manifest
     end
   end

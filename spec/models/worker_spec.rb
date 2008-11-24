@@ -117,8 +117,7 @@ describe Worker do
 
   describe "upload output file" do
     it "should put the output file back onto s3" do
-      File.should_receive(:open).with(%r|/pipeline/tmp-(\d+?)/filename-out.csv|).and_return("file")
-      Aws.should_receive(:put_object).with("12/out/filename-out.csv", "file").and_return(true)
+      @worker.should_receive(:send_file).with("12/out/filename-out.csv", %r|/pipeline/tmp-(\d+?)/filename-out.csv|).and_return(true)
       @worker.upload_output_file
     end
   end

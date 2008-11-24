@@ -98,7 +98,7 @@ class Job < ActiveRecord::Base
   end
 
   def upload_manifest
-    Aws.put_object("#{id}/manifest.yml", output_files.to_yaml)
+    send_verified_data("#{id}/manifest.yml", output_files.to_yaml, md5_item(output_files.to_yaml, false), {})
   end
 
   def output_files

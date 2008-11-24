@@ -61,7 +61,7 @@ class Worker
   end
 
   def upload_output_file
-    Aws.put_object("#{message[:job_id]}/out/"+input_file(local_output_filename), File.open(local_output_filename))
+    send_file("#{message[:job_id]}/out/"+input_file(local_output_filename), local_output_filename)
   end
 
   def send_message(type, starttime, finishtime)
