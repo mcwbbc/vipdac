@@ -64,35 +64,42 @@ describe Reporter do
     end
 
     describe "created message" do
-      it "should set the job download link" do
+      it "should create a chunk in the database" do
         @report.should_receive(:[]).with(:type).and_return(CREATED)
         @reporter.should_receive(:update_chunk).with(@report, @message, true).and_return(true)
       end
     end
 
+    describe "background upload message" do
+      it "should upload the job datafile" do
+        @report.should_receive(:[]).with(:type).and_return(BACKGROUNDUPLOAD)
+        @reporter.should_receive(:background_upload).with(@report, @message).and_return(true)
+      end
+    end
+
     describe "unpacking message" do
-      it "should set the job status" do
+      it "should set the job status to unpacking" do
         @report.should_receive(:[]).with(:type).and_return(JOBUNPACKING)
         @reporter.should_receive(:job_status).with(@report, @message, "Unpacking").and_return(true)
       end
     end
 
     describe "unpacked message" do
-      it "should set the job status" do
+      it "should set the job status to unpacked" do
         @report.should_receive(:[]).with(:type).and_return(JOBUNPACKED)
         @reporter.should_receive(:job_status).with(@report, @message, "Processing").and_return(true)
       end
     end
 
     describe "packing message" do
-      it "should set the job status" do
+      it "should set the job status to packing" do
         @report.should_receive(:[]).with(:type).and_return(JOBPACKING)
         @reporter.should_receive(:job_status).with(@report, @message, "Packing").and_return(true)
       end
     end
 
     describe "packed message" do
-      it "should set the job status" do
+      it "should set the job status to packed" do
         @report.should_receive(:[]).with(:type).and_return(JOBPACKED)
         @reporter.should_receive(:set_job_download_link).with(@report, @message).and_return(true)
       end
@@ -436,6 +443,38 @@ describe Reporter do
         @job.should_not_receive(:status=)
         @message.should_receive(:delete).and_return(true)
         @reporter.job_status(@report, @message, "status")
+      end
+    end
+  end
+
+  describe "background upload" do
+    describe "success" do
+      it "should update the status of the job" do
+        @job = mock_model(Job)
+        @job.should_receive(:status=).with("Uploading").and_return(true)
+        @message = mock("message")
+        @report = mock("report")
+        @report.should_receive(:[]).with(:job_id).and_return(1234)
+        @reporter.should_receive(:load_job).with(1234).and_return(@job)
+        @job.should_receive(:save!).and_return(true)
+        @job.should_receive(:background_s3_upload).and_return(true)
+        @message.should_receive(:delete).and_return(true)
+        @reporter.background_upload(@report, @message)
+      end
+    end
+
+    describe "failure" do
+      it "should delete the message if the job doesn't exist" do
+        @job = mock_model(Job)
+        @message = mock("message")
+        @report = mock("report")
+        @report.should_receive(:[]).with(:job_id).and_return(1234)
+        @reporter.should_receive(:load_job).with(1234).and_return(nil)
+        @job.should_not_receive(:save!)
+        @job.should_not_receive(:status=)
+        @job.should_not_receive(:background_s3_upload)
+        @message.should_receive(:delete).and_return(true)
+        @reporter.background_upload(@report, @message)
       end
     end
   end

@@ -15,7 +15,7 @@ class OmssaParameterFile < ActiveRecord::Base
   
   validates_uniqueness_of :name, :message => "^The name you entered is already taken"
   
-  validates_length_of :ions, :minimum => 2, :too_short  => "^You must select at least %d ions", :tokenizer => lambda {|str| str.scan(/\d/)}
+  validates_length_of :ions, :minimum => 2, :too_short  => "^You must select at least {{count}} ions", :tokenizer => lambda {|str| str.scan(/\d/)}
 
   PARAMETER_PATH = "#{RAILS_ROOT}/tmp/"
 

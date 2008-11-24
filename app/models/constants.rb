@@ -1,58 +1,59 @@
   INSTANCES_ARRAY = [ ['Small', 'm1.small'],
                       ['Medium', 'c1.medium']
-                    ]
+                    ].freeze unless self.class.const_defined? "INSTANCES_ARRAY"
 
   INSTANCES_HASH = INSTANCES_ARRAY.inject({}) do |result, element|
     result[element.last] = element.first
     result
-  end
+  end.freeze unless self.class.const_defined? "INSTANCES_HASH"
+  
 
   SEARCHER_ARRAY = [ ['OMSSA','omssa'],
                      ['Tandem','tandem']
-                   ]
+                   ].freeze unless self.class.const_defined? "SEARCHER_ARRAY"
 
   SEARCHER_HASH = SEARCHER_ARRAY.inject({}) do |result, element|
      result[element.last] = element.first
      result
-   end
+   end.freeze unless self.class.const_defined? "SEARCHER_HASH"
 
   PRIORITY_ARRAY = [ ['Low', 1000],
                      ['Medium', 500],
                      ['High', 200]
-                   ]
+                   ].freeze unless self.class.const_defined? "PRIORITY_ARRAY"
 
   PRIORITY_HASH = PRIORITY_ARRAY.inject({}) do |result, element|
     result[element.last] = element.first
     result
-  end
+  end.freeze unless self.class.const_defined? "PRIORITY_HASH"
 
-  DEBUG = false
+  PIPELINE = '/pipeline'.freeze unless self.class.const_defined? "PIPELINE"
 
-  PIPELINE = '/pipeline'
+  PIPELINE_TMP = "/pipeline/tmp-#{$$}".freeze unless self.class.const_defined? "PIPELINE_TMP"
+  UNPACK_DIR = "#{PIPELINE_TMP}/unpack".freeze unless self.class.const_defined? "UNPACK_DIR"
+  PACK_DIR = "#{PIPELINE_TMP}/pack".freeze unless self.class.const_defined? "PACK_DIR"
+  TANDEM_PATH = "/pipeline/bin/tandem".freeze unless self.class.const_defined? "TANDEM_PATH"
+  OMSSA_PATH = "/pipeline/bin/omssa".freeze unless self.class.const_defined? "OMSSA_PATH"
+  DB_PATH = "/pipeline/dbs".freeze unless self.class.const_defined? "DB_PATH"
 
-  PIPELINE_TMP = "/pipeline/tmp-#{$$}"
-  UNPACK_DIR = "#{PIPELINE_TMP}/unpack"
-  PACK_DIR = "#{PIPELINE_TMP}/pack"
-  TANDEM_PATH = "/pipeline/bin/tandem"
-  OMSSA_PATH = "/pipeline/bin/omssa"
-  DB_PATH = "/pipeline/dbs"
+  DB_BUCKET = 'pipeline-databases'.freeze unless self.class.const_defined? "DB_BUCKET"
+  PARAMETER_FILENAME = "parameters.conf".freeze unless self.class.const_defined? "PARAMETER_FILENAME"
 
-  DB_BUCKET = 'pipeline-databases'
-  PARAMETER_FILENAME = "parameters.conf"
+  LAUNCH = 'LAUNCH'.freeze unless self.class.const_defined? "LAUNCH"
+  START = 'START'.freeze unless self.class.const_defined? "START"
+  FINISH = 'FINISH'.freeze unless self.class.const_defined? "FINISH"
+  CREATED = 'CREATED'.freeze unless self.class.const_defined? "CREATED"
+  UNPACK = 'UNPACK'.freeze unless self.class.const_defined? "UNPACK"
+  PROCESS = 'PROCESS'.freeze unless self.class.const_defined? "PROCESS"
+  JOBUNPACKING = "JOBUNPACKING".freeze unless self.class.const_defined? "JOBUNPACKING"
+  JOBUNPACKED = "JOBUNPACKED".freeze unless self.class.const_defined? "JOBUNPACKED"
 
-  LAUNCH = 'LAUNCH'
-  START = 'START'
-  FINISH = 'FINISH'
-  CREATED = 'CREATED'
-  UNPACK = 'UNPACK'
-  PROCESS = 'PROCESS'
-  JOBUNPACKING = "JOBUNPACKING"
-  JOBUNPACKED = "JOBUNPACKED"
+  JOBPACKED = "JOBPACKED".freeze unless self.class.const_defined? "JOBPACKED"
+  JOBPACKING = "JOBPACKING".freeze unless self.class.const_defined? "JOBPACKING"
 
-  JOBPACKED = "JOBPACKED"
-  JOBPACKING = "JOBPACKING"
+  BACKGROUNDUPLOAD = "BACKGROUNDUPLOAD".freeze unless self.class.const_defined? "BACKGROUNDUPLOAD"
 
-  PACK = "PACK"
-  FINISHED = "FINISHED"
+  PACK = "PACK".freeze unless self.class.const_defined? "PACK"
+  FINISHED = "FINISHED".freeze unless self.class.const_defined? "FINISHED"
 
-  SEARCHERS = ['omssa', 'tandem']
+  SEARCHERS = ['omssa', 'tandem'].freeze unless self.class.const_defined? "SEARCHERS"

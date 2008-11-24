@@ -18,6 +18,9 @@ describe NodesController do
     before(:each) do
       @node = mock_model(Node)
       Node.stub!(:find).and_return([@node])
+      @aws_nodes = []
+      @active_nodes = []
+      @nodes = [@node]
     end
   
     def do_get
@@ -35,13 +38,20 @@ describe NodesController do
     end
   
     it "should find all nodes" do
-      Node.should_receive(:find).with(:all).and_return([@node])
+      Node.should_receive(:listing).and_return(@aws_nodes)
+      Node.should_receive(:active_nodes).and_return(@active_nodes)
+      Node.should_receive(:running).and_return(@nodes)
       do_get
     end
   
     it "should assign the found nodes for the view" do
+      Node.should_receive(:listing).and_return(@aws_nodes)
+      Node.should_receive(:active_nodes).and_return(@active_nodes)
+      Node.should_receive(:running).and_return(@nodes)
       do_get
-      assigns[:nodes].should == [@node]
+      assigns[:active_nodes].should == @active_nodes
+      assigns[:aws_nodes].should == @aws_nodes
+      assigns[:nodes].should == @nodes
     end
   end
 

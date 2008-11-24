@@ -1,3 +1,12 @@
+*(November 24th, 2008)*
+
+* do file uploading to s3 in the background on the reporter
+* update to rails 2.2.2
+* clean up models moving code into the Utilities, remove the unneeded tests from the models
+* make the send_file more generic, doing the specifics in the model itself.
+* Use send verified to check MD5 sums on all files we upload, to make sure they get there.
+* Catch/Ignore certain exceptions with hoptoad
+
 *(November 19th, 2008)*
 
 * change back to using apache

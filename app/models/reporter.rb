@@ -82,6 +82,8 @@ class Reporter
           check_job_status(report)
         when CREATED
           update_chunk(report, message, true)
+        when BACKGROUNDUPLOAD
+          background_upload(report, message)
         when JOBUNPACKING
           job_status(report, message, "Unpacking")
         when JOBUNPACKED
@@ -149,6 +151,18 @@ class Reporter
     end
   end
 
+  # upload the datafile in the background
+
+  def background_upload(report, message)
+    job = load_job(report[:job_id])
+    if job
+      job.status = "Uploading"
+      job.save!
+      job.background_s3_upload
+    end
+    message.delete
+  end
+  
   # update the job status depending on the message
 
   def job_status(report, message, status)

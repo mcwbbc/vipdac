@@ -347,6 +347,14 @@ describe Job do
     end
   end
 
+  describe "send_background_upload_message" do
+    it "should send a background upload head message" do
+      @job.should_receive(:id).and_return(12)
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => BACKGROUNDUPLOAD, :job_id => 12}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
+      @job.send_background_upload_message
+    end
+  end
+
   describe "send message" do
     before(:each) do
       @job.should_receive(:output_file).and_return("file")
@@ -356,12 +364,12 @@ describe Job do
       @job.should_receive(:datafile).and_return("datafile")
       Aws.should_receive(:bucket_name).and_return("bucket")
     end
-    it "should send a pack node message via Aws" do
+    it "should send a pack node message" do
       MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
       @job.send_message(PACK)
     end
 
-    it "should send an unpack node message via Aws" do
+    it "should send an unpack node message" do
       MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
       @job.send_message(UNPACK)
     end
@@ -396,12 +404,19 @@ describe Job do
     end
   end
 
+  describe "background_s3_upload" do
+    it "should run the steps" do
+      @job.should_receive(:upload_datafile_to_s3).and_return(true)
+      @job.should_receive(:send_message).with(UNPACK).and_return(true)
+      @job.background_s3_upload
+    end
+  end
+
   describe "launch" do
     before(:each) do
       @job.should_receive(:create_parameter_file).and_return(true)
       @job.should_receive(:bundle_datafile).and_return(true)
-      @job.should_receive(:upload_datafile_to_s3).and_return(true)
-      @job.should_receive(:send_message).with(UNPACK).and_return(true)
+      @job.should_receive(:send_message).with(BACKGROUNDUPLOAD).and_return(true)
       @job.should_receive(:save).and_return(true)
       Time.stub!(:now).and_return(1.0)
       @job.launch

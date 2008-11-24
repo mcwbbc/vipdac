@@ -7,7 +7,7 @@ class TandemParameterFile < ActiveRecord::Base
 
   validates_uniqueness_of :name, :message => "^The name you entered is already taken"
   
-  validates_length_of :ions, :minimum => 2, :too_short  => "^You must select at least %d ions"
+  validates_length_of :ions, :minimum => 2, :too_short  => "^You must select at least {{count}} ions"
 
   has_many :tandem_modifications, :dependent => :destroy
 

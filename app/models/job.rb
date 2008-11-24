@@ -130,6 +130,10 @@ class Job < ActiveRecord::Base
     self.save
     create_parameter_file
     bundle_datafile
+    send_message(BACKGROUNDUPLOAD)
+  end
+
+  def background_s3_upload
     upload_datafile_to_s3
     send_message(UNPACK)
   end
@@ -157,6 +161,11 @@ class Job < ActiveRecord::Base
   def output_file
     output = datafile.split('/').last.match(/(.+)\.zip$/)[1]
     output+"-results.zip"
+  end
+
+  def send_background_upload_message
+    hash = {:type => BACKGROUNDUPLOAD, :job_id => id}
+    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 50, :ttr => 600)
   end
 
   def send_message(type)
