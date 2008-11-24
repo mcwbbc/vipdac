@@ -162,12 +162,9 @@ ln -s /pipeline/vipdac/config/init-d-node node
 # add the amazon-user-data.local to /etc/hosts
 echo "169.254.169.254 amazon-user-data.local" >> /etc/hosts
 
-# update to rubygems 1.2 (1.3 causes issues)
-cd /usr/local/src
-wget http://rubyforge.org/frs/download.php/38646/rubygems-1.2.0.tgz
-tar xvfz rubygems-1.2.0.tgz
-cd rubygems-1.2.0
-ruby setup.rb
+# update to rubygems 1.3.1
+gem update --system
+gem update --system
 
 mv /usr/bin/gem /usr/bin/gem.OLD
 ln -s /usr/bin/gem1.8 /usr/bin/gem
