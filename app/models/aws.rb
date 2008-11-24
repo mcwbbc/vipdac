@@ -16,7 +16,7 @@ class Aws
     end
 
     def current_hostname
-      Rails.env.test? ? "test" : keys["public-hostname"]
+      (RAILS_ENV == 'test') ? "test" : keys["public-hostname"]
     end
 
     def instance_type

@@ -17,7 +17,7 @@ class BeanstalkMessageQueue
         end
       rescue Beanstalk::NotConnected => e
         sleep(10)
-        retry if !Rails.env.test?
+        retry if !(RAILS_ENV == 'test')
       end
     end
 
@@ -32,7 +32,7 @@ class BeanstalkMessageQueue
         get_queue(name).put(message, priority, delay, ttr)
       rescue Beanstalk::NotConnected => e
         sleep(10)
-        retry if !Rails.env.test?
+        retry if !(RAILS_ENV == 'test')
       end
     end
 

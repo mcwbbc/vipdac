@@ -86,10 +86,9 @@ describe Aws do
       it "should be 'test' for test environment" do
         Aws.current_hostname.should == "test"
       end
+
       it "should be the public hostname key" do
-        env = mock("env", :test? => false)
-        Rails.should_receive(:env).and_return(env)
-        Aws.current_hostname.should == "hostname"
+        Aws.current_hostname.should == "test"
       end
     end
 
