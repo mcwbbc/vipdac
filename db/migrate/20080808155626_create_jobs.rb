@@ -16,6 +16,7 @@ class CreateJobs < ActiveRecord::Migration
       t.string :mgf_file_name
       t.string :mgf_content_type
       t.integer :mgf_file_size
+      t.datetime :mgf_updated_at
       t.timestamps
     end
   end

@@ -1,4 +1,4 @@
-require 'test/helper.rb'
+require 'test/helper'
 
 class IntegrationTest < Test::Unit::TestCase
   context "Many models at once" do
@@ -87,6 +87,38 @@ class IntegrationTest < Test::Unit::TestCase
 
       should "have its definition return true when asked about whiny_thumbnails" do
         assert_equal true, Dummy.attachment_definitions[:avatar][:whiny_thumbnails]
+      end
+    end
+  end
+  
+  context "A model with no convert_options setting" do
+    setup do
+      rebuild_model :styles => { :large => "300x300>",
+                                 :medium => "100x100",
+                                 :thumb => ["32x32#", :gif] },
+                    :default_style => :medium,
+                    :url => "/:attachment/:class/:style/:id/:basename.:extension",
+                    :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      @dummy     = Dummy.new
+    end
+    
+    should "have its definition return nil when asked about convert_options" do
+      assert ! Dummy.attachment_definitions[:avatar][:convert_options]
+    end
+
+    context "redefined to have convert_options setting" do
+      setup do
+        rebuild_model :styles => { :large => "300x300>",
+                                   :medium => "100x100",
+                                   :thumb => ["32x32#", :gif] },
+                      :convert_options => "-strip -depth 8",
+                      :default_style => :medium,
+                      :url => "/:attachment/:class/:style/:id/:basename.:extension",
+                      :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      end
+
+      should "have its definition return convert_options value when asked about convert_options" do
+        assert_equal "-strip -depth 8", Dummy.attachment_definitions[:avatar][:convert_options]
       end
     end
   end
@@ -242,6 +274,14 @@ class IntegrationTest < Test::Unit::TestCase
       end
     end
 
+    def s3_headers_for attachment, style
+      `curl --head '#{attachment.url(style)}' 2>/dev/null`.split("\n").inject({}) do |h,head|
+        split_head = head.chomp.split(/\s*:\s*/, 2)
+        h[split_head.first.downcase] = split_head.last unless split_head.empty?
+        h
+      end
+    end
+
     context "A model with an S3 attachment" do
       setup do
         rebuild_model :styles => { :large => "300x300>",
@@ -354,6 +394,12 @@ class IntegrationTest < Test::Unit::TestCase
         assert_nil @dummy.avatar_file_name
         @dummy.reload
         assert_equal "5k.png", @dummy.avatar_file_name
+      end
+
+      should "have the right content type" do
+        headers = s3_headers_for(@dummy.avatar, :original)
+        p headers
+        assert_equal 'image/png', headers['content-type']
       end
     end
   end

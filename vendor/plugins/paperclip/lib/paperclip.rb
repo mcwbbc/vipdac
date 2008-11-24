@@ -58,12 +58,27 @@ module Paperclip
       File.join(*path)
     end
 
+    def run cmd, params = "", expected_outcodes = 0
+      output = `#{%Q[#{path_for_command(cmd)} #{params} 2>#{bit_bucket}].gsub(/\s+/, " ")}`
+      unless [expected_outcodes].flatten.include?($?.exitstatus)
+        raise PaperclipCommandLineError, "Error while running #{cmd}"
+      end
+      output
+    end
+
+    def bit_bucket
+      File.exists?("/dev/null") ? "/dev/null" : "NUL"
+    end
+
     def included base #:nodoc:
       base.extend ClassMethods
     end
   end
 
   class PaperclipError < StandardError #:nodoc:
+  end
+
+  class PaperclipCommandLineError < StandardError #:nodoc:
   end
 
   class NotIdentifiedByImageMagickError < PaperclipError #:nodoc:
@@ -83,7 +98,8 @@ module Paperclip
     #   as easily point to a directory served directly through Apache as it can to an action
     #   that can control permissions. You can specify the full domain and path, but usually
     #   just an absolute path is sufficient. The leading slash must be included manually for 
-    #   absolute paths. The default value is "/:class/:attachment/:id/:style_:filename". See
+    #   absolute paths. The default value is 
+    #   "/:class/:attachment/:id/:style_:basename.:extension". See
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
     #     :url => "/:attachment/:id/:style_:basename:extension"
     #     :url => "http://some.other.host/stuff/:class/:id_:extension"
@@ -106,18 +122,27 @@ module Paperclip
     # * +whiny_thumbnails+: Will raise an error if Paperclip cannot process thumbnails of an
     #   uploaded image. This will ovrride the global setting for this attachment. 
     #   Defaults to true. 
+    # * +convert_options+: When creating thumbnails, use this free-form options
+    #   field to pass in various convert command options.  Typical options are "-strip" to
+    #   remove all Exif data from the image (save space for thumbnails and avatars) or
+    #   "-depth 8" to specify the bit depth of the resulting conversion.  See ImageMagick
+    #   convert documentation for more options: (http://www.imagemagick.org/script/convert.php)
+    #   Note that this option takes a hash of options, each of which correspond to the style
+    #   of thumbnail being generated. You can also specify :all as a key, which will apply
+    #   to all of the thumbnails being generated. If you specify options for the :original,
+    #   it would be best if you did not specify destructive options, as the intent of keeping
+    #   the original around is to regenerate all the thumbnails when requirements change.
+    #     has_attached_file :avatar, :styles => { :large => "300x300", :negative => "100x100" }
+    #                                :convert_options => {
+    #                                  :all => "-strip",
+    #                                  :negative => "-negate"
+    #                                }
     # * +storage+: Chooses the storage backend where the files will be stored. The current
     #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
     #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
     #   for backend-specific options.
     def has_attached_file name, options = {}
       include InstanceMethods
-
-      %w(file_name).each do |field|
-        unless column_names.include?("#{name}_#{field}")
-          raise PaperclipError.new("#{self} model does not have required column '#{name}_#{field}'")
-        end
-      end
 
       write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
       attachment_definitions[name] = {:validations => []}.merge(options)
@@ -158,7 +183,7 @@ module Paperclip
           options[:in] = (0..options[:less_than])
         end
         
-        if attachment.file? && !options[:in].include?(instance[:"#{name}_file_size"].to_i)
+        if attachment.file? && !options[:in].include?(attachment.instance_read(:file_size).to_i)
           min = options[:in].first
           max = options[:in].last
           
@@ -197,9 +222,9 @@ module Paperclip
       attachment_definitions[name][:validations] << lambda do |attachment, instance|
         valid_types = [options[:content_type]].flatten
         
-        unless attachment.original_filename.nil?
+        unless attachment.original_filename.blank?
           unless options[:content_type].blank?
-            content_type = instance[:"#{name}_content_type"]
+            content_type = attachment.instance_read(:content_type)
             unless valid_types.any?{|t| t === content_type }
               options[:message] || "is not one of the allowed file types."
             end

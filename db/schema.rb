@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(:version => 20081002180447) do
     t.string   "mgf_file_name"
     t.string   "mgf_content_type"
     t.integer  "mgf_file_size"
+    t.datetime "mgf_updated_at"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
