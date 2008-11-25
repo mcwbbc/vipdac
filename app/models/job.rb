@@ -36,6 +36,7 @@ class Job < ActiveRecord::Base
   end
 
   def stuck_chunks?
+    return false if chunks.incomplete.empty? #if all the chunks are complete, we can't have stuck ones
     chunk = chunks.complete.first(:order => 'finished_at DESC')
     if chunk
       chunk.finished_at < 10.minutes.ago.to_f

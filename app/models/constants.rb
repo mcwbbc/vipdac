@@ -24,6 +24,7 @@
 
   PRIORITY_HASH = PRIORITY_ARRAY.inject({}) do |result, element|
     result[element.last] = element.first
+    result[50] = 'Expedited'
     result
   end.freeze unless self.class.const_defined? "PRIORITY_HASH"
 
