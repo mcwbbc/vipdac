@@ -29,13 +29,23 @@ module Utilities
       # I'm going to ignore this and just overwrite the files.
   end
 
-  def download_file(local, remote)
-    foo = File.new(local, File::CREAT|File::RDWR)
-    hash = Aws.s3i.get(Aws.bucket_name, remote) do |chunk|
-      foo.write(chunk)
+  def extract_etag(hash)
+    begin
+      hash[:headers]['etag'].gsub(/\"/, '')
+    rescue StandardError
+      ''
     end
-    foo.close
-    hash
+  end
+
+  def download_file(local, remote)
+    begin
+      File.open(local, File::CREAT|File::RDWR) do |file|
+        @hash = Aws.s3i.get(Aws.bucket_name, remote) do |chunk|
+          file.write(chunk)
+        end
+      end
+    end while (fail = (extract_etag(@hash) != md5_item(local)))
+    !fail
   end
 
   def send_file(remote, local)

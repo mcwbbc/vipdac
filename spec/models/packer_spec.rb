@@ -26,7 +26,7 @@ describe Packer do
   describe "local zipfile" do
     it "should return the zipfile name" do
       @packer = create_packer(:output_file => "file")
-      @packer.local_zipfile.should match(/pipeline\/tmp-.+\/pack\/file/)
+      @packer.local_zipfile.should match(/^\/pipeline\/tmp-.+\/pack\/file$/)
     end
   end
 
@@ -43,18 +43,17 @@ describe Packer do
     end
   end
 
+  def download_results_files
+    manifest.each do |file|
+      download_file("#{PACK_DIR}/"+input_file(file), file)
+    end
+  end
+
   describe "download results files" do
     it "should download the results files from s3 and write it out" do
       @packer.should_receive(:manifest).and_return(["filename"])
-      chunk = mock_model(Chunk)
-      s3 = mock("s3")
-      s3.should_receive(:get).and_yield(chunk)
-      file = mock("file")
-      file.should_receive(:write).with(chunk).and_return(true)
-      file.should_receive(:close).and_return(true)
-      File.should_receive(:new).and_return(file)
-      Aws.should_receive(:bucket_name).and_return("bucket")
-      Aws.should_receive(:s3i).and_return(s3)
+      @packer.should_receive(:input_file).with("filename").and_return("input_file")
+      @packer.should_receive(:download_file).with(/^\/pipeline\/tmp-.+\/pack\/input_file$/, "filename").and_return(true)
       @packer.download_results_files
     end
   end

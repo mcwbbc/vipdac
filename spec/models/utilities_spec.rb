@@ -24,23 +24,63 @@ describe Utilities do
     end
   end
 
-  describe "download file" do
+  def extract_etag(hash)
+    hash[:headers]['etag'].gsub(/\"/, '')
+  end
+
+  describe "extract etag" do
     before(:each) do
       @fake = FakeClass.new
     end
 
-    it "should create a new file" do
-      @hash = mock("hash")
+    it "should return the etag md5 from the header hash" do
+      hash = {:headers => {'etag'=>"\"pass\""}}
+      @fake.extract_etag(hash).should == "pass"
+    end
+
+    it "should return the '' for missing etag" do
+      hash = {}
+      @fake.extract_etag(hash).should == ''
+    end
+
+    it "should return the '' for missing headers" do
+      hash = {:headers => {}}
+      @fake.extract_etag(hash).should == ''
+    end
+
+    it "should return '' for a nil hash" do
+      @fake.extract_etag(nil).should == ''
+    end
+  end
+
+  describe "download file" do
+    before(:each) do
+      @fake = FakeClass.new
       @chunk = mock("chunk")
       @s3i = mock("s3interface")
-      @s3i.should_receive(:get).with("bucket", "remote").and_yield(@chunk).and_return(@hash)
       @file = mock_model(File)
-      @file.should_receive(:write).with(@chunk).and_return(true)
-      @file.should_receive(:close).and_return(true)
-      Aws.should_receive(:bucket_name).and_return("bucket")
-      Aws.should_receive(:s3i).and_return(@s3i)
-      File.should_receive(:new).with("local", File::CREAT|File::RDWR ).and_return(@file)
-      @fake.download_file("local", "remote").should == @hash
+      @file.stub!(:write).with(@chunk).and_return(true)
+      Aws.stub!(:bucket_name).and_return("bucket")
+      Aws.stub!(:s3i).and_return(@s3i)
+      @pass_hash = {:headers => {'etag'=>"\"pass\""}}
+      @fail_hash = {:headers => {'etag'=>"\"fail\""}}
+      @fake.stub!(:md5_item).with("local").and_return("pass")
+    end
+
+    describe "on failure" do
+      it "should try until the md5 matches" do
+        @s3i.should_receive(:get).with("bucket", "remote").twice.and_yield(@chunk).and_return(@fail_hash, @pass_hash)
+        File.should_receive(:open).twice.with("local", File::CREAT|File::RDWR ).and_yield(@file)
+        @fake.download_file("local", "remote").should be_true
+      end
+    end
+
+    describe "on success" do
+      it "should create a new file" do
+        @s3i.should_receive(:get).with("bucket", "remote").and_yield(@chunk).and_return(@pass_hash)
+        File.should_receive(:open).with("local", File::CREAT|File::RDWR ).and_yield(@file)
+        @fake.download_file("local", "remote").should be_true
+      end
     end
   end
 
