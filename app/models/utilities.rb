@@ -39,10 +39,11 @@ module Utilities
   end
 
   def send_file(remote, local)
-    data = File.open(local)
     md5 = md5_item(local)
     headers = {"x-amz-acl" => "public-read"}
-    send_verified_data(remote, data, md5, headers)
+    File.open(local) do |data|
+      send_verified_data(remote, data, md5, headers)
+    end
   end
 
   def send_verified_data(key, data, md5, headers={})

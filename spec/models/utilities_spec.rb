@@ -92,7 +92,7 @@ describe Utilities do
 
     it "should return true if file uploaded" do
       @file = mock_model(File)
-      File.should_receive(:open).with("local").and_return(@file)
+      File.should_receive(:open).with("local").and_yield(@file)
       @fake.should_receive(:md5_item).with("local").and_return("abcd")
       @fake.should_receive(:send_verified_data).with("remote", @file, "abcd", {"x-amz-acl" => "public-read"}).and_return(true)
       @fake.send_file("remote", "local").should be_true
