@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # CHANGELOG
+# 11/25/2008
+# add patch to use Argonne National Laboratory mirror
+#
 # 11/24/2008
 # remove apparmor
 #
@@ -27,12 +30,51 @@ mkdir dbs
 cd bin
 mkdir tandem
 
+
+cd /etc/apt
+uudecode -o patchfile << EOF
+begin-base64 644 sources.list
+LS0tIHNvdXJjZXMubGlzdF9vbGQJMjAwOC0xMS0yNSAxODoxOTozOC4wMDAw
+MDAwMDAgKzAwMDAKKysrIHNvdXJjZXMubGlzdAkyMDA4LTExLTI1IDE4OjIx
+OjE1LjAwMDAwMDAwMCArMDAwMApAQCAtMSw4ICsxLDggQEAKLWRlYiBodHRw
+Oi8vdXMuYXJjaGl2ZS51YnVudHUuY29tL3VidW50dSBoYXJkeSBtYWluIHJl
+c3RyaWN0ZWQgdW5pdmVyc2UgbXVsdGl2ZXJzZQotZGViLXNyYyBodHRwOi8v
+dXMuYXJjaGl2ZS51YnVudHUuY29tL3VidW50dSBoYXJkeSBtYWluIHJlc3Ry
+aWN0ZWQgdW5pdmVyc2UgbXVsdGl2ZXJzZQorZGViIGh0dHA6Ly9taXJyb3Iu
+YW5sLmdvdi9wdWIvdWJ1bnR1LyBoYXJkeSBtYWluIHJlc3RyaWN0ZWQgdW5p
+dmVyc2UgbXVsdGl2ZXJzZQorZGViLXNyYyBodHRwOi8vbWlycm9yLmFubC5n
+b3YvcHViL3VidW50dS8gaGFyZHkgbWFpbiByZXN0cmljdGVkIHVuaXZlcnNl
+IG11bHRpdmVyc2UKIAotZGViIGh0dHA6Ly91cy5hcmNoaXZlLnVidW50dS5j
+b20vdWJ1bnR1IGhhcmR5LXVwZGF0ZXMgbWFpbiByZXN0cmljdGVkIHVuaXZl
+cnNlIG11bHRpdmVyc2UKLWRlYi1zcmMgaHR0cDovL3VzLmFyY2hpdmUudWJ1
+bnR1LmNvbS91YnVudHUgaGFyZHktdXBkYXRlcyBtYWluIHJlc3RyaWN0ZWQg
+dW5pdmVyc2UgbXVsdGl2ZXJzZQorZGViIGh0dHA6Ly9taXJyb3IuYW5sLmdv
+di9wdWIvdWJ1bnR1LyBoYXJkeS11cGRhdGVzIG1haW4gcmVzdHJpY3RlZCB1
+bml2ZXJzZSBtdWx0aXZlcnNlCitkZWItc3JjIGh0dHA6Ly9taXJyb3IuYW5s
+Lmdvdi9wdWIvdWJ1bnR1LyBoYXJkeS11cGRhdGVzIG1haW4gcmVzdHJpY3Rl
+ZCB1bml2ZXJzZSBtdWx0aXZlcnNlCiAKLWRlYiBodHRwOi8vc2VjdXJpdHku
+dWJ1bnR1LmNvbS91YnVudHUgaGFyZHktc2VjdXJpdHkgbWFpbiByZXN0cmlj
+dGVkIHVuaXZlcnNlIG11bHRpdmVyc2UKLWRlYi1zcmMgaHR0cDovL3NlY3Vy
+aXR5LnVidW50dS5jb20vdWJ1bnR1IGhhcmR5LXNlY3VyaXR5IG1haW4gcmVz
+dHJpY3RlZCB1bml2ZXJzZSBtdWx0aXZlcnNlCitkZWIgaHR0cDovL21pcnJv
+ci5hbmwuZ292L3B1Yi91YnVudHUvIGhhcmR5LXNlY3VyaXR5IG1haW4gcmVz
+dHJpY3RlZCB1bml2ZXJzZSBtdWx0aXZlcnNlCitkZWItc3JjIGh0dHA6Ly9t
+aXJyb3IuYW5sLmdvdi9wdWIvdWJ1bnR1LyBoYXJkeS1zZWN1cml0eSBtYWlu
+IHJlc3RyaWN0ZWQgdW5pdmVyc2UgbXVsdGl2ZXJzZQo=
+====
+EOF
+
+patch -p0 < patchfile
+rm patchfile
+
+
 # update the image, install needed packages
 apt-get remove -y apparmor apparmor-utils
 apt-get -y update
 apt-get -y upgrade
 apt-get -y dist-upgrade
 DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libevent-dev autoconf automake zlib1g-dev libxml2-dev libssl-dev ruby1.8-dev irb1.8 irb rdoc1.8 libmysql-ruby1.8 libreadline-ruby1.8 sharutils flex bison rubygems git-core apache2 mysql-server libmysqlclient15-dev apache2-prefork-dev libxml-smart-perl libxml-simple-perl libxml-sax-expat-perl libyaml-perl libarchive-zip-perl libtext-csv-perl
+apt-get -y autoremove
 
 #download and build beanstalkd
 cd /usr/local/src
