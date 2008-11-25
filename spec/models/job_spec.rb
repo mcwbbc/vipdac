@@ -404,6 +404,8 @@ describe Job do
 
   describe "background_s3_upload" do
     it "should run the steps" do
+      @job.should_receive(:create_parameter_file).and_return(true)
+      @job.should_receive(:bundle_datafile).and_return(true)
       @job.should_receive(:upload_datafile_to_s3).and_return(true)
       @job.should_receive(:send_message).with(UNPACK).and_return(true)
       @job.background_s3_upload
@@ -412,8 +414,6 @@ describe Job do
 
   describe "launch" do
     before(:each) do
-      @job.should_receive(:create_parameter_file).and_return(true)
-      @job.should_receive(:bundle_datafile).and_return(true)
       @job.should_receive(:send_background_upload_message).and_return(true)
       @job.should_receive(:save).and_return(true)
       Time.stub!(:now).and_return(1.0)

@@ -130,12 +130,12 @@ class Job < ActiveRecord::Base
     self.status = "Launching" #remove the launch link
     self.launched_at = Time.now.to_f
     self.save
-    create_parameter_file
-    bundle_datafile
     send_background_upload_message
   end
 
   def background_s3_upload
+    create_parameter_file
+    bundle_datafile
     upload_datafile_to_s3
     send_message(UNPACK)
   end
