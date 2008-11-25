@@ -207,6 +207,7 @@ echo "169.254.169.254 amazon-user-data.local" >> /etc/hosts
 # update to rubygems 1.3.1
 gem update --system
 gem update --system
+gem update --system
 
 mv /usr/bin/gem /usr/bin/gem.OLD
 ln -s /usr/bin/gem1.8 /usr/bin/gem
