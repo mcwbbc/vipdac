@@ -151,9 +151,7 @@ class Job < ActiveRecord::Base
   end
 
   def send_pack_request
-    begin
-      uploaded = upload_manifest
-    end while !uploaded
+    upload_manifest
     self.started_pack_at = Time.now.to_f
     self.status = "Requested packing" #remove the launch link
     self.save!

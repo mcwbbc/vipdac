@@ -383,16 +383,6 @@ describe Job do
       @job.should_receive(:send_message).with(PACK).and_return(true)
       @job.send_pack_request
     end
-
-    it "should retry the upload until successful" do
-      Time.stub!(:now).and_return(1.0)
-      @job.should_receive(:upload_manifest).twice.and_return(false, true)
-      @job.should_receive(:started_pack_at=).with(1.0).and_return(true)
-      @job.should_receive(:status=).with("Requested packing").and_return(true)
-      @job.should_receive(:save!).and_return(true)
-      @job.should_receive(:send_message).with(PACK).and_return(true)
-      @job.send_pack_request
-    end
   end
 
   describe "page" do
