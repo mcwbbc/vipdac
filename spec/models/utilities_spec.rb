@@ -121,8 +121,13 @@ describe Utilities do
         Aws.should_receive(:put_verified_object).with("key", "data", "md5", {}).and_return(@hash)
         @fake.send_verified_data("key", "data", "md5", {})[:verified_md5].should be_true
       end
-    end
 
+      it "should return the hash including verified_md5 = true with the public read set" do
+        @hash = {"date"=>"Mon, 29 Sep 2008 18:38:32 GMT", :verified_md5=>true, "content-length"=>"0"}
+        Aws.should_receive(:put_verified_object).with("key", "data", "md5", {"x-amz-acl" => "public-read"}).and_return(@hash)
+        @fake.send_verified_data("key", "data", "md5", {"x-amz-acl" => "public-read"})[:verified_md5].should be_true
+      end
+    end
   end
 
   describe "send file" do
