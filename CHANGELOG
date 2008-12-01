@@ -4,6 +4,7 @@
   nodes running jobs.
 * allow user folder names by setting folder=foldername on launch, will remove non-alphanumeric
 * update build script
+* update apacheconf for passenger 2.0.4
 
 *(November 25th, 2008)*
 
