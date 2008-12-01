@@ -3,6 +3,7 @@
 * don't use the job id as the S3 file key, since it will conflict if we have multiple
   nodes running jobs.
 * allow user folder names by setting folder=foldername on launch, will remove non-alphanumeric
+* update build script
 
 *(November 25th, 2008)*
 

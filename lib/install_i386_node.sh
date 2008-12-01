@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # CHANGELOG
+# 12/01/2008
+# newer base ami doesn't have app-armor
+#
 # 11/25/2008
 # add patch to use Argonne National Laboratory mirror
 #
@@ -30,7 +33,10 @@ mkdir dbs
 cd bin
 mkdir tandem
 
-DEBIAN_FRONTEND=noninteractive apt-get -y install sharutils
+# we need uuencode
+apt-get -y install sharutils
+
+#patch to make the apt sources.list default to Argonne National Laboratory mirror
 
 cd /etc/apt
 uudecode -o patchfile << EOF
@@ -70,7 +76,6 @@ rm patchfile
 
 
 # update the image, install needed packages
-apt-get remove -y apparmor apparmor-utils
 apt-get -y update
 apt-get -y upgrade
 apt-get -y dist-upgrade
