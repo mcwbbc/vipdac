@@ -19,6 +19,9 @@ class Job < ActiveRecord::Base
   after_destroy :remove_s3_files, :remove_s3_working_folder
 
   class << self
+
+    # pagination
+    
     def page(page=1, limit=10)
       paginate(:page => page,
                :order => 'created_at DESC',
@@ -26,14 +29,23 @@ class Job < ActiveRecord::Base
       )
     end
 
+    # find jobs that aren't complete
+
     def incomplete
       find(:all, :conditions => ["status != ?", "Complete"])
     end
   end
 
+  # check if we're packing, and that we started it more than 10 minutes ago
+
   def stuck_packing?
     packing? && started_pack_at < 10.minutes.ago.to_f
   end
+
+  # check if any chunks are stuck
+  # if incomplete is empty, nothing can be stuck
+  # and if we have any, and the last one we finish was more than 10 minutes ago, we're stuck
+  # TODO: need to deal with something having a higher priority, since it would make the job appear to be stuck
 
   def stuck_chunks?
     return false if chunks.incomplete.empty? #if all the chunks are complete, we can't have stuck ones
@@ -44,6 +56,8 @@ class Job < ActiveRecord::Base
       false
     end
   end
+
+  # send the process messages for the stuck chunks
 
   def resend_stuck_chunks
     chunks.incomplete.each do |chunk|
@@ -88,7 +102,7 @@ class Job < ActiveRecord::Base
   end
 
   def remove_s3_working_folder
-    Aws.delete_folder("#{id}")
+    Aws.delete_folder("#{hash_key}")
   end
   
   def set_defaults
@@ -99,11 +113,11 @@ class Job < ActiveRecord::Base
   end
 
   def upload_manifest
-    send_verified_data("#{id}/manifest.yml", output_files.to_yaml, md5_item(output_files.to_yaml, false), {})
+    send_verified_data("#{hash_key}/manifest.yml", output_files.to_yaml, md5_item(output_files.to_yaml, false), {})
   end
 
   def output_files
-    Aws.s3i.incrementally_list_bucket(Aws.bucket_name, { 'prefix' => "#{id}/out" }) do |file|
+    Aws.s3i.incrementally_list_bucket(Aws.bucket_name, { 'prefix' => "#{hash_key}/out" }) do |file|
       @list = file[:contents].map {|content| content[:key] }
     end
     @list
@@ -170,7 +184,7 @@ class Job < ActiveRecord::Base
   end
 
   def send_message(type)
-    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :datafile => datafile, :output_file => output_file, :searcher => searcher, :spectra_count => spectra_count, :priority => priority}
+    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :hash_key => hash_key, :datafile => datafile, :output_file => output_file, :searcher => searcher, :spectra_count => spectra_count, :priority => priority}
     MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => 50, :ttr => 600)
   end
 

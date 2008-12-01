@@ -83,6 +83,12 @@ describe Job do
       @chunk.should_receive(:finished_at).and_return(5.minutes.ago.to_f)
       @job.stuck_chunks?.should be_false
     end
+
+    it "should be false if we didn't get a chunk for complete first" do
+      @incomplete.should_receive(:empty?).and_return(false)
+      @complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(nil)
+      @job.stuck_chunks?.should be_false
+    end
   end
 
   describe "resend_stuck_chunks" do
@@ -167,8 +173,8 @@ describe Job do
 
   describe "remove s3 working folder" do
     it "should delete the folder from s3" do
-      @job.should_receive(:id).and_return(12)
-      Aws.should_receive(:delete_folder).with("12").and_return(true)
+      @job.should_receive(:hash_key).and_return('hash_key')
+      Aws.should_receive(:delete_folder).with("hash_key").and_return(true)
       @job.remove_s3_working_folder
     end
   end
@@ -222,20 +228,20 @@ describe Job do
 
   describe "upload manifest" do
     it "should put the manifest file on s3" do
-      @job.should_receive(:id).and_return(12)
+      @job.should_receive(:hash_key).and_return('hash_key')
       @job.should_receive(:output_files).twice.and_return("hello")
-      @job.should_receive(:send_verified_data).with("12/manifest.yml", "hello".to_yaml, "6e6d6e9bfe05ac6c395d93627a764f84", {}).and_return(true)
+      @job.should_receive(:send_verified_data).with("hash_key/manifest.yml", "hello".to_yaml, "6e6d6e9bfe05ac6c395d93627a764f84", {}).and_return(true)
       @job.upload_manifest
     end
   end
 
   describe "output files" do
     before(:each) do
-      @job.should_receive(:id).and_return(12)
+      @job.should_receive(:hash_key).and_return('hash_key')
       Aws.should_receive(:bucket_name).and_return("bucket")
       file = {:contents => [{:key => "file1"}, {:key => "file2"}]}
       s3 = mock("s3")
-      s3.should_receive(:incrementally_list_bucket).with("bucket", { 'prefix' => "12/out" }).and_yield(file)
+      s3.should_receive(:incrementally_list_bucket).with("bucket", { 'prefix' => "hash_key/out" }).and_yield(file)
       Aws.should_receive(:s3i).and_return(s3)
     end
 
@@ -368,18 +374,19 @@ describe Job do
     before(:each) do
       @job.should_receive(:output_file).and_return("file")
       @job.should_receive(:id).and_return(12)
+      @job.should_receive(:hash_key).and_return('hash_key')
       @job.should_receive(:spectra_count).and_return(100)
       @job.should_receive(:priority).and_return(1000)
       @job.should_receive(:datafile).and_return("datafile")
       Aws.should_receive(:bucket_name).and_return("bucket")
     end
     it "should send a pack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
       @job.send_message(PACK)
     end
 
     it "should send an unpack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
       @job.send_message(UNPACK)
     end
   end

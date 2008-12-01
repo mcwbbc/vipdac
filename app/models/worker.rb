@@ -30,9 +30,7 @@ class Worker
     download_file(local_parameter_filename, message[:parameter_filename])
     send_message(START, starttime, 0.0)
     process_file
-    until upload_output_file
-      sleep(1)
-    end
+    upload_output_file
     finishtime = Time.now.to_f
     send_message(FINISH, starttime, finishtime)
   end
@@ -61,7 +59,7 @@ class Worker
   end
 
   def upload_output_file
-    send_file("#{message[:job_id]}/out/"+input_file(local_output_filename), local_output_filename)
+    send_file("#{message[:hash_key]}/out/"+input_file(local_output_filename), local_output_filename)
   end
 
   def send_message(type, starttime, finishtime)

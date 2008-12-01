@@ -20,13 +20,18 @@ class Packer
   end
 
   def manifest
-    @manifest ||= YAML.load(Aws.s3i.get_object(Aws.bucket_name, "#{message[:job_id]}/manifest.yml"))
+    download_file(local_manifest, "#{message[:hash_key]}/manifest.yml")
+    @manifest ||= YAML.load_file(local_manifest)
   end
 
   def download_results_files
     manifest.each do |file|
       download_file("#{PACK_DIR}/"+input_file(file), file)
     end
+  end
+
+  def local_manifest
+    "#{PACK_DIR}/manifest.yml"
   end
 
   def local_zipfile

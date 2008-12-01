@@ -72,6 +72,7 @@ describe Chunk do
                :sendtime => 1.0,
                :chunk_key => "key",
                :job_id => 12,
+               :hash_key => 'hash_key',
                :searcher => "omssa",
                :filename => "filename",
                :bucket_name => "bucket",
@@ -80,10 +81,11 @@ describe Chunk do
 
       job = mock_model(Job)
       job.should_receive(:id).and_return(12)
+      job.should_receive(:hash_key).and_return('hash_key')
       job.should_receive(:priority).and_return(100)
       job.should_receive(:searcher).and_return("omssa")
       @chunk = create_chunk(:chunk_count => 1, :bytes => 10, :sent_at => 1.0, :filename => "filename", :parameter_filename => "parameter_filename")
-      @chunk.should_receive(:job).exactly(3).times.and_return(job)
+      @chunk.should_receive(:job).exactly(4).times.and_return(job)
       MessageQueue.should_receive(:put).with(:name => 'node', :message => hash.to_yaml, :priority => 100, :ttr => 600).and_return(true)
       Aws.should_receive(:bucket_name).and_return("bucket")
       @chunk.send_process_message.should be_true

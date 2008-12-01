@@ -27,6 +27,7 @@ class Chunk < ActiveRecord::Base
              :sendtime => sent_at,
              :chunk_key => chunk_key,
              :job_id => job.id,
+             :hash_key => job.hash_key,
              :searcher => job.searcher,
              :filename => filename,
              :bucket_name => Aws.bucket_name,

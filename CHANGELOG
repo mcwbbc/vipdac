@@ -1,3 +1,8 @@
+*(December 1st, 2008)*
+
+* don't use the job id as the S3 file key, since it will conflict if we have multiple
+  nodes running jobs.
+
 *(November 25th, 2008)*
 
 * remove google analytics tracking

@@ -12,13 +12,17 @@ describe Packer do
     end
   end
 
+  describe "local_manifest" do
+    it "should return the local manifest string" do
+      @packer.local_manifest.should match(/^\/pipeline\/tmp-.+\/pack\/manifest.yml$/)
+    end
+  end
+
   describe "manifest" do
     it "should download a manifest.yml file from s3" do
-      Aws.should_receive(:bucket_name).and_return("name")
-      string = "hello"
-      s3 = mock("s3")
-      s3.should_receive(:get_object).and_return(string)      
-      Aws.should_receive(:s3i).and_return(s3)
+      @packer.should_receive(:local_manifest).twice.and_return("local_manifest")
+      @packer.should_receive(:download_file).with("local_manifest", "hash_key/manifest.yml").and_return(true)
+      YAML.should_receive(:load_file).with("local_manifest").and_return("hello")
       @packer.manifest.should == "hello"
     end
   end
@@ -84,7 +88,7 @@ describe Packer do
 
   protected
     def create_packer(options = {})
-      record = Packer.new({:type => PACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :output_file => "output_file", :searcher => "omssa"}.merge(options))
+      record = Packer.new({:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "output_file", :searcher => "omssa"}.merge(options))
       record
     end
 

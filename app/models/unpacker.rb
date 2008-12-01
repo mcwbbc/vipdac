@@ -85,7 +85,7 @@ class Unpacker
   end
 
   def bucket_object(file_path)
-    "#{message[:job_id]}/"+input_file(file_path)
+    "#{message[:hash_key]}/"+input_file(file_path)
   end
 
   def mgf_filename

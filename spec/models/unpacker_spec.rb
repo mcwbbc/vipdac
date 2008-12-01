@@ -25,11 +25,11 @@ describe Unpacker do
 
   describe "bucket object" do
     it "should return a string for the filepath" do
-      @unpacker.bucket_object("string").should eql("12/string")
+      @unpacker.bucket_object("string").should eql("hash_key/string")
     end
 
     it "should return a last item split by /" do
-      @unpacker.bucket_object("1/2/3/string").should eql("12/string")
+      @unpacker.bucket_object("1/2/3/string").should eql("hash_key/string")
     end
   end
 
@@ -60,7 +60,7 @@ describe Unpacker do
       Time.stub!(:now).and_return(1)
       Digest::SHA1.should_receive(:hexdigest).and_return("hex")
       @unpacker.should_receive(:mgf_filenames).and_return(["filename"])
-      msg = {:type => CREATED, :chunk_count => 1, :bytes => 1234, :sendtime => 1.0, :chunk_key => "hex", :job_id => 12, :filename => "12/file", :parameter_filename => "12/parameters.conf", :bucket_name => "bucket", :searcher => "omssa"}.to_yaml
+      msg = {:type => CREATED, :chunk_count => 1, :bytes => 1234, :sendtime => 1.0, :chunk_key => "hex", :job_id => 12, :filename => "hash_key/file", :parameter_filename => "hash_key/parameters.conf", :bucket_name => "bucket", :searcher => "omssa"}.to_yaml
       MessageQueue.should_receive(:put).with(:name => 'head', :message => msg, :priority => 10, :ttr => 60).and_return(true)
       @unpacker.send_created_message("file").should be_true
     end
@@ -69,7 +69,7 @@ describe Unpacker do
   describe "update split mgf files" do
     it "should send a file to s3" do
       @unpacker.should_receive(:mgf_filenames).and_return(["filename"])
-      @unpacker.should_receive(:send_file).with("12/filename", "filename").and_return(true)
+      @unpacker.should_receive(:send_file).with("hash_key/filename", "filename").and_return(true)
       @unpacker.should_receive(:send_created_message).with("filename").and_return(true)
       @unpacker.upload_split_mgf_files
     end
@@ -83,7 +83,7 @@ describe Unpacker do
       @unpacker.should_receive(:unzip_file).and_return(true)
       @unpacker.should_receive(:split_original_mgf).and_return(true)
       @unpacker.should_receive(:local_parameter_file).twice.and_return("parameters.conf")
-      @unpacker.should_receive(:send_file).with("12/parameters.conf", "parameters.conf").and_return(true)
+      @unpacker.should_receive(:send_file).with("hash_key/parameters.conf", "parameters.conf").and_return(true)
       @unpacker.should_receive(:upload_split_mgf_files).and_return(true)
       @unpacker.should_receive(:remove_item).and_return(true)
       @unpacker.run
@@ -168,7 +168,7 @@ describe Unpacker do
 
   protected
     def create_unpacker(options = {})
-      record = Unpacker.new({:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :datafile => "datafile", :searcher => "omssa", :spectra_count => 200}.merge(options))
+      record = Unpacker.new({:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :searcher => "omssa", :spectra_count => 200}.merge(options))
       record
     end
 

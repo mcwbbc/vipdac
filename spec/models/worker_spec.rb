@@ -84,13 +84,9 @@ describe Worker do
       @worker.should_receive(:send_message).with(FINISH, 1.0, 1.0).and_return(true)
       @worker.should_receive(:process_file).and_return(true)
     end
+
     it "should process the chunk without issue" do
       @worker.should_receive(:upload_output_file).and_return(true)
-      @worker.launch_process
-    end
-    it "should hit the logger if it doesn't upload right" do
-      @worker.should_receive(:sleep).with(1).and_return(true)
-      @worker.should_receive(:upload_output_file).twice.and_return(false, true)
       @worker.launch_process
     end
   end
@@ -117,7 +113,7 @@ describe Worker do
 
   describe "upload output file" do
     it "should put the output file back onto s3" do
-      @worker.should_receive(:send_file).with("12/out/filename-out.csv", %r|/pipeline/tmp-(\d+?)/filename-out.csv|).and_return(true)
+      @worker.should_receive(:send_file).with("hash_key/out/filename-out.csv", %r|/pipeline/tmp-(\d+?)/filename-out.csv|).and_return(true)
       @worker.upload_output_file
     end
   end
@@ -179,7 +175,7 @@ describe Worker do
   
   protected
     def create_worker(options = {})
-      record = Worker.new({ :type => PROCESS, :chunk_count => 1, :bytes => 10,:sendtime => 1.0,:chunk_key => "key",:job_id => 12,:searcher => "omssa",:filename => "filename",:bucket_name => "bucket_name",:parameter_filename => "parameter_filename"}.merge(options))
+      record = Worker.new({ :type => PROCESS, :chunk_count => 1, :bytes => 10, :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :hash_key => 'hash_key', :searcher => "omssa", :filename => "filename", :bucket_name => "bucket_name", :parameter_filename => "parameter_filename"}.merge(options))
       record
     end
 
