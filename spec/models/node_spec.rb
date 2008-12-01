@@ -85,13 +85,22 @@ describe Node do
     end
 
     describe "requesting user_data" do
-      it "should return a string with the user data with 1 worker for a small instance" do
-        @node.user_data.should eql("aws_access=access,aws_secret=secret,workers=1,role=worker,beanstalkd=100.100.100.100")
-      end
+      describe "without folder name" do
+        it "should return a string with the user data with 1 worker for a small instance" do
+          @node.user_data.should eql("aws_access=access,aws_secret=secret,workers=1,role=worker,beanstalkd=100.100.100.100")
+        end
 
-      it "should return a string with the user data with 4 worker for a meduim instance" do
-        @node.instance_type = "c1.medium"
-        @node.user_data.should eql("aws_access=access,aws_secret=secret,workers=4,role=worker,beanstalkd=100.100.100.100")
+        it "should return a string with the user data with 4 worker for a meduim instance" do
+          @node.instance_type = "c1.medium"
+          @node.user_data.should eql("aws_access=access,aws_secret=secret,workers=4,role=worker,beanstalkd=100.100.100.100")
+        end
+      end
+      describe "with folder name" do
+        it "should return a string with the user data with 4 worker for a meduim instance" do
+          Aws.should_receive(:folder).twice.and_return("user_folder")
+          @node.instance_type = "c1.medium"
+          @node.user_data.should eql("aws_access=access,aws_secret=secret,workers=4,role=worker,beanstalkd=100.100.100.100,folder=user_folder")
+        end
       end
     end
 

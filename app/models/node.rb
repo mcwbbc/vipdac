@@ -28,7 +28,9 @@ class Node < ActiveRecord::Base
   end
 
   def user_data
-    "aws_access=#{Aws.access_key},aws_secret=#{Aws.secret_key},workers=#{Aws.workers(instance_type)},role=worker,beanstalkd=#{Aws.local_ipv4}"
+    data = "aws_access=#{Aws.access_key},aws_secret=#{Aws.secret_key},workers=#{Aws.workers(instance_type)},role=worker,beanstalkd=#{Aws.local_ipv4}" 
+    data << ",folder=#{Aws.folder}" if Aws.folder
+    data
   end
   
   def ami_type

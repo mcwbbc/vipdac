@@ -12,7 +12,7 @@ class Aws
     end
 
     def bucket_name
-      "#{access_key}-vipdac"
+      folder ? "#{folder}-#{access_key}-vipdac" : "#{access_key}-vipdac"
     end
 
     def current_hostname
@@ -49,6 +49,10 @@ class Aws
 
     def secret_key
       keys["aws_secret"]
+    end
+
+    def folder
+      keys["folder"] ? keys["folder"].downcase.gsub(/[^a-z0-9]+/i, '') : nil
     end
 
     def keypair

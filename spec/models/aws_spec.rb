@@ -177,9 +177,42 @@ describe Aws do
       end
     end
 
-    describe "bucket" do
-      it "should have a name" do
+  end
+
+  describe "folder name" do
+    it "should return nil for a missing key" do
+      Aws.stub!(:keys).and_return({})
+      Aws.folder.should be_nil
+    end
+
+    it "should remove non-number/letters" do
+      Aws.stub!(:keys).and_return({'folder' => 'user_folder'})
+      Aws.folder.should == "userfolder"
+    end
+
+    it "should downcase" do
+      Aws.stub!(:keys).and_return({'folder' => 'USERFOLDER'})
+      Aws.folder.should == "userfolder"
+    end
+
+    it "should remove spaces" do
+      Aws.stub!(:keys).and_return({'folder' => 'user fold er'})
+      Aws.folder.should == "userfolder"
+    end
+  end
+
+  describe "bucket name" do
+    describe "default" do
+      it "should be the access key" do
+        Aws.stub!(:keys).and_return({'aws_access' => 'access'})
         Aws.bucket_name.should == "access-vipdac"
+      end
+    end
+
+    describe "with user data as bucketname" do
+      it "should prefix the bucket name with the userdata" do
+        Aws.stub!(:keys).and_return({'aws_access' => 'access', 'folder' => 'userfolder'})
+        Aws.bucket_name.should == "userfolder-access-vipdac"
       end
     end
   end
