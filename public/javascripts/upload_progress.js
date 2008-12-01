@@ -84,7 +84,7 @@ PrototypeUploadProgressMethods = {
 			parameters: 'X-Progress-ID='+ options.uuid,
 			onSuccess: function(xhr){
 				var upload = xhr.responseText.evalJSON();
-				upload.percents = Math.floor((upload.received / upload.size)*100);
+				upload.percents = Math.floor((upload.received / upload.size)*99);
 				if (upload.state == 'uploading') {
 					var bar = Prototype.Browser.WebKit ? parent.document.getElementById(options.progressBar) : $(options.progressBar);
   				bar.setStyle({width: Math.floor(upload.percents) + '%'});
