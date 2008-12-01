@@ -92,6 +92,24 @@ describe Chunk do
     end
   end
 
+  describe "pretty_filename should spilt string on /" do
+
+    it "should return nil for single string" do
+      @chunk.filename = "/"
+      @chunk.pretty_filename.should == ""
+    end
+
+    it "should return last with one /" do
+      @chunk.filename = "/last"
+      @chunk.pretty_filename.should == "last"
+    end
+
+    it "should return last element" do
+      @chunk.filename = "/hello/there/last"
+      @chunk.pretty_filename.should == "last"
+    end
+  end
+
   describe "reporter chunk" do
     before(:each) do
       @report = {:chunk_key => "key", :job_id => 1234, :instance_id => "instance-id", :filename => "filename", :parameter_filename => "parameter_filename",

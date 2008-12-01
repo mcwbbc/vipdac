@@ -19,7 +19,11 @@ class Chunk < ActiveRecord::Base
   def finished?
     (finished_at > 0)
   end
-  
+
+  def pretty_filename
+    filename.split('/').last || ""
+  end
+
   def send_process_message
     hash = { :type => PROCESS,
              :chunk_count => chunk_count,
