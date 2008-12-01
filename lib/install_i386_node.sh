@@ -34,9 +34,10 @@ cd bin
 mkdir tandem
 
 # we need uuencode
+apt-get -y update
 apt-get -y install sharutils
 
-#patch to make the apt sources.list default to Argonne National Laboratory mirror
+# patch to make the apt sources.list default to Argonne National Laboratory mirror
 
 cd /etc/apt
 uudecode -o patchfile << EOF
