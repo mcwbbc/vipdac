@@ -58,7 +58,7 @@ module Utilities
 
   def send_verified_data(key, data, md5, headers={})
     begin
-      Aws.put_verified_object(key, data, md5, headers={})
+      Aws.put_verified_object(key, data, md5, headers)
     rescue RightAws::AwsError => e
       if e.message =~ /failed MD5 checksum/
         retry if !(RAILS_ENV == 'test')
