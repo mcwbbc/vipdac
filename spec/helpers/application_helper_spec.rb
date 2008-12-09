@@ -3,6 +3,52 @@ require File.dirname(__FILE__) + '/../spec_helper'
 include ApplicationHelper
 
 describe ApplicationHelper do
+
+  describe "flash messages" do
+    it "should be nil if we don't have a message with the key" do
+      flash[:cheese] = "cheese"
+      helper.flash_messages.should == ""
+    end
+
+    describe "with a single key" do
+      it "should return a single div" do
+        flash[:warning] = "warn message"
+        helper.flash_messages.should == '<div class="warning">warn message</div>'
+      end
+    end
+    describe "with multiple keys" do
+      it "should return mutiple divs" do
+        flash[:warning] = "warn message"
+        flash[:notice] = "notice message"
+        helper.flash_messages.should match(/notice/)
+        helper.flash_messages.should match(/warning/)
+      end
+    end
+  end
+
+  describe "message for item" do
+    describe "as array" do
+      describe "with value" do
+        it "should return a formatted string" do
+          helper.should_receive(:link_to).with('item', 'another').and_return("item link")
+          helper.message_for_item("hello %s", ['item', 'another']).should == "hello item link"
+        end
+      end
+    end
+    describe "as other" do
+      describe "with value" do
+        it "should return a formatted string" do
+          helper.message_for_item("hello %s", "there").should == "hello there"
+        end
+      end
+      describe "with nil" do
+        it "should return formatting string" do
+          helper.message_for_item("hello %s").should == "hello "
+        end
+      end
+    end
+  end
+
   describe "pretty time" do
     it "should display the number with 3 decimal places" do
       pretty_time(12.12345).should == "12.123"

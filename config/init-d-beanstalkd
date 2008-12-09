@@ -12,6 +12,7 @@ RETVAL=0
 start() {
 /usr/local/bin/beanstalkd -d
 ps aux | grep '[b]eanstalkd' | awk '{print $2}' > /pipeline/beanstalkd.pid
+ps aux | grep '[b]eanstalkd' | grep -v /etc/ | awk '{print $2}' > /pipeline/beanstalkd.pid
 }
 
 stop() {
