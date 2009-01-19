@@ -245,6 +245,8 @@ gem install passenger --no-rdoc --no-ri
 gem install passenger --no-rdoc --no-ri
 gem install ruby-debug --no-rdoc --no-ri
 gem install ruby-debug --no-rdoc --no-ri
+gem install uuidtools --no-rdoc --no-ri
+gem install uuidtools --no-rdoc --no-ri
 
 # install the ruby/apache bridge (this will feed the enters to run it from a script)
 passenger-install-apache2-module << EOF
