@@ -57,17 +57,25 @@ describe Aws do
     before(:each) do
       Aws.should_receive(:keys).twice.and_return({'aws_access' => 'access', 'aws_secret' => 'secret'})
     end
+
     it "should create an ec2 interface" do
       RightAws::Ec2.should_receive(:new).with("access", "secret").and_return("interface")
       Aws.ec2.should == "interface"
     end
+
     it "should create an sqs interface" do
       RightAws::SqsGen2.should_receive(:new).with("access", "secret").and_return("interface")
       Aws.sqs.should == "interface"
     end
+
     it "should create an s3i interface" do
       RightAws::S3Interface.should_receive(:new).with("access", "secret").and_return("interface")
       Aws.s3i.should == "interface"
+    end
+
+    it "should create an sdb interface" do
+      RightAws::ActiveSdb.should_receive(:establish_connection).with("access", "secret").and_return("interface")
+      Aws.sdb.should == "interface"
     end
   end
 

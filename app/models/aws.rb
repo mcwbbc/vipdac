@@ -110,6 +110,10 @@ class Aws
       @s3i ||= RightAws::S3Interface.new(access_key, secret_key)
     end
 
+    def sdb
+      @sdb ||= RightAws::ActiveSdb.establish_connection(access_key, secret_key)
+    end
+
   end
 
 end
