@@ -6,6 +6,7 @@ doc/app
 *~
 public/datafiles
 public/jobs
+public/search_databases
 config/node.monitrc
 coverage
 config/database.yml
