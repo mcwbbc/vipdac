@@ -13,6 +13,16 @@ describe Aws do
     end
   end
 
+  describe "encode" do
+    it "should encode the data into base 64" do
+      Aws.encode("hello").should == "aGVsbG8="
+    end
+
+    it "should return nil if there is no data" do
+      Aws.encode(nil).should be_nil
+    end
+  end
+
   describe "s3 actions" do
     before(:each) do
       @s3 = mock("s3")

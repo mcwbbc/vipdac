@@ -3,6 +3,11 @@ class Aws
   INSTANCE_WORKERS = {'m1.small' => 1, 'c1.medium' => 2}
 
   class << self
+
+    def encode(data)
+      data ? Base64.encode64(data).gsub("\n","") : nil
+    end
+    
     def amis
       @amis ||= {'i386' => ami_id}
     end
