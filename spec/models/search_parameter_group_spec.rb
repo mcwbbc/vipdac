@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe SearchParameters do
+describe SearchParameterGroup do
   describe "save" do
     it "shoud persist to simpleDB"
   end
