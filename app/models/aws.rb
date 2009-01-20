@@ -7,6 +7,10 @@ class Aws
     def encode(data)
       data ? Base64.encode64(data).gsub("\n","") : nil
     end
+
+    def decode(data_array)
+      data_array ? Base64.decode64(data_array.first) : nil
+    end
     
     def amis
       @amis ||= {'i386' => ami_id}
