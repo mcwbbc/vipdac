@@ -121,6 +121,7 @@ describe TandemParameterFilesController do
     describe "with successful save" do
       def do_post
         @tandem_parameter_file.should_receive(:save).and_return(true)
+        @tandem_parameter_file.should_receive(:save_to_simpledb).and_return(true)
         post :create, :tandem_parameter_file => {}
       end
   

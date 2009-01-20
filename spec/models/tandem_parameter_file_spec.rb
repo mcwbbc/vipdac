@@ -35,6 +35,74 @@ describe TandemParameterFile do
     end
   end
 
+  describe "import from simple db" do
+    before(:each) do
+      Aws.should_receive(:sdb).and_return("simpledb")
+      SearchParameterGroup.should_receive(:create_domain).and_return(true)
+      @pf = create_tandem_parameter_file
+      @spg = mock_model(SearchParameterGroup)
+      @spg.should_receive(:reload).and_return(true)
+      @spg.should_receive(:[]).with('name').and_return(["ZGVtbw=="])
+      @spg.should_receive(:[]).with('taxon').and_return(["aHVtYW5faXBp"])
+      @spg.should_receive(:[]).with('enzyme').and_return(["W1hdfFtYXQ=="])
+      @spg.should_receive(:[]).with('n_terminal').and_return(nil)
+      @spg.should_receive(:[]).with('c_terminal').and_return(nil)
+      @spg.should_receive(:[]).with('ions').and_return(["LS0tIApiX2lvbjogdHJ1ZQp4X2lvbjogZmFsc2UKY19pb246IGZhbHNlCnlfaW9uOiB0cnVlCnpfaW9uOiBmYWxzZQphX2lvbjogZmFsc2UK"])
+      SearchParameterGroup.should_receive(:find_all_by_searcher).with("xtandem").and_return([@spg])
+      @pf.should_receive(:name=).with("demo").and_return(true)
+      @pf.should_receive(:taxon=).with("human_ipi").and_return(true)
+      @pf.should_receive(:enzyme=).with("[X]|[X]").and_return(true)
+      @pf.should_receive(:n_terminal=).with(nil).and_return(true)
+      @pf.should_receive(:c_terminal=).with(nil).and_return(true)
+      @pf.should_receive(:setup_ions).with("--- \nb_ion: true\nx_ion: false\nc_ion: false\ny_ion: true\nz_ion: false\na_ion: false\n").and_return(true)
+      TandemParameterFile.should_receive(:new).and_return(@pf)
+    end
+
+    describe "with valid save" do
+      it "should create modifications" do
+        @pf.should_receive(:save).and_return(true)
+        @spg.should_receive(:[]).with('modifications').and_return(nil)
+        @pf.should_receive(:create_modifications).with(nil).and_return(true)
+        TandemParameterFile.import_from_simpledb
+      end
+    end
+
+    describe "without save" do
+      it "should not create modifications" do
+        @pf.should_receive(:save).and_return(false)
+        TandemParameterFile.import_from_simpledb
+      end
+    end
+  end
+
+  describe "create modifications" do
+    it "should parse the yaml string and create a tandem modification for each member of the array" do
+      pf = create_tandem_parameter_file
+      tmods = mock("array")
+      tmods.should_receive(:create).with(:mass => "1.0", :amino_acid => "abc").and_return(true)
+      tmods.should_receive(:create).with(:mass => "2.0", :amino_acid => "def").and_return(true)
+      pf.should_receive(:tandem_modifications).twice.and_return(tmods)
+      yaml = '--- \n- mass: "1.0"\n  amino_acid: abc\n- mass: "2.0"\n  amino_acid: def\n'
+      array = [{"mass"=>"1.0", "amino_acid"=>"abc"}, {"mass"=>"2.0", "amino_acid"=>"def"}]
+      YAML.should_receive(:load).with(yaml).and_return(array)
+      pf.create_modifications(yaml)
+    end
+  end
+
+  describe "setup ions" do
+    it "should set the model values based on the supplied yaml string" do
+      pf = create_tandem_parameter_file
+      yaml = "--- \nb_ion: true\nx_ion: false\nc_ion: false\ny_ion: true\nz_ion: false\na_ion: false\n"
+      pf.setup_ions(yaml)
+      pf.a_ion.should be_false
+      pf.b_ion.should be_true
+      pf.c_ion.should be_false
+      pf.x_ion.should be_false
+      pf.y_ion.should be_true
+      pf.z_ion.should be_false
+    end
+  end
+
   describe "remove from simpledb" do
     it "should remove the record from simpledb" do
       record = mock("simpledb_record")

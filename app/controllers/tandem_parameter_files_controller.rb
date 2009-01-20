@@ -23,6 +23,7 @@ class TandemParameterFilesController < ApplicationController
     @tandem_parameter_file = TandemParameterFile.new(params[:tandem_parameter_file])
 
     if @tandem_parameter_file.save
+      @tandem_parameter_file.save_to_simpledb
       flash[:notice] = 'Parameter file was successfully created.'
       redirect_to(tandem_parameter_files_url)
     else

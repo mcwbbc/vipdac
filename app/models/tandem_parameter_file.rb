@@ -11,7 +11,6 @@ class TandemParameterFile < ActiveRecord::Base
 
   has_many :tandem_modifications, :dependent => :destroy
 
-  after_save :save_to_simpledb
   after_destroy :remove_from_simpledb
 
   IONS = ['A', 'B', 'C', 'X', 'Y', 'Z']
@@ -97,6 +96,43 @@ class TandemParameterFile < ActiveRecord::Base
       xml << %Q(<note type="input" label="residue, potential modification motif">#{motif}</note>) if !motif.blank?
     end
     xml
+  end
+
+  def self.import_from_simpledb
+    sdb = Aws.sdb
+    SearchParameterGroup.create_domain
+    records = SearchParameterGroup.find_all_by_searcher("xtandem")
+    records.each do |record|
+      record.reload
+      parameter_file = TandemParameterFile.new
+      parameter_file.name = Aws.decode(record['name'])
+      parameter_file.taxon = Aws.decode(record['taxon'])
+      parameter_file.enzyme = Aws.decode(record['enzyme'])
+      parameter_file.n_terminal = Aws.decode(record['n_terminal'])
+      parameter_file.c_terminal = Aws.decode(record['c_terminal'])
+      parameter_file.setup_ions(Aws.decode(record['ions']))
+      if parameter_file.save
+        # create the modifications
+        parameter_file.create_modifications(Aws.decode(record['modifications']))
+      end # don't care if it doesn't save, since it's most likely a name conflict
+    end
+  end
+
+  def create_modifications(yaml_string)
+    if yaml_string
+      modifications = YAML.load(yaml_string)
+      modifications.each do |m|
+        tandem_modifications.create(:amino_acid => m['amino_acid'], :mass => m['mass'])
+      end
+    end
+  end
+
+  def setup_ions(yaml_string)
+    hash = YAML.load(yaml_string)
+    IONS.each do |ion|
+      ion_string = "#{ion.downcase}_ion"
+      self[ion_string] = hash[ion_string]
+    end
   end
 
   def remove_from_simpledb
