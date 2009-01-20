@@ -1,0 +1,7 @@
+<tr valign="top">
+  <td><%=h search_database.name %></td>
+  <td><%=h search_database.keyword %></td>
+  <td><%=h search_database.version %></td>
+  <td>
+  <%= link_to('Delete', search_database, :confirm => 'Are you sure?', :method => :delete) %>
+</tr>

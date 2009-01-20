@@ -1,0 +1,15 @@
+<%= page_title("Search Databases") %>
+<%= link_to('New search database', new_search_database_path) %>
+<br />
+<br />
+<table width="100%">
+  <tr class="row-header">
+    <th>Name</th>
+    <th>Keyword</th>
+    <th>Version</th>
+    <th>Action</th>
+  </tr>
+<%= render(:partial => "search_database", :collection => @search_databases) %>
+</table>
+
+<%= render(:partial => "shared/pagination", :locals => { :items => @search_databases }) %>

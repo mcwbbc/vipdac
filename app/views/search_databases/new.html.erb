@@ -1,0 +1,41 @@
+<%= page_title("New Search Database") %>
+
+<%= all_error_messages_for :search_database %>
+
+<script type="text/javascript">
+  Event.observe(window, 'load', function() {
+    $('upload').uploadProgress({
+      prototypePath: "/javascripts/prototype.js",
+      uploadProgressPath: "/javascripts/upload_progress.js"
+    });
+  });
+</script>
+
+<% form_for @search_database, :html => { :id => 'upload', :multipart => true }  do |f| %>
+<table>
+  <tr valign="top">
+    <td>Name:</td>
+    <td><%= f.text_field :name %></td>
+  </tr>
+  <tr>
+    <td>Keyword:</td>
+    <td><%= f.text_field(:keyword) %></td>
+  </tr>
+  <tr>
+    <td>Version:</td>
+    <td><%= f.text_field(:version) %></td>
+  </tr>
+  <tr>
+    <td>Search Database fasta File:</td>
+    <td><%= f.file_field(:search_database) %></td>
+  </tr>
+  <tr>
+    <td>Upload progress:</td>
+    <td><div id="progress" class="bar"><div id="progressbar">&nbsp;</div></div></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><%= f.submit "save", :disable_with => 'saving...' %> <%= f.submit "cancel" %></td>
+  </tr>
+  </table>
+<% end %>

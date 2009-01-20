@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20081002180447) do
+ActiveRecord::Schema.define(:version => 20090119205259) do
 
   create_table "chunks", :force => true do |t|
     t.integer  "job_id"
@@ -68,6 +68,19 @@ ActiveRecord::Schema.define(:version => 20081002180447) do
     t.integer "max_charge"
     t.string  "ions"
     t.string  "modifications"
+  end
+
+  create_table "search_databases", :force => true do |t|
+    t.string   "name"
+    t.string   "keyword"
+    t.string   "version"
+    t.boolean  "user_uploaded"
+    t.string   "search_database_file_name"
+    t.string   "search_database_content_type"
+    t.integer  "search_database_file_size"
+    t.datetime "search_database_updated_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "tandem_modifications", :force => true do |t|
