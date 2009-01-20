@@ -35,6 +35,40 @@ describe TandemParameterFile do
     end
   end
 
+  describe "save to simple db" do
+    it "should save the encoded parameters to simpledb" do
+      pf = create_tandem_parameter_file
+      Aws.should_receive(:sdb).and_return("simpledb")
+      SearchParameterGroup.should_receive(:create_domain).and_return(true)
+      SearchParameterGroup.should_receive(:create).with({"name"=>"am9ibmFtZQ==", "taxon"=>"aHVtYW5faXBp", "searcher"=>"xtandem", "ions"=>"LS0tIApiX2lvbjogCnhfaW9uOiAKY19pb246IAp5X2lvbjogCnpfaW9uOiAKYV9pb246IHRydWUK", "n_terminal"=>"", "enzyme"=>"ZW56eW1l", "c_terminal"=>"", "modifications"=>nil}).and_return(true)
+      pf.save_to_simpledb
+    end
+  end
+
+  describe "yaml modifications" do
+    it "should return a yaml string for the modifictions in the parameter file" do
+      m1 = mock_model(TandemModification, :mass => 12.0, :amino_acid => "abc")
+      m2 = mock_model(TandemModification, :mass => -2.0, :amino_acid => "def")
+      modifications = [m1, m2]
+      pf = create_tandem_parameter_file
+      pf.should_receive(:tandem_modifications).twice.and_return(modifications)
+      pf.yaml_modifications.should == "--- \n- mass: \"12.0\"\n  amino_acid: abc\n- mass: \"-2.0\"\n  amino_acid: def\n"
+    end
+
+    it "should return a yaml string for the modifictions in the parameter file" do
+      pf = create_tandem_parameter_file
+      pf.should_receive(:tandem_modifications).and_return([])
+      pf.yaml_modifications.should == nil
+    end
+  end
+
+  describe "yaml ions" do
+    it "should return a yaml string for the ions in the parameter file" do
+      pf = create_tandem_parameter_file
+      pf.yaml_ions.should == "--- \nb_ion: \nx_ion: \nc_ion: \ny_ion: \nz_ion: \na_ion: true\n"
+    end
+  end
+
   describe "when loading the taxonomies" do
     it "should return an empty array for an exception" do
       File.stub!(:open).and_raise("error")

@@ -96,6 +96,40 @@ class TandemParameterFile < ActiveRecord::Base
     xml
   end
 
+  def save_to_simpledb
+    parameters = {}
+    parameters['searcher'] = "xtandem"
+    parameters['name'] = Aws.encode(name)
+    parameters['taxon'] = Aws.encode(taxon)
+    parameters['enzyme'] = Aws.encode(enzyme)
+    parameters['n_terminal'] = Aws.encode("#{n_terminal}")
+    parameters['c_terminal'] = Aws.encode("#{c_terminal}")
+    parameters['ions'] = Aws.encode(yaml_ions)
+    parameters['modifications'] = Aws.encode(yaml_modifications)
+    sdb = Aws.sdb
+    SearchParameterGroup.create_domain
+    SearchParameterGroup.create(parameters)
+  end
+
+  def yaml_modifications
+    if tandem_modifications.any?
+      array = tandem_modifications.inject([]) do |a, mod|
+        a << {'mass' => "#{mod.mass}", 'amino_acid' => "#{mod.amino_acid}"}
+        a
+      end
+      array.to_yaml
+    end
+  end
+
+  def yaml_ions
+    hash = IONS.inject({}) do |h, ion|
+      ion_string = "#{ion.downcase}_ion"
+      h[ion_string] = instance_eval(ion_string)
+      h
+    end
+    hash.to_yaml
+  end
+
   # writes a parameter file
   def write_file(directory)
     xml = ""
