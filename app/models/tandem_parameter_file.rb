@@ -11,6 +11,9 @@ class TandemParameterFile < ActiveRecord::Base
 
   has_many :tandem_modifications, :dependent => :destroy
 
+  after_save :save_to_simpledb
+  after_destroy :remove_from_simpledb
+
   IONS = ['A', 'B', 'C', 'X', 'Y', 'Z']
 
   ENZYMES = [ 
@@ -94,6 +97,13 @@ class TandemParameterFile < ActiveRecord::Base
       xml << %Q(<note type="input" label="residue, potential modification motif">#{motif}</note>) if !motif.blank?
     end
     xml
+  end
+
+  def remove_from_simpledb
+    sdb = Aws.sdb
+    SearchParameterGroup.create_domain
+    record = SearchParameterGroup.find_by_name_and_searcher(Aws.encode(name), "xtandem")
+    record.delete if record
   end
 
   def save_to_simpledb

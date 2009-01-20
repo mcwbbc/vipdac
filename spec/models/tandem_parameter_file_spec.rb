@@ -35,6 +35,28 @@ describe TandemParameterFile do
     end
   end
 
+  describe "remove from simpledb" do
+    it "should remove the record from simpledb" do
+      record = mock("simpledb_record")
+      record.should_receive(:delete).and_return(true)
+      pf = create_tandem_parameter_file
+      Aws.should_receive(:sdb).and_return("simpledb")
+      Aws.should_receive(:encode).with("jobname").and_return("encoded")
+      SearchParameterGroup.should_receive(:create_domain).and_return(true)
+      SearchParameterGroup.should_receive(:find_by_name_and_searcher).with("encoded", "xtandem").and_return(record)
+      pf.remove_from_simpledb
+    end
+
+    it "should do nothing if the record isn't in simpledb" do
+      pf = create_tandem_parameter_file
+      Aws.should_receive(:sdb).and_return("simpledb")
+      Aws.should_receive(:encode).with("jobname").and_return("encoded")
+      SearchParameterGroup.should_receive(:create_domain).and_return(true)
+      SearchParameterGroup.should_receive(:find_by_name_and_searcher).with("encoded", "xtandem").and_return(nil)
+      pf.remove_from_simpledb
+    end
+  end
+
   describe "save to simple db" do
     it "should save the encoded parameters to simpledb" do
       pf = create_tandem_parameter_file
