@@ -118,9 +118,11 @@ describe OmssaParameterFilesController do
     describe "with successful save" do
       before(:each) do
         @omssa_parameter_file.should_receive(:ions=).with("1,3").and_return(true)
-      end
-      def do_post
         @omssa_parameter_file.should_receive(:save).and_return(true)
+        @omssa_parameter_file.should_receive(:save_to_simpledb).and_return(true)
+      end
+
+      def do_post
         post :create, :omssa_parameter_file => {}, :ion1 => 1, :ion3 => 3
       end
 

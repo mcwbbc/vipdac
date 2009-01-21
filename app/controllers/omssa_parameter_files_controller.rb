@@ -31,6 +31,7 @@ class OmssaParameterFilesController < ApplicationController
     @omssa_parameter_file.ions = (0..5).inject([]) {|a,i| a << params["ion#{i}".to_sym] unless params["ion#{i}".to_sym] == nil; a}.join(',')
     
     if @omssa_parameter_file.save
+      @omssa_parameter_file.save_to_simpledb
       flash[:notice] = 'Omssa Parameter File was successfully created.'
       redirect_to(omssa_parameter_files_url)
     else
