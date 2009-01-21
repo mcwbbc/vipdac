@@ -4,6 +4,9 @@
 # 01/21/2009
 # specify versions of the ipi databases to use
 # update to passenger 2.0.6
+# update to tandem 08-12-01-1
+# update to monit 5beta6
+# update to blast 2.2.19
 #
 # 12/01/2008
 # newer base ami doesn't have app-armor
@@ -99,36 +102,17 @@ mv beanstalkd /usr/local/bin/
 
 # download and copy formatdb
 cd /usr/local/src
-wget ftp://ftp.ncbi.nih.gov/blast/executables/LATEST/blast-2.2.18-ia32-linux.tar.gz
-tar xvfz blast-2.2.18-ia32-linux.tar.gz
-cd blast-2.2.18
+wget ftp://ftp.ncbi.nih.gov/blast/executables/LATEST/blast-2.2.19-ia32-linux.tar.gz
+tar xvfz blast-2.2.19-ia32-linux.tar.gz
+cd blast-2.2.19
 cp bin/formatdb /usr/local/bin/
 
 # download and build tandem
 cd /usr/local/src
-wget ftp://ftp.thegpm.org/projects/tandem/source/tandem-linux-08-02-01-3.tar.gz
-tar xvfz tandem-linux-08-02-01-3.tar.gz 
-ln -s /usr/lib/libexpat.so.1 /usr/lib/libexpat.so.0
+wget ftp://ftp.thegpm.org/projects/tandem/source/tandem-ubuntu-08-12-01-1.tar.gz
+tar xvfz tandem-ubuntu-08-12-01-1.tar.gz 
 cd tandem-linux-08-02-01-3/src
-cp Makefile_ubuntu Makefile
-
-uudecode -o patchfile << EOF
-begin-base64 644 patch
-LS0tIE1ha2VmaWxlX3VidW50dQkyMDA4LTA1LTIyIDE1OjM5OjEyLjAwMDAw
-MDAwMCArMDAwMAorKysgTWFrZWZpbGUJMjAwOC0wOS0xMiAxMzoyNjozMy4w
-MDAwMDAwMDAgKzAwMDAKQEAgLTE1LDcgKzE1LDcgQEAKICNDWFhGTEFHUyA9
-IC1PMiAtREdDQzQgLURQTFVHR0FCTEVfU0NPUklORyAtRFhfUDMNCiAKICN1
-YnVudHUgNjQgYml0IHZlcnNpb24NCi1MREZMQUdTID0gIC1scHRocmVhZCAt
-TC91c3IvbGliNjQgL3Vzci9saWI2NC9saWJleHBhdC5zby4wDQorTERGTEFH
-UyA9ICAtbHB0aHJlYWQgLUwvdXNyL2xpYiAvdXNyL2xpYi9saWJleHBhdC5z
-by4wDQogDQogU1JDUyA6PSAkKHdpbGRjYXJkICouY3BwKQ0KIE9CSlMgOj0g
-JChwYXRzdWJzdCAlLmNwcCwlLm8sJCh3aWxkY2FyZCAqLmNwcCkpDQo=
-====
-EOF
-
-patch -p0 < patchfile
-rm patchfile
-
+cp Makefile_ubuntu_32 Makefile
 make
 cp ../bin/* /pipeline/bin/tandem
 cd /pipeline/bin/tandem
@@ -137,7 +121,6 @@ rm taxonomy.xml
 ln -s /pipeline/vipdac/config/tandem_config/taxonomy.xml /pipeline/bin/tandem/
 rm *.css
 rm *.xsl
-rm p3.exe
 rm fasta_pro.exe
 rm test_spectra.mgf
 
@@ -182,9 +165,9 @@ apxs2 -c -i mod_upload_progress.c
 
 # download and build monit
 cd /usr/local/src
-wget http://mmonit.com/monit/dist/beta/monit-5.0_beta4.tar.gz
-tar xvfz monit-5.0_beta4.tar.gz
-cd monit-5.0_beta4
+wget http://mmonit.com/monit/dist/beta/monit-5.0_beta6.tar.gz
+tar xvfz monit-5.0_beta6.tar.gz
+cd monit-5.0_beta6
 ./configure
 make
 make install
