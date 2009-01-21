@@ -1,6 +1,10 @@
 #!/bin/bash
 
 # CHANGELOG
+# 01/21/2009
+# specify versions of the ipi databases to use
+# update to passenger 2.0.6
+#
 # 12/01/2008
 # newer base ami doesn't have app-armor
 #
