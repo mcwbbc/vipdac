@@ -13,3 +13,6 @@ require 'utilities'
 require 'digest/sha1'
 require 'digest/md5'
 require 'beanstalk-client'
+
+TandemParameterFile.import_from_simpledb
+OmssaParameterFile.import_from_simpledb
