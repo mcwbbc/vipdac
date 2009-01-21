@@ -14,6 +14,95 @@ describe OmssaParameterFile do
     end
   end
 
+  describe "import from simpledb" do
+    before(:each) do
+      @pf = create_omssa_parameter_file
+      @spg = mock_model(SearchParameterGroup)
+      @spg.should_receive(:reload).and_return(true)
+      attributes = mock("hash")
+      attributes.should_receive(:keys).and_return(['name', 'database', 'enzyme', 'missed_cleavages', 'precursor_tol', 'product_tol', 'product_search', 'precursor_search', 'minimum_charge', 'max_charge', 'ions', 'modifications'])
+      @spg.should_receive(:attributes).and_return(attributes)
+      @spg.should_receive(:[]).with('name').and_return(["dGVzdA=="])
+      @spg.should_receive(:[]).with('database').and_return(["L3BpcGVsaW5lL2Ricy9odW1hbg=="])
+      @spg.should_receive(:[]).with('enzyme').and_return(["MA=="])
+      @spg.should_receive(:[]).with('missed_cleavages').and_return(["MA=="])
+      @spg.should_receive(:[]).with('precursor_tol').and_return(["Mi41"])
+      @spg.should_receive(:[]).with('product_tol').and_return(["MC44"])
+      @spg.should_receive(:[]).with('product_search').and_return(["MA=="])
+      @spg.should_receive(:[]).with('precursor_search').and_return(["MA=="])
+      @spg.should_receive(:[]).with('minimum_charge').and_return(["Mg=="])
+      @spg.should_receive(:[]).with('max_charge').and_return(["Mw=="])
+      @spg.should_receive(:[]).with('ions').and_return(["MSw0"])
+      @spg.should_receive(:[]).with('modifications').and_return(["MSwyLDMsNA=="])
+      SearchParameterGroup.should_receive(:all_for).with("omssa").and_return([@spg])
+      @pf.should_receive(:[]=).with("name", "test").and_return(true)
+      @pf.should_receive(:[]=).with("database", "/pipeline/dbs/human").and_return(true)
+      @pf.should_receive(:[]=).with("enzyme", "0").and_return(true)
+      @pf.should_receive(:[]=).with("missed_cleavages", "0").and_return(true)
+      @pf.should_receive(:[]=).with("precursor_tol", "2.5").and_return(true)
+      @pf.should_receive(:[]=).with("product_tol", "0.8").and_return(true)
+      @pf.should_receive(:[]=).with("product_search", "0").and_return(true)
+      @pf.should_receive(:[]=).with("precursor_search", "0").and_return(true)
+      @pf.should_receive(:[]=).with("minimum_charge", "2").and_return(true)
+      @pf.should_receive(:[]=).with("max_charge", "3").and_return(true)
+      @pf.should_receive(:[]=).with("ions", "1,4").and_return(true)
+      @pf.should_receive(:[]=).with("modifications", "1,2,3,4").and_return(true)
+      @pf.should_receive(:convert_modifications_to_array).and_return(["1", "2", "3", "4"])
+      @pf.should_receive(:modifications=).with(["1", "2", "3", "4"]).and_return(true)
+      OmssaParameterFile.should_receive(:new).and_return(@pf)
+    end
+
+    it "should create modifications" do
+      @pf.should_receive(:save).and_return(true)
+      OmssaParameterFile.import_from_simpledb
+    end
+  end
+
+  describe "convert modifications to array" do
+    it "should return nil for a nil value" do
+      pf = create_omssa_parameter_file(:modifications => nil)
+      pf.convert_modifications_to_array.should == nil
+    end
+
+    it "should return an array of values" do
+      pf = create_omssa_parameter_file(:modifications => "1,2,3,4")
+      pf.convert_modifications_to_array.should == ["1", "2", "3", "4"]
+    end
+  end
+
+  describe "parameter hash" do
+    it "should return a hash with the parameters" do
+      pf = create_omssa_parameter_file
+      pf.parameter_hash.should == {"name"=>"dGVzdA==", "precursor_tol"=>"Mi41", "enzyme"=>"MA==", "ions"=>"MSw0", "missed_cleavages"=>"MA==", "product_search"=>"MA==", "modifications"=>"MSwyLDMsNA==", "product_tol"=>"MC44", "max_charge"=>"Mw==", "database"=>"L3BpcGVsaW5lL2Ricy9odW1hbg==", "minimum_charge"=>"Mg==", "precursor_search"=>"MA=="}
+    end
+  end
+
+  describe "save to simple db" do
+    it "should save the encoded parameters to simpledb" do
+      pf = create_omssa_parameter_file
+      pf.should_receive(:parameter_hash).and_return({:hash => true})
+      SearchParameterGroup.should_receive(:new_for).with({:hash => true}, "omssa").and_return(true)
+      pf.save_to_simpledb
+    end
+  end
+
+  describe "remove from simpledb" do
+    it "should remove the record from simpledb" do
+      record = mock("simpledb_record")
+      record.should_receive(:delete).and_return(true)
+      pf = create_omssa_parameter_file
+      SearchParameterGroup.should_receive(:for_name_and_searcher).with("test", "omssa").and_return(record)
+      pf.remove_from_simpledb
+    end
+
+    it "should do nothing if the record isn't in simpledb" do
+      pf = create_omssa_parameter_file
+      SearchParameterGroup.should_receive(:for_name_and_searcher).with("test", "omssa").and_return(nil)
+      pf.remove_from_simpledb
+    end
+  end
+
+
   describe "ions" do
     it "should require 2 valid ions not including ," do
       @omssa_parameter_file.ions = "1"
@@ -131,6 +220,7 @@ describe OmssaParameterFile do
     end
     
     it "should return nothing" do
+      @omssa_parameter_file.modifications = nil
       @omssa_parameter_file.modification_option.should eql('')
     end
   end
@@ -227,7 +317,8 @@ describe OmssaParameterFile do
                                        :product_tol => 0.8,
                                        :minimum_charge => 2,
                                        :max_charge => 3,
-                                       :missed_cleavages => 0
+                                       :missed_cleavages => 0,
+                                       :modifications => "1,2,3,4"
                                       }.merge(options))
       record
     end

@@ -20,6 +20,7 @@ class OmssaParameterFile < ActiveRecord::Base
   PARAMETER_PATH = "#{RAILS_ROOT}/tmp/"
 
   before_save :set_modification_as_string
+  after_destroy :remove_from_simpledb
 
   def set_modification_as_string
     self.modifications = convert_modifications_to_string
@@ -29,11 +30,46 @@ class OmssaParameterFile < ActiveRecord::Base
     self.modifications.join(',') unless self.modifications == nil
   end
 
+  def convert_modifications_to_array
+    self.modifications.split(',') unless self.modifications == nil
+  end
+
   def self.page(page=1, limit=10)
     paginate(:page => page,
              :order => 'name',
              :per_page => limit
     )
+  end
+
+  def self.import_from_simpledb
+    records = SearchParameterGroup.all_for("omssa")
+    records.each do |record|
+      record.reload
+      parameter_file = OmssaParameterFile.new
+      record.attributes.keys.each do |key|
+        parameter_file["#{key}"] = Aws.decode(record["#{key}"])
+      end
+      parameter_file.modifications = parameter_file.convert_modifications_to_array
+      parameter_file.save
+    end
+  end
+
+  def parameter_hash
+    parameters = {}
+    attributes.keys.each do |key|
+      parameters["#{key}"] = Aws.encode("#{attributes[key]}")
+    end
+    parameters.delete("id")
+    parameters
+  end
+
+  def save_to_simpledb
+    SearchParameterGroup.new_for(parameter_hash, "omssa")
+  end
+
+  def remove_from_simpledb
+    record = SearchParameterGroup.for_name_and_searcher(name, "omssa")
+    record.delete if record
   end
   
   # writes a parameter file
