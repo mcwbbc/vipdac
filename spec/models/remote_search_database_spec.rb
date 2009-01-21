@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe SimpleDatabase do
+describe RemoteSearchDatabase do
   describe "save" do
     it "shoud persist to simpleDB"
   end
