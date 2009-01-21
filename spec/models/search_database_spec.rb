@@ -52,6 +52,12 @@ describe SearchDatabase do
     it "should return a list of all user databases from simpleDB"
   end
 
+  describe "build taxonomy file" do
+    it "should build the taxonomy file based on the available databases"
+  end
+
+
+
   protected
     def create_search_database(options = {})
       record = SearchDatabase.new({ :name => "database_name", :keyword => "keyword", :version => "version", :user_uploaded => true, :search_database_file_name => 'search_database_file', :search_database_content_type => 'text/plain', :search_database_file_size => 20 }.merge(options))
