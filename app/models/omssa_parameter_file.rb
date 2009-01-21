@@ -8,7 +8,7 @@ class OmssaParameterFile < ActiveRecord::Base
   validates_presence_of :missed_cleavages, :message => "^Please specify the number of missed cleavages"
   validates_presence_of :precursor_tol, :message => "^Please specify the precursor tolerance"
   validates_presence_of :product_tol, :message => "^Please specify the product tolerance"
-  validates_presence_of :precursor_search, :message => "^Please select the product search type"
+  validates_presence_of :product_search, :message => "^Please select the product search type"
   validates_presence_of :precursor_search, :message => "^Please select the precursor search type"
   validates_presence_of :minimum_charge, :message => "^Please specify the minimun charge"
   validates_presence_of :max_charge, :message => "^Please specify the maxumum charge"
