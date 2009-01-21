@@ -24,9 +24,9 @@ describe OmssaOption do
   describe "databases" do
     describe "on success" do
       it "should return a complete hash" do
-        @array = ['<file format="peptide" URL="/pipeline/dbs/ipi.HUMAN.fasta" />','<file format="peptide" URL="/pipeline/dbs/25.H_sapiens.fasta" />']
+        @array = ['<file format="peptide" URL="/pipeline/dbs/ipi.HUMAN.v3.54.fasta" />','<file format="peptide" URL="/pipeline/dbs/25.H_sapiens.fasta" />']
         File.should_receive(:readlines).with(/taxonomy\.xml$/).and_return(@array)
-        OmssaOption.databases.should == {'ipi.HUMAN' => "/pipeline/dbs/ipi.HUMAN", '25.H_sapiens' => "/pipeline/dbs/25.H_sapiens"}
+        OmssaOption.databases.should == {'ipi.HUMAN.v3.54' => "/pipeline/dbs/ipi.HUMAN.v3.54", '25.H_sapiens' => "/pipeline/dbs/25.H_sapiens"}
       end
     end
 

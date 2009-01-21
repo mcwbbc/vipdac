@@ -262,18 +262,18 @@ chown -R www-data:www-data /pipeline/vipdac
 
 # download, unpack and formatdb the protein databases
 cd /pipeline/dbs
-wget ftp://ftp.ebi.ac.uk/pub/databases/IPI/current/ipi.HUMAN.fasta.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/IPI/current/ipi.MOUSE.fasta.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/IPI/current/ipi.RAT.fasta.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/IPI/old/HUMAN/ipi.HUMAN.v3.54.fasta.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/IPI/old/MOUSE/ipi.MOUSE.v3.54.fasta.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/IPI/old/RAT/ipi.RAT.v3.54.fasta.gz
 wget ftp://ftp.ebi.ac.uk/pub/databases/integr8/fasta/proteomes/25.H_sapiens.fasta.gz
 wget ftp://ftp.ebi.ac.uk/pub/databases/integr8/fasta/proteomes/59.M_musculus.fasta.gz
 wget ftp://ftp.ebi.ac.uk/pub/databases/integr8/fasta/proteomes/122.R_norvegicus.fasta.gz
 wget ftp://ftp.ebi.ac.uk/pub/databases/integr8/fasta/proteomes/40.S_cerevisiae_ATCC_204508.fasta.gz
 wget ftp://ftp.ebi.ac.uk/pub/databases/integr8/fasta/proteomes/18.E_coli_K12.fasta.gz
 wget http://downloads.yeastgenome.org/sequence/genomic_sequence/orf_protein/orf_trans.fasta.gz
-gunzip ipi.HUMAN.fasta.gz
-gunzip ipi.MOUSE.fasta.gz
-gunzip ipi.RAT.fasta.gz
+gunzip ipi.HUMAN.v3.54.fasta.gz
+gunzip ipi.MOUSE.v3.54.fasta.gz
+gunzip ipi.RAT.v3.54.fasta.gz
 gunzip 25.H_sapiens.fasta.gz
 gunzip 59.M_musculus.fasta.gz
 gunzip 122.R_norvegicus.fasta.gz
@@ -287,9 +287,9 @@ perl /pipeline/vipdac/lib/reformat_db.pl 122.R_norvegicus.fasta 122.R_norvegicus
 perl /pipeline/vipdac/lib/reformat_db.pl 40.S_cerevisiae_ATCC_204508.fasta 40.S_cerevisiae_ATCC_204508.fasta-rev
 perl /pipeline/vipdac/lib/reformat_db.pl 18.E_coli_K12.fasta 18.E_coli_K12.fasta-rev
 
-/usr/local/bin/formatdb -i ipi.HUMAN.fasta -o T -n ipi.HUMAN
-/usr/local/bin/formatdb -i ipi.MOUSE.fasta -o T -n ipi.MOUSE
-/usr/local/bin/formatdb -i ipi.RAT.fasta -o T -n ipi.RAT
+/usr/local/bin/formatdb -i ipi.HUMAN.v3.54.fasta -o T -n ipi.HUMAN.v3.54
+/usr/local/bin/formatdb -i ipi.MOUSE.v3.54.fasta -o T -n ipi.MOUSE.v3.54
+/usr/local/bin/formatdb -i ipi.RAT.v3.54.fasta -o T -n ipi.RAT.v3.54
 /usr/local/bin/formatdb -i orf_trans.fasta -o T -n orf_trans
 
 /usr/local/bin/formatdb -i 25.H_sapiens.fasta-rev -o T -n 25.H_sapiens
@@ -305,9 +305,9 @@ perl /pipeline/vipdac/lib/reformat_db.pl 18.E_coli_K12.fasta 18.E_coli_K12.fasta
 /pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/40.S_cerevisiae_ATCC_204508.fasta --type=ebi
 /pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/18.E_coli_K12.fasta --type=ebi
 
-/pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/ipi.HUMAN.fasta --type=ipi
-/pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/ipi.MOUSE.fasta --type=ipi
-/pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/ipi.RAT.fasta --type=ipi
+/pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/ipi.HUMAN.v3.54.fasta --type=ipi
+/pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/ipi.MOUSE.v3.54.fasta --type=ipi
+/pipeline/vipdac/lib/convert_databases.pl --input=/pipeline/dbs/ipi.RAT.v3.54.fasta --type=ipi
 
 /pipeline/vipdac/lib/cleanup_image.sh
 
