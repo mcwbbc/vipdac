@@ -99,9 +99,7 @@ class TandemParameterFile < ActiveRecord::Base
   end
 
   def self.import_from_simpledb
-    sdb = Aws.sdb
-    SearchParameterGroup.create_domain
-    records = SearchParameterGroup.find_all_by_searcher("xtandem")
+    records = SearchParameterGroup.all_for("xtandem")
     records.each do |record|
       record.reload
       parameter_file = TandemParameterFile.new
@@ -136,15 +134,16 @@ class TandemParameterFile < ActiveRecord::Base
   end
 
   def remove_from_simpledb
-    sdb = Aws.sdb
-    SearchParameterGroup.create_domain
-    record = SearchParameterGroup.find_by_name_and_searcher(Aws.encode(name), "xtandem")
+    record = SearchParameterGroup.for_name_and_searcher(name, "xtandem")
     record.delete if record
   end
 
   def save_to_simpledb
+    SearchParameterGroup.new_for(parameter_hash, "xtandem")
+  end
+
+  def parameter_hash
     parameters = {}
-    parameters['searcher'] = "xtandem"
     parameters['name'] = Aws.encode(name)
     parameters['taxon'] = Aws.encode(taxon)
     parameters['enzyme'] = Aws.encode(enzyme)
@@ -152,9 +151,7 @@ class TandemParameterFile < ActiveRecord::Base
     parameters['c_terminal'] = Aws.encode("#{c_terminal}")
     parameters['ions'] = Aws.encode(yaml_ions)
     parameters['modifications'] = Aws.encode(yaml_modifications)
-    sdb = Aws.sdb
-    SearchParameterGroup.create_domain
-    SearchParameterGroup.create(parameters)
+    parameters
   end
 
   def yaml_modifications

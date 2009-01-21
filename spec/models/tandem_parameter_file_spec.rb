@@ -37,8 +37,6 @@ describe TandemParameterFile do
 
   describe "import from simple db" do
     before(:each) do
-      Aws.should_receive(:sdb).and_return("simpledb")
-      SearchParameterGroup.should_receive(:create_domain).and_return(true)
       @pf = create_tandem_parameter_file
       @spg = mock_model(SearchParameterGroup)
       @spg.should_receive(:reload).and_return(true)
@@ -48,7 +46,7 @@ describe TandemParameterFile do
       @spg.should_receive(:[]).with('n_terminal').and_return(nil)
       @spg.should_receive(:[]).with('c_terminal').and_return(nil)
       @spg.should_receive(:[]).with('ions').and_return(["LS0tIApiX2lvbjogdHJ1ZQp4X2lvbjogZmFsc2UKY19pb246IGZhbHNlCnlfaW9uOiB0cnVlCnpfaW9uOiBmYWxzZQphX2lvbjogZmFsc2UK"])
-      SearchParameterGroup.should_receive(:find_all_by_searcher).with("xtandem").and_return([@spg])
+      SearchParameterGroup.should_receive(:all_for).with("xtandem").and_return([@spg])
       @pf.should_receive(:name=).with("demo").and_return(true)
       @pf.should_receive(:taxon=).with("human_ipi").and_return(true)
       @pf.should_receive(:enzyme=).with("[X]|[X]").and_return(true)
@@ -108,29 +106,29 @@ describe TandemParameterFile do
       record = mock("simpledb_record")
       record.should_receive(:delete).and_return(true)
       pf = create_tandem_parameter_file
-      Aws.should_receive(:sdb).and_return("simpledb")
-      Aws.should_receive(:encode).with("jobname").and_return("encoded")
-      SearchParameterGroup.should_receive(:create_domain).and_return(true)
-      SearchParameterGroup.should_receive(:find_by_name_and_searcher).with("encoded", "xtandem").and_return(record)
+      SearchParameterGroup.should_receive(:for_name_and_searcher).with("jobname", "xtandem").and_return(record)
       pf.remove_from_simpledb
     end
 
     it "should do nothing if the record isn't in simpledb" do
       pf = create_tandem_parameter_file
-      Aws.should_receive(:sdb).and_return("simpledb")
-      Aws.should_receive(:encode).with("jobname").and_return("encoded")
-      SearchParameterGroup.should_receive(:create_domain).and_return(true)
-      SearchParameterGroup.should_receive(:find_by_name_and_searcher).with("encoded", "xtandem").and_return(nil)
+      SearchParameterGroup.should_receive(:for_name_and_searcher).with("jobname", "xtandem").and_return(nil)
       pf.remove_from_simpledb
+    end
+  end
+
+  describe "parameter hash" do
+    it "should return a hash with the parameters" do
+      pf = create_tandem_parameter_file
+      pf.parameter_hash.should == {"name"=>"am9ibmFtZQ==", "taxon"=>"aHVtYW5faXBp", "ions"=>"LS0tIApiX2lvbjogCnhfaW9uOiAKY19pb246IAp5X2lvbjogCnpfaW9uOiAKYV9pb246IHRydWUK", "n_terminal"=>"", "enzyme"=>"ZW56eW1l", "c_terminal"=>"", "modifications"=>nil}
     end
   end
 
   describe "save to simple db" do
     it "should save the encoded parameters to simpledb" do
       pf = create_tandem_parameter_file
-      Aws.should_receive(:sdb).and_return("simpledb")
-      SearchParameterGroup.should_receive(:create_domain).and_return(true)
-      SearchParameterGroup.should_receive(:create).with({"name"=>"am9ibmFtZQ==", "taxon"=>"aHVtYW5faXBp", "searcher"=>"xtandem", "ions"=>"LS0tIApiX2lvbjogCnhfaW9uOiAKY19pb246IAp5X2lvbjogCnpfaW9uOiAKYV9pb246IHRydWUK", "n_terminal"=>"", "enzyme"=>"ZW56eW1l", "c_terminal"=>"", "modifications"=>nil}).and_return(true)
+      pf.should_receive(:parameter_hash).and_return({:hash => true})
+      SearchParameterGroup.should_receive(:new_for).with({:hash => true}, "xtandem").and_return(true)
       pf.save_to_simpledb
     end
   end
