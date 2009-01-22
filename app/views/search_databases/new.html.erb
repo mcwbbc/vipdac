@@ -11,15 +11,11 @@
   });
 </script>
 
-<% form_for @search_database, :html => { :id => 'upload', :multipart => true }  do |f| %>
+<% form_for(@search_database, :html => { :id => 'upload', :multipart => true }) do |f| %>
 <table>
   <tr valign="top">
     <td>Name:</td>
-    <td><%= f.text_field :name %></td>
-  </tr>
-  <tr>
-    <td>Keyword:</td>
-    <td><%= f.text_field(:keyword) %></td>
+    <td><%= f.text_field(:name) %></td>
   </tr>
   <tr>
     <td>Version:</td>
@@ -35,7 +31,9 @@
   </tr>
   <tr>
     <td></td>
-    <td><%= f.submit "save", :disable_with => 'saving...' %> <%= f.submit "cancel" %></td>
+    <td><%= f.submit("save", :disable_with => 'saving...') %> <%= f.submit("cancel") %></td>
   </tr>
   </table>
+  <%= f.hidden_field("user_uploaded", :value => true) %>
+  <%= f.hidden_field("available", :value => false) %>
 <% end %>
