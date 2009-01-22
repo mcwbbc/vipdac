@@ -13,6 +13,38 @@ describe SearchDatabase do
     end
   end
 
+  describe "validations for" do
+    describe "version" do
+      it "should require a unique version for the name" do
+        @search_database.save
+        duplicate = create_search_database(:search_database_file_name => "other")
+        duplicate.should_not be_valid
+        duplicate.should have(1).error_on(:version)
+      end
+
+      it "should require a unique version for the name" do
+        @search_database.save
+        duplicate = create_search_database(:name => "other", :search_database_file_name => "other")
+        duplicate.should be_valid
+      end
+    end
+
+    describe "search database file name" do
+      it "should have an error with the same name" do
+        @search_database.save
+        duplicate = create_search_database(:name => "other")
+        duplicate.should_not be_valid
+        duplicate.should have(1).error_on(:search_database_file_name)
+      end
+
+      it "should be valid with a unique name" do
+        @search_database.save
+        duplicate = create_search_database(:name => "other", :search_database_file_name => "other")
+        duplicate.should be_valid
+      end
+    end
+  end
+
   describe "page" do
     it "should call paginate" do
       SearchDatabase.should_receive(:paginate).with({:page => 2, :order => 'created_at DESC', :per_page => 20}).and_return(true)
