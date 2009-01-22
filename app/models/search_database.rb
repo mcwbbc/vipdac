@@ -23,7 +23,7 @@ class SearchDatabase < ActiveRecord::Base
 
   def send_background_process_message
     hash = {:type => PROCESSDATABASE, :database_id => id}
-    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 25, :ttr => 600)
+    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 20, :ttr => 600)
   end
 
   def filename

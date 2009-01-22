@@ -50,7 +50,6 @@ describe SearchDatabase do
     end
   end
 
-
   describe "send_background_upload_message" do
     it "should send a background upload head message" do
       @search_database.should_receive(:id).and_return(12)
