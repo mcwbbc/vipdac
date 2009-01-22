@@ -16,7 +16,8 @@ module HoptoadNotifier
   IGNORE_DEFAULT.freeze
   
   class << self
-    attr_accessor :host, :port, :secure, :api_key
+    attr_accessor :host, :port, :secure, :api_key, :http_open_timeout, :http_read_timeout,
+                  :proxy_host, :proxy_port, :proxy_user, :proxy_pass
     attr_reader   :backtrace_filters
 
     # Takes a block and adds it to the list of backtrace filters. When the filters
@@ -35,6 +36,16 @@ module HoptoadNotifier
     # The host to connect to.
     def host
       @host ||= 'hoptoadapp.com'
+    end
+    
+    # The HTTP open timeout (defaults to 2 seconds).
+    def http_open_timeout
+      @http_open_timeout ||= 2
+    end
+    
+    # The HTTP read timeout (defaults to 5 seconds).
+    def http_read_timeout
+      @http_read_timeout ||= 5
     end
     
     # Returns the list of errors that are being ignored. The array can be appended to.
@@ -221,27 +232,35 @@ module HoptoadNotifier
     end
 
     def send_to_hoptoad data #:nodoc:
+      headers = {
+        'Content-type' => 'application/x-yaml',
+        'Accept' => 'text/xml, application/xml'
+      }
+
       url = HoptoadNotifier.url
-      Net::HTTP.start(url.host, url.port) do |http|
-        headers = {
-          'Content-type' => 'application/x-yaml',
-          'Accept' => 'text/xml, application/xml'
-        }
-        http.read_timeout = 5 # seconds
-        http.open_timeout = 2 # seconds
-        http.use_ssl = !!HoptoadNotifier.secure 
+      
+      http = Net::HTTP::Proxy(HoptoadNotifier.proxy_host, 
+                              HoptoadNotifier.proxy_port, 
+                              HoptoadNotifier.proxy_user, 
+                              HoptoadNotifier.proxy_pass).new(url.host, url.port)
+
+      http.use_ssl = true
+        http.read_timeout = HoptoadNotifier.http_read_timeout
+        http.open_timeout = HoptoadNotifier.http_open_timeout
+      http.use_ssl = !!HoptoadNotifier.secure 
+
         response = begin
-                     http.post(url.path, stringify_keys(data).to_yaml, headers)
-                   rescue TimeoutError => e
-                     logger.error "Timeout while contacting the Hoptoad server."
-                     nil
-                   end
-        case response
-        when Net::HTTPSuccess then
-          logger.info "Hoptoad Success: #{response.class}"
-        else
-          logger.error "Hoptoad Failure: #{response.class}\n#{response.body if response.respond_to? :body}"
+          http.post(url.path, stringify_keys(data).to_yaml, headers)
+        rescue TimeoutError => e
+          logger.error "Timeout while contacting the Hoptoad server."
+          nil
         end
+       
+      case response
+      when Net::HTTPSuccess then
+        logger.info "Hoptoad Success: #{response.class}"
+      else
+        logger.error "Hoptoad Failure: #{response.class}\n#{response.body if response.respond_to? :body}"
       end
     end
     
@@ -274,13 +293,13 @@ module HoptoadNotifier
     end
 
     def clean_non_serializable_data(notice) #:nodoc:
-      notice.select{|k,v| serialzable?(v) }.inject({}) do |h, pair|
+      notice.select{|k,v| serializable?(v) }.inject({}) do |h, pair|
         h[pair.first] = pair.last.is_a?(Hash) ? clean_non_serializable_data(pair.last) : pair.last
         h
       end
     end
 
-    def serialzable?(value) #:nodoc:
+    def serializable?(value) #:nodoc:
       !(value.is_a?(Module) || value.kind_of?(IO))
     end
 
