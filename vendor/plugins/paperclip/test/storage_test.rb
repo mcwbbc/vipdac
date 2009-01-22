@@ -77,10 +77,12 @@ class StorageTest < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'))
+        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
+
+      teardown { @file.close }
 
       should "not get a bucket to get a URL" do
         @dummy.avatar.expects(:s3).never
@@ -125,6 +127,50 @@ class StorageTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with S3 storage and specific s3 headers set" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :bucket => "testing",
+                    :path => ":attachment/:style/:basename.:extension",
+                    :s3_credentials => {
+                      'access_key_id' => "12345",
+                      'secret_access_key' => "54321"
+                    },
+                    :s3_headers => {'Cache-Control' => 'max-age=31557600'}
+    end
+
+    context "when assigned" do
+      setup do
+        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      teardown { @file.close }
+
+      context "and saved" do
+        setup do
+          @s3_mock     = stub
+          @bucket_mock = stub
+          RightAws::S3.expects(:new).with("12345", "54321", {}).returns(@s3_mock)
+          @s3_mock.expects(:bucket).with("testing", true, "public-read").returns(@bucket_mock)
+          @key_mock = stub
+          @bucket_mock.expects(:key).returns(@key_mock)
+          @key_mock.expects(:data=)
+          @key_mock.expects(:put).with(nil,
+                                       'public-read',
+                                       'Content-type' => 'image/png',
+                                       'Cache-Control' => 'max-age=31557600')
+          @dummy.save
+        end
+
+        should "succeed" do
+          assert true
+        end
+      end
+    end
+  end
+
   unless ENV["S3_TEST_BUCKET"].blank?
     context "Using S3 for real, an attachment with S3 storage" do
       setup do
@@ -144,9 +190,11 @@ class StorageTest < Test::Unit::TestCase
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'))
+          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
           @dummy.avatar = @file
         end
+
+        teardown { @file.close }
 
         should "still return a Tempfile when sent #to_io" do
           assert_equal Tempfile, @dummy.avatar.to_io.class
