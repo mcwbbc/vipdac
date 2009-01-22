@@ -117,9 +117,12 @@ describe SearchDatabasesController do
     end
     
     describe "with successful save" do
-  
-      def do_post
+      before(:each) do
         @search_database.should_receive(:save).and_return(true)
+        @search_database.should_receive(:send_background_process_message).and_return(true)
+      end
+
+      def do_post
         post :create, :search_database => {}
       end
   

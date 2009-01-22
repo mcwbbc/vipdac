@@ -22,6 +22,7 @@ class SearchDatabasesController < ApplicationController
   def create
     @search_database = SearchDatabase.new(params[:search_database])
     if @search_database.save
+      @search_database.send_background_process_message
       flash[:notice] = 'SearchDatabase was successfully created.'
       redirect_to(search_databases_url)
     else

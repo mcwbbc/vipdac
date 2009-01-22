@@ -50,6 +50,15 @@ describe SearchDatabase do
     end
   end
 
+
+  describe "send_background_upload_message" do
+    it "should send a background upload head message" do
+      @search_database.should_receive(:id).and_return(12)
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => PROCESSDATABASE, :database_id => 12}.to_yaml, :priority => 20, :ttr => 600).and_return(true)
+      @search_database.send_background_process_message
+    end
+  end
+
   describe "page" do
     it "should call paginate" do
       SearchDatabase.should_receive(:paginate).with({:page => 2, :order => 'created_at DESC', :per_page => 20}).and_return(true)

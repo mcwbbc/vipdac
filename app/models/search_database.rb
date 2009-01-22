@@ -21,6 +21,11 @@ class SearchDatabase < ActiveRecord::Base
     end
   end
 
+  def send_background_process_message
+    hash = {:type => PROCESSDATABASE, :database_id => id}
+    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 25, :ttr => 600)
+  end
+
   def filename
     data = /(.*)\.fasta$/i.match(search_database_file_name)
     data ? data[1] : ""
