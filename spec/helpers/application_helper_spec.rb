@@ -4,6 +4,38 @@ include ApplicationHelper
 
 describe ApplicationHelper do
 
+  describe "all error messages for" do
+    it "should return nil if there are no errors" do
+      helper.all_error_messages_for(:job).should == nil
+    end
+
+    it "should return the error messages for a model" do
+      job = mock_model(Job)
+      errors = mock("errors")
+      errors.should_receive(:empty?).and_return(false)
+      errors.should_receive(:full_messages).and_return(["error message"])
+      job.should_receive(:errors).twice.and_return(errors)
+      helper.should_receive(:instance_variable_get).with("@job").and_return(job)
+      helper.all_error_messages_for(:job).should == "<div class=\"errorExplanation\" id=\"errorExplanation\"><h1>There are problems with your submission</h1><ul><li>error message</li></ul></div>"
+    end
+  end
+
+  describe "block to partial" do
+    it "should render the content inside the block as the body inside the partial" do
+      helper.should_receive(:capture).and_return("text")
+      helper.should_receive(:render).with(:partial => "partial", :locals => {:body => "text"}).and_return("text")
+      helper.should_receive(:concat).with("text").and_return("text")
+      helper.block_to_partial("partial", {}).should == "text"
+    end
+  end
+
+  describe "rounded box" do
+    it "should call block to partial with no options" do
+      helper.should_receive(:block_to_partial).with("shared/rounded_box", {:css_class=>"css"}).and_return("text")
+      helper.rounded_box("css").should == "text"
+    end
+  end
+
   describe "flash messages" do
     it "should be nil if we don't have a message with the key" do
       flash[:cheese] = "cheese"
