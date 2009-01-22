@@ -33,7 +33,8 @@ class AwsParameters
     end
 
     def run
-      @config ||= begin
+      @config ||= 
+      begin
         # Get and parse user-data (EC2 launch config)
         metadata = ['ami-id', 'instance-id', 'public-hostname', 'instance-type', 'local-hostname', 'local-ipv4', 'public-keys']
         config_str = self.get_ec2_user_data

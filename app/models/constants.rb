@@ -1,26 +1,18 @@
-  INSTANCES_ARRAY = [ ['Small', 'm1.small'],
-                      ['Medium', 'c1.medium']
-                    ].freeze unless self.class.const_defined? "INSTANCES_ARRAY"
+  INSTANCES_ARRAY = [ ['Small', 'm1.small'], ['Medium', 'c1.medium'] ].freeze unless self.class.const_defined? "INSTANCES_ARRAY"
 
   INSTANCES_HASH = INSTANCES_ARRAY.inject({}) do |result, element|
     result[element.last] = element.first
     result
   end.freeze unless self.class.const_defined? "INSTANCES_HASH"
-  
 
-  SEARCHER_ARRAY = [ ['OMSSA','omssa'],
-                     ['Tandem','tandem']
-                   ].freeze unless self.class.const_defined? "SEARCHER_ARRAY"
+  SEARCHER_ARRAY = [ ['OMSSA','omssa'], ['Tandem','tandem'] ].freeze unless self.class.const_defined? "SEARCHER_ARRAY"
 
   SEARCHER_HASH = SEARCHER_ARRAY.inject({}) do |result, element|
      result[element.last] = element.first
      result
    end.freeze unless self.class.const_defined? "SEARCHER_HASH"
 
-  PRIORITY_ARRAY = [ ['Low', 1000],
-                     ['Medium', 500],
-                     ['High', 200]
-                   ].freeze unless self.class.const_defined? "PRIORITY_ARRAY"
+  PRIORITY_ARRAY = [ ['Low', 1000], ['Medium', 500], ['High', 200] ].freeze unless self.class.const_defined? "PRIORITY_ARRAY"
 
   PRIORITY_HASH = PRIORITY_ARRAY.inject({}) do |result, element|
     result[element.last] = element.first

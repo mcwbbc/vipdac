@@ -37,7 +37,8 @@ class BeanstalkMessageQueue
     end
 
     def server_ip
-      @server_ip ||= begin
+      @server_ip ||=
+      begin
         config = AwsParameters.run
         config.key?('beanstalkd') ? config['beanstalkd'] : config['local-ipv4']
       end
