@@ -72,9 +72,9 @@ ActiveRecord::Schema.define(:version => 20090119205259) do
 
   create_table "search_databases", :force => true do |t|
     t.string   "name"
-    t.string   "keyword"
     t.string   "version"
     t.boolean  "user_uploaded"
+    t.boolean  "available"
     t.string   "search_database_file_name"
     t.string   "search_database_content_type"
     t.integer  "search_database_file_size"
