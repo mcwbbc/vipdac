@@ -1,11 +1,21 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
+include ApplicationHelper
+include SearchDatabasesHelper
+
 describe SearchDatabasesHelper do
-  
-  #Delete this example and add some real ones or delete this file
-  it "should be included in the object returned by #helper" do
-    included_modules = (class << helper; self; end).send :included_modules
-    included_modules.should include(SearchDatabasesHelper)
+
+  describe "is_available?" do
+    it "should return 'Available' if it is" do
+      db = mock("db", :available? => true)
+      is_available?(db).should == "Available"
+    end
+
+    it "should return 'Processing' if it isn't" do
+      db = mock("db", :available? => false)
+      is_available?(db).should == "Processing"
+    end
   end
-  
+
 end
+
