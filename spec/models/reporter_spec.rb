@@ -77,6 +77,13 @@ describe Reporter do
       end
     end
 
+    describe "process search database message" do
+      it "should process the search database" do
+        @report.should_receive(:[]).with(:type).and_return(PROCESSDATABASE)
+        @reporter.should_receive(:process_search_database).with(@report, @message).and_return(true)
+      end
+    end
+
     describe "unpacking message" do
       it "should set the job status to unpacking" do
         @report.should_receive(:[]).with(:type).and_return(JOBUNPACKING)
@@ -297,7 +304,23 @@ describe Reporter do
       HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>"id"}, :error_message=>"Job Load Error: Exception", :error_class=>"Invalid Job"}).and_return(true)
       Job.stub!(:find).and_raise(Exception)
       job = @reporter.load_job("id")
-      job.should  be_nil
+      job.should be_nil
+    end
+  end
+
+  describe "load search database" do
+    it "should load a search_database with the id" do
+      @search_database = mock_model(SearchDatabase)
+      SearchDatabase.stub!(:find).and_return(@search_database)
+      search_database = @reporter.load_search_database("id")
+      search_database.should == @search_database
+    end
+
+    it "should log an exception if the search_database doesn't exist" do
+      HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>"id"}, :error_message=>"Search Database Load Error: Exception", :error_class=>"Invalid Search Database"}).and_return(true)
+      SearchDatabase.stub!(:find).and_raise(Exception)
+      search_database = @reporter.load_search_database("id")
+      search_database.should be_nil
     end
   end
   
@@ -448,33 +471,57 @@ describe Reporter do
   end
 
   describe "background upload" do
+    before(:each) do
+      @job = mock_model(Job)
+      @message = mock("message")
+      @report = mock("report")
+      @report.should_receive(:[]).with(:job_id).and_return(1234)
+      @message.should_receive(:delete).and_return(true)
+    end
+
     describe "success" do
       it "should update the status of the job" do
-        @job = mock_model(Job)
         @job.should_receive(:status=).with("Uploading").and_return(true)
-        @message = mock("message")
-        @report = mock("report")
-        @report.should_receive(:[]).with(:job_id).and_return(1234)
         @reporter.should_receive(:load_job).with(1234).and_return(@job)
         @job.should_receive(:save!).and_return(true)
         @job.should_receive(:background_s3_upload).and_return(true)
-        @message.should_receive(:delete).and_return(true)
         @reporter.background_upload(@report, @message)
       end
     end
 
     describe "failure" do
       it "should delete the message if the job doesn't exist" do
-        @job = mock_model(Job)
-        @message = mock("message")
-        @report = mock("report")
-        @report.should_receive(:[]).with(:job_id).and_return(1234)
         @reporter.should_receive(:load_job).with(1234).and_return(nil)
         @job.should_not_receive(:save!)
         @job.should_not_receive(:status=)
         @job.should_not_receive(:background_s3_upload)
-        @message.should_receive(:delete).and_return(true)
         @reporter.background_upload(@report, @message)
+      end
+    end
+  end
+
+  describe "process search database" do
+    before(:each) do
+      @search_database = mock_model(SearchDatabase)
+      @message = mock("message")
+      @report = mock("report")
+      @report.should_receive(:[]).with(:database_id).and_return(1234)
+      @message.should_receive(:delete).and_return(true)
+    end
+
+    describe "success" do
+      it "should update the status of the job" do
+        @reporter.should_receive(:load_search_database).with(1234).and_return(@search_database)
+        @search_database.should_receive(:process_and_upload).and_return(true)
+        @reporter.process_search_database(@report, @message)
+      end
+    end
+
+    describe "failure" do
+      it "should delete the message if the search_database doesn't exist" do
+        @reporter.should_receive(:load_search_database).with(1234).and_return(nil)
+        @search_database.should_not_receive(:process_and_upload)
+        @reporter.process_search_database(@report, @message)
       end
     end
   end

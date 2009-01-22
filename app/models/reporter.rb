@@ -84,6 +84,8 @@ class Reporter
           update_chunk(report, message, true)
         when BACKGROUNDUPLOAD
           background_upload(report, message)
+        when PROCESSDATABASE
+          process_search_database(report, message)
         when JOBUNPACKING
           job_status(report, message, "Unpacking")
         when JOBUNPACKED
@@ -151,6 +153,16 @@ class Reporter
     end
   end
 
+  # process the database in the background
+
+  def process_search_database(report, message)
+    search_database = load_search_database(report[:database_id])
+    if search_database
+      search_database.process_and_upload
+    end
+    message.delete
+  end
+
   # upload the datafile in the background
 
   def background_upload(report, message)
@@ -181,6 +193,21 @@ class Reporter
     chunk.save!
     chunk.send_process_message if process_message
     message.delete
+  end
+
+  # load a search_database from the DB
+
+  def load_search_database(id)
+    begin 
+      SearchDatabase.find(id)
+    rescue Exception => e
+      HoptoadNotifier.notify(
+        :error_class => "Invalid Search Database", 
+        :error_message => "Search Database Load Error: #{e.message}", 
+        :request => { :params => id }
+      )
+      nil
+    end
   end
 
   # load a job from the DB
