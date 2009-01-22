@@ -17,14 +17,14 @@ describe SearchDatabase do
     describe "version" do
       it "should require a unique version for the name" do
         @search_database.save
-        duplicate = create_search_database(:search_database_file_name => "other")
+        duplicate = create_search_database(:search_database_file_name => "other.fasta")
         duplicate.should_not be_valid
         duplicate.should have(1).error_on(:version)
       end
 
       it "should require a unique version for the name" do
         @search_database.save
-        duplicate = create_search_database(:name => "other", :search_database_file_name => "other")
+        duplicate = create_search_database(:name => "other", :search_database_file_name => "other.fasta")
         duplicate.should be_valid
       end
     end
@@ -34,13 +34,18 @@ describe SearchDatabase do
         @search_database.save
         duplicate = create_search_database(:name => "other")
         duplicate.should_not be_valid
-        duplicate.should have(1).error_on(:search_database_file_name)
+        duplicate.should have(2).errors_on(:search_database_file_name)
       end
 
       it "should be valid with a unique name" do
         @search_database.save
-        duplicate = create_search_database(:name => "other", :search_database_file_name => "other")
+        duplicate = create_search_database(:name => "other", :search_database_file_name => "other.fasta")
         duplicate.should be_valid
+      end
+
+      it "should be have a filename ending in .fasta" do
+        database = create_search_database(:search_database_file_name => "other")
+        database.should have(1).error_on(:search_database_file_name)
       end
     end
   end
@@ -49,6 +54,17 @@ describe SearchDatabase do
     it "should call paginate" do
       SearchDatabase.should_receive(:paginate).with({:page => 2, :order => 'created_at DESC', :per_page => 20}).and_return(true)
       SearchDatabase.page(2,20)
+    end
+  end
+
+  describe "filename" do
+    it "should return the search database filename with .fasta stripped" do
+      @search_database.filename.should == "search_database_file"
+    end
+
+    it "should return the '' if not a proper file" do
+      @search_database.search_database_file_name  = "other"
+      @search_database.filename.should == ""
     end
   end
 
@@ -88,11 +104,9 @@ describe SearchDatabase do
     it "should build the taxonomy file based on the available databases"
   end
 
-
-
   protected
     def create_search_database(options = {})
-      record = SearchDatabase.new({ :name => "database_name", :version => "version", :user_uploaded => true, :available => false, :search_database_file_name => 'search_database_file', :search_database_content_type => 'text/plain', :search_database_file_size => 20 }.merge(options))
+      record = SearchDatabase.new({ :name => "database_name", :version => "version", :user_uploaded => true, :available => false, :search_database_file_name => 'search_database_file.fasta', :search_database_content_type => 'text/plain', :search_database_file_size => 20 }.merge(options))
       record
     end
 

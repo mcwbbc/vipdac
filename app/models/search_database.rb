@@ -5,6 +5,8 @@ class SearchDatabase < ActiveRecord::Base
 
   validates_uniqueness_of :version, :scope => :name
   validates_uniqueness_of :search_database_file_name
+  validates_uniqueness_of :search_database_file_name
+  validates_format_of :search_database_file_name, :with => /\.fasta$/, :message => "^Search database file isn't a fasta file"
 
   has_attached_file :search_database, :path => ":rails_root/public/search_databases/:id_partition/:basename.:extension"
   validates_attachment_presence :search_database, :message => "^Search database file is required"
@@ -17,6 +19,11 @@ class SearchDatabase < ActiveRecord::Base
                :per_page => limit
       )
     end
+  end
+
+  def filename
+    data = /(.*)\.fasta$/i.match(search_database_file_name)
+    data ? data[1] : ""
   end
 
 end
