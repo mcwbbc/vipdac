@@ -27,6 +27,7 @@ sudo rake db:create:all RAILS_ENV=production
 sudo rake db:migrate RAILS_ENV=production
 sudo rake head:import_tandem RAILS_ENV=production
 sudo rake head:import_omssa RAILS_ENV=production
+sudo rake head:insert_default_search_databases RAILS_ENV=production
 sudo rake head:import_search_databases RAILS_ENV=production
 chmod 666 /pipeline/vipdac/log/production.log
 sleep 1

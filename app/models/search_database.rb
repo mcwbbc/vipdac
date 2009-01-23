@@ -24,6 +24,26 @@ class SearchDatabase < ActiveRecord::Base
                :per_page => limit
       )
     end
+
+    def import_from_simpledb
+      records = RemoteSearchDatabase.all
+      records.each do |record|
+        record.reload
+        parameter_file = SearchDatabase.new
+        record.attributes.keys.each do |key|
+          parameter_file["#{key}"] = Aws.decode(record["#{key}"])
+        end
+        parameter_file.save
+      end
+    end
+
+    def insert_default_databases
+      databases = YAML.load_file(File.join(RAILS_ROOT, 'config', 'search_databases.yml'))
+      databases.each do |database_hash|
+        SearchDatabase.create(database_hash)
+      end
+    end
+
   end
 
   def process_and_upload
@@ -33,18 +53,6 @@ class SearchDatabase < ActiveRecord::Base
     upload_to_s3
     update_status_to_available
     save_to_simpledb
-  end
-
-  def self.import_from_simpledb
-    records = RemoteSearchDatabase.all
-    records.each do |record|
-      record.reload
-      parameter_file = SearchDatabase.new
-      record.attributes.keys.each do |key|
-        parameter_file["#{key}"] = Aws.decode(record["#{key}"])
-      end
-      parameter_file.save
-    end
   end
 
   def parameter_hash

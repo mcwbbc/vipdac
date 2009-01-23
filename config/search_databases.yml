@@ -1,38 +1,73 @@
 --- 
   - :name: IPI Human
-    :keyword: ipi.HUMAN
+    :search_database_file_name: ipi.HUMAN.v3.54.fasta
+    :search_database_content_type: text/plain
+    :search_database_file_size: 43275220
     :version: 3.54
+    :db_type: ipi
+    :available: true
     :user_uploaded: false
   - :name: IPI Mouse
-    :keyword: ipi.MOUSE
+    :search_database_file_name: ipi.MOUSE.v3.54.fasta
+    :search_database_content_type: text/plain
+    :search_database_file_size: 33613043
     :version: 3.54
+    :db_type: ipi
+    :available: true
     :user_uploaded: false
   - :name: IPI Rat
-    :keyword: ipi.RAT
+    :search_database_file_name: ipi.RAT.v3.54.fasta
+    :search_database_content_type: text/plain
+    :search_database_file_size: 25627562
     :version: 3.54
-    :user_uploaded: false
-  - :name: yeastgenome.org Yeast
-    :keyword: orf_trans
-    :version: 
+    :db_type: ipi
+    :available: true
     :user_uploaded: false
   - :name: Uniprot Human
-    :keyword: 25.H_sapiens
-    :version: 
+    :search_database_file_name: 25.H_sapiens.fasta
+    :search_database_content_type: text/plain
+    :search_database_file_size: 32687168
+    :version: "Integr8 release: 90"
+    :db_type: ebi
+    :available: true
     :user_uploaded: false
   - :name: Uniprot Mouse
-    :keyword: 59.M_musculus
-    :version: 
+    :search_database_file_name: 59.M_musculus.fasta
+    :search_database_content_type: text/plain
+    :search_database_file_size: 24708289
+    :version: "Integr8 release: 90"
+    :db_type: ebi
+    :available: true
     :user_uploaded: false
   - :name: Uniprot Rat
-    :keyword: 122.R_norvegicus
-    :version: 
+    :search_database_file_name: 122.R_norvegicus.fasta
+    :search_database_content_type: text/plain
+    :search_database_file_size: 8590965
+    :version: "Integr8 release: 90"
+    :db_type: ebi
+    :available: true
     :user_uploaded: false
   - :name: Uniprot Yeast
-    :keyword: 40.S_cerevisiae_ATCC_204508
-    :version: 
+    :search_database_file_name: 40.S_cerevisiae_ATCC_204508.fasta
+    :search_database_content_type: text/plain
+    :search_database_file_size: 3495168
+    :version: "Integr8 release: 90"
+    :db_type: ebi
+    :available: true
     :user_uploaded: false
   - :name: Uniprot E.Coli
-    :keyword: 18.E_coli_K12
-    :version: 
+    :search_database_file_name: 18.E_coli_K12.fasta
+    :search_database_content_type: text/plain
+    :search_database_file_size: 1823386
+    :version: "Integr8 release: 90"
+    :db_type: ebi
+    :available: true
     :user_uploaded: false
-
+  - :name: yeastgenome.org Yeast
+    :search_database_file_name: orf_trans.fasta
+    :search_database_content_type: text/plain
+    :search_database_file_size: 4488038
+    :db_type: tbd
+    :version: 06-Jun-2008
+    :available: true
+    :user_uploaded: false

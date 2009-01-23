@@ -9,4 +9,7 @@ namespace :head do
   desc "Import all the search databases from SimpleDB"
   task(:import_search_databases => :environment){ SearchDatabase.import_from_simpledb  }
   
+  desc "Insert all the default search databases from the search_databases.yml file"
+  task(:insert_default_search_databases => :environment){ SearchDatabase.insert_default_databases  }
+  
 end
