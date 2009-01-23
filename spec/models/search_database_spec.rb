@@ -78,12 +78,12 @@ describe SearchDatabase do
 
   describe "process and upload" do
     it "should run the steps to process and upload the database" do
-      @search_database.should_receive(:run_reformat_db).and_return(true)
-      @search_database.should_receive(:run_formatdb).and_return(true)
-      @search_database.should_receive(:run_convert_databases).and_return(true)
-      @search_database.should_receive(:upload_to_s3).and_return(true)
-      @search_database.should_receive(:save_to_simpledb).and_return(true)
-      @search_database.should_receive(:update_status_to_available).and_return(true)
+      @search_database.should_receive(:run_reformat_db).ordered.and_return(true)
+      @search_database.should_receive(:run_formatdb).ordered.and_return(true)
+      @search_database.should_receive(:run_convert_databases).ordered.and_return(true)
+      @search_database.should_receive(:upload_to_s3).ordered.and_return(true)
+      @search_database.should_receive(:update_status_to_available).ordered.and_return(true)
+      @search_database.should_receive(:save_to_simpledb).ordered.and_return(true)
       @search_database.process_and_upload
     end
   end

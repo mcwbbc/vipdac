@@ -31,8 +31,8 @@ class SearchDatabase < ActiveRecord::Base
     run_formatdb
     run_convert_databases
     upload_to_s3
-    save_to_simpledb
     update_status_to_available
+    save_to_simpledb
   end
 
   def self.import_from_simpledb
