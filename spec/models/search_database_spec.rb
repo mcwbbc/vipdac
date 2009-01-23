@@ -76,45 +76,178 @@ describe SearchDatabase do
     end
   end
 
-  describe "reformat database" do
-    it "should reformat the UniProt header line"
+  describe "process and upload" do
+    it "should run the steps to process and upload the database" do
+      @search_database.should_receive(:run_reformat_db).and_return(true)
+      @search_database.should_receive(:run_formatdb).and_return(true)
+      @search_database.should_receive(:run_convert_databases).and_return(true)
+      @search_database.should_receive(:upload_to_s3).and_return(true)
+      @search_database.should_receive(:save_to_simpledb).and_return(true)
+      @search_database.should_receive(:update_status_to_available).and_return(true)
+      @search_database.process_and_upload
+    end
+  end
+
+  describe "id partition" do
+    it "should have an id partition for the id" do
+      @search_database.id = 12
+      @search_database.id_partition.should eql("000/000/012")
+    end
+  end
+
+  describe "local datafile directory" do
+    it "should return the local directory" do
+      @search_database.id = 12
+      @search_database.local_datafile_directory.should match(/\/public\/search_databases\/000\/000\/012\//)
+    end
+  end
+
+  describe "update status" do
+    it "should set the availablity to true and save" do
+      @search_database.should_receive(:available=).with(true).and_return(true)
+      @search_database.should_receive(:save!).and_return(true)
+      @search_database.update_status_to_available
+    end
+  end
+
+  describe "run_reformat_db" do
+    it "should run the reformat_db.pl script if we have an ebi type db" do
+      @search_database.should_receive(:`).with(/^cd \/.* && .*\/reformat_db\.pl/).and_return(true)
+      @search_database.run_reformat_db.should be_true
+    end
+
+    it "should not run the reformat_db.pl script for non ebi type db" do
+      @search_database.db_type = "ipi"
+      @search_database.run_reformat_db.should be_nil
+    end
   end
 
   describe "formatdb database" do
-    it "should run formatdb on the database"
+    it "should run formatdb on the reformatted database as other" do
+      @search_database.db_type = "ipi"
+      @search_database.should_receive(:`).with(/^cd \/.* && .*\/formatdb.*search_database_file\.fasta -o T -n search_database_file/).and_return(true)
+      @search_database.run_formatdb.should be_true
+    end
+
+    it "should run formatdb on the reformatted database as ebi" do
+      @search_database.should_receive(:`).with(/^cd \/.* && .*\/formatdb.*search_database_file\.fasta-rev -o T -n search_database_file/).and_return(true)
+      @search_database.run_formatdb.should be_true
+    end
   end
 
-  describe "convert database" do
-    it "should convert the database for use with the ez2 processing scripts"
+  describe "convert databases" do
+    it "should run convert_database.pl for use with the ez2 processing scripts as ebi" do
+      @search_database.should_receive(:`).with(/^cd \/.* && .*\/convert_databases\.pl --input=.*\/search_database_file\.fasta --type=ebi/).and_return(true)
+      @search_database.run_convert_databases.should be_true
+    end
+
+    it "should run convert_database.pl for use with the ez2 processing scripts as ipi" do
+      @search_database.db_type = "ipi"
+      @search_database.should_receive(:`).with(/^cd \/.* && .*\/convert_databases\.pl --input=.*\/search_database_file\.fasta --type=ipi/).and_return(true)
+      @search_database.run_convert_databases.should be_true
+    end
   end
 
   describe "upload converted databases to S3" do
-    it "should send the data to S3"
+    it "should send the data files to S3" do
+      extensions = ["fasta", "phr", "pin", "psd", "psi", "psq", "r2a", "r2d", "r2s"]
+      extensions.each do |extension|
+        @search_database.should_receive(:send_file).with("search-databases/search_database_file.#{extension}", /search_database_file\.#{extension}/).and_return(true)
+      end
+      @search_database.upload_to_s3.should be_true
+    end
   end
 
-  describe "create simpleDB entry" do
-    it "should create a record in simpleDB for the database"
+  describe "database filenames" do
+    it "should return an array of the filenames required for the database" do
+      @search_database.filenames.should == ["search_database_file.fasta", "search_database_file.phr", "search_database_file.pin", "search_database_file.psd", "search_database_file.psi", "search_database_file.psq", "search_database_file.r2a", "search_database_file.r2d", "search_database_file.r2s"]
+    end
   end
 
   describe "remove S3 files on delete" do
-    it "should remove the database files from S3 when deleted"
-  end
-
-  describe "remove simpleDB entry" do
-    it "should remove the simpleDB record when deleted"
-  end
-
-  describe "find user databases" do
-    it "should return a list of all user databases from simpleDB"
+    it "should remove the database files from S3 when deleted" do
+      extensions = ["fasta", "phr", "pin", "psd", "psi", "psq", "r2a", "r2d", "r2s"]
+      extensions.each do |extension|
+        Aws.should_receive(:delete_object).with("search-databases/search_database_file.#{extension}").and_return(true)
+      end
+      @search_database.remove_s3_files.should be_true
+    end
   end
 
   describe "build taxonomy file" do
     it "should build the taxonomy file based on the available databases"
   end
 
+  describe "parameter hash" do
+    it "should return a hash with the parameters" do
+      @search_database.parameter_hash.should == {"name"=>"ZGF0YWJhc2VfbmFtZQ==", "created_at"=>"MjAwOS0wMS0xMCAxMjowMDowMCBVVEM=", "available"=>"ZmFsc2U=", "search_database_file_size"=>"MjA=", "updated_at"=>"MjAwOS0wMS0xMCAxMjowMDowMCBVVEM=", "search_database_content_type"=>"dGV4dC9wbGFpbg==", "search_database_file_name"=>"c2VhcmNoX2RhdGFiYXNlX2ZpbGUuZmFzdGE=", "search_database_updated_at"=>"MjAwOS0wMS0xMCAxMjowMDowMCBVVEM=", "version"=>"dmVyc2lvbg==", "filename"=>"c2VhcmNoX2RhdGFiYXNlX2ZpbGU=", "db_type"=>"ZWJp", "user_uploaded"=>"dHJ1ZQ=="}
+    end
+  end
+
+  describe "import from simpledb" do
+    it "should import the databases from simpleDB" do
+      @sd = SearchDatabase.new
+      @rsd = mock_model(RemoteSearchDatabase)
+      @rsd.should_receive(:reload).and_return(true)
+      attributes = mock("hash")
+      attributes.should_receive(:keys).and_return(['name', 'created_at', 'available', 'search_database_file_size', 'updated_at', 'search_database_content_type', 'search_database_file_name', 'search_database_updated_at', 'version', 'filename', 'db_type', 'user_uploaded'])
+      @rsd.should_receive(:attributes).and_return(attributes)
+      @rsd.should_receive(:[]).with('name').and_return(["ZGF0YWJhc2VfbmFtZQ=="])
+      @rsd.should_receive(:[]).with('created_at').and_return(["MjAwOS0wMS0xMCAxMjowMDowMCBVVEM="])
+      @rsd.should_receive(:[]).with('available').and_return(["ZmFsc2U="])
+      @rsd.should_receive(:[]).with('search_database_file_size').and_return(["MjA="])
+      @rsd.should_receive(:[]).with('updated_at').and_return(["MjAwOS0wMS0xMCAxMjowMDowMCBVVEM="])
+      @rsd.should_receive(:[]).with('search_database_content_type').and_return(["dGV4dC9wbGFpbg=="])
+      @rsd.should_receive(:[]).with('search_database_file_name').and_return(["c2VhcmNoX2RhdGFiYXNlX2ZpbGUuZmFzdGE="])
+      @rsd.should_receive(:[]).with('search_database_updated_at').and_return(["MjAwOS0wMS0xMCAxMjowMDowMCBVVEM="])
+      @rsd.should_receive(:[]).with('version').and_return(["dmVyc2lvbg=="])
+      @rsd.should_receive(:[]).with('filename').and_return(["c2VhcmNoX2RhdGFiYXNlX2ZpbGU="])
+      @rsd.should_receive(:[]).with('db_type').and_return(["ZWJp"])
+      @rsd.should_receive(:[]).with('user_uploaded').and_return(["dHJ1ZQ=="])
+      RemoteSearchDatabase.should_receive(:all).and_return([@rsd])
+      @sd.should_receive(:[]=).with("name", "database_name").and_return(true)
+      @sd.should_receive(:[]=).with("created_at", "2009-01-10 12:00:00 UTC").and_return(true)
+      @sd.should_receive(:[]=).with("available", "false").and_return(true)
+      @sd.should_receive(:[]=).with("search_database_file_size", "20").and_return(true)
+      @sd.should_receive(:[]=).with("updated_at", "2009-01-10 12:00:00 UTC").and_return(true)
+      @sd.should_receive(:[]=).with("search_database_content_type", "text/plain").and_return(true)
+      @sd.should_receive(:[]=).with("search_database_file_name", "search_database_file.fasta").and_return(true)
+      @sd.should_receive(:[]=).with("search_database_updated_at", "2009-01-10 12:00:00 UTC").and_return(true)
+      @sd.should_receive(:[]=).with("version", "version").and_return(true)
+      @sd.should_receive(:[]=).with("filename", "search_database_file").and_return(true)
+      @sd.should_receive(:[]=).with("db_type", "ebi").and_return(true)
+      @sd.should_receive(:[]=).with("user_uploaded", "true").and_return(true)
+      SearchDatabase.should_receive(:new).and_return(@sd)
+      @sd.should_receive(:save).and_return(true)
+      SearchDatabase.import_from_simpledb
+    end
+  end
+
+  describe "save to simple db" do
+    it "should save the encoded parameters to simpledb" do
+      @search_database.should_receive(:parameter_hash).and_return({:hash => true})
+      RemoteSearchDatabase.should_receive(:new_for).with({:hash => true}).and_return(true)
+      @search_database.save_to_simpledb
+    end
+  end
+
+  describe "remove from simpledb" do
+    it "should remove the record from simpledb" do
+      record = mock("simpledb_record")
+      record.should_receive(:delete).and_return(true)
+      RemoteSearchDatabase.should_receive(:for_filename).with("search_database_file").and_return(record)
+      @search_database.remove_from_simpledb
+    end
+
+    it "should do nothing if the record isn't in simpledb" do
+      RemoteSearchDatabase.should_receive(:for_filename).with("search_database_file").and_return(nil)
+      @search_database.remove_from_simpledb
+    end
+  end
+
   protected
     def create_search_database(options = {})
-      record = SearchDatabase.new({ :name => "database_name", :version => "version", :user_uploaded => true, :available => false, :search_database_file_name => 'search_database_file.fasta', :search_database_content_type => 'text/plain', :search_database_file_size => 20 }.merge(options))
+      record = SearchDatabase.new({ :name => "database_name", :version => "version", :db_type => 'ebi', :user_uploaded => true, :available => false, :search_database_file_name => 'search_database_file.fasta', :search_database_content_type => 'text/plain', :search_database_file_size => 20, :created_at => "2009-01-10 12:00:00", :updated_at => "2009-01-10 12:00:00", :search_database_updated_at => "2009-01-10 12:00:00"}.merge(options))
       record
     end
 
