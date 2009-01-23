@@ -9,6 +9,30 @@ describe RemoteSearchDatabase do
     end
   end
 
+  describe "encode parameters" do
+    it "should encode the values of the hash" do
+      hash = {'key' => 'key', 'value' => 'value'}
+      RemoteSearchDatabase.encode_parameters(hash).should == {'key' => 'a2V5', 'value' => 'dmFsdWU='}
+    end
+  end
+
+  describe "new encode for" do
+    it "should encode the values of the hash before creating a new record" do
+      parameters = {'key' => 'key', 'value' => 'value'}
+      RemoteSearchDatabase.should_receive(:new_for).with({"value"=>"dmFsdWU=", "key"=>"a2V5"}).and_return("record")
+      RemoteSearchDatabase.new_encode_for(parameters).should == "record"
+    end
+  end
+
+  describe "delete default" do
+    it "should remove all the default search database records" do
+      db = mock("db")
+      db.should_receive(:delete).and_return(true)
+      RemoteSearchDatabase.should_receive(:all_default).and_return([db])
+      RemoteSearchDatabase.delete_default
+    end
+  end
+
   describe "simpleDB methods" do
     before(:each) do
       RemoteSearchDatabase.should_receive(:connect)
@@ -17,6 +41,11 @@ describe RemoteSearchDatabase do
     it "should return all the records" do
       RemoteSearchDatabase.should_receive(:find).with(:all).and_return(["records"])
       RemoteSearchDatabase.all.should == ["records"]
+    end
+
+    it "should return all default database records" do
+      RemoteSearchDatabase.should_receive(:find).with(:all, :conditions => ["['user_uploaded'=?]", "ZmFsc2U="]).and_return(["records"])
+      RemoteSearchDatabase.all_default.should == ["records"]
     end
 
     it "should return the record with the search_database_file_name" do

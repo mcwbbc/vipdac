@@ -39,8 +39,10 @@ class SearchDatabase < ActiveRecord::Base
 
     def insert_default_databases
       databases = YAML.load_file(File.join(RAILS_ROOT, 'config', 'search_databases.yml'))
+      RemoteSearchDatabase.delete_default
       databases.each do |database_hash|
-        SearchDatabase.create(database_hash)
+        search_database = SearchDatabase.create(database_hash)
+        remote = RemoteSearchDatabase.new_encode_for(database_hash)
       end
     end
 

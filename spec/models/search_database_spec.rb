@@ -179,7 +179,9 @@ describe SearchDatabase do
       database_files = ["122.R_norvegicus.fasta", "18.E_coli_K12.fasta", "25.H_sapiens.fasta", "40.S_cerevisiae_ATCC_204508.fasta", "59.M_musculus.fasta", "ipi.HUMAN.v3.54.fasta", "ipi.MOUSE.v3.54.fasta", "ipi.RAT.v3.54.fasta", "orf_trans.fasta"]
       database_files.each do |database|
         SearchDatabase.should_receive(:create).with(hash_including({:search_database_file_name => "#{database}"})).and_return(true)
+        RemoteSearchDatabase.should_receive(:new_encode_for).with(hash_including({:search_database_file_name => "#{database}"})).and_return(true)
       end
+      RemoteSearchDatabase.should_receive(:delete_default).and_return(true)
       SearchDatabase.insert_default_databases
     end
   end
