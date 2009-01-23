@@ -12,6 +12,13 @@
      result
    end.freeze unless self.class.const_defined? "SEARCHER_HASH"
 
+  DATABASE_TYPE_ARRAY = [ ['EBI','ebi'], ['IPI','ipi'] ].freeze unless self.class.const_defined? "DATABASE_TYPE_ARRAY"
+
+  DATABASE_TYPE_HASH = DATABASE_TYPE_ARRAY.inject({}) do |result, element|
+    result[element.last] = element.first
+    result
+  end.freeze unless self.class.const_defined? "DATABASE_TYPE_HASH"
+
   PRIORITY_ARRAY = [ ['Low', 1000], ['Medium', 500], ['High', 200] ].freeze unless self.class.const_defined? "PRIORITY_ARRAY"
 
   PRIORITY_HASH = PRIORITY_ARRAY.inject({}) do |result, element|

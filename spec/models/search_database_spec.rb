@@ -6,7 +6,7 @@ describe SearchDatabase do
   end
 
   describe "create" do
-    [:name, :version].each do |key|
+    [:name, :version, :db_type].each do |key|
       it "should not create a new instance without '#{key}'" do
         create_search_database(key => nil).should_not be_valid
       end

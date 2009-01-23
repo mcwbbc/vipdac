@@ -3,6 +3,7 @@ class CreateSearchDatabases < ActiveRecord::Migration
     create_table :search_databases do |t|
       t.string :name
       t.string :version
+      t.string :db_type
       t.boolean :user_uploaded
       t.boolean :available
       t.string :search_database_file_name

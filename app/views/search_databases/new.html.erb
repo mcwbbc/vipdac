@@ -17,6 +17,10 @@
     <td>Name:</td>
     <td><%= f.text_field(:name) %></td>
   </tr>
+  <tr valign="top">
+		<td>Type:</td>
+		<td><%= f.select(:db_type, DATABASE_TYPE_ARRAY) %></td>
+	</tr>
   <tr>
     <td>Version:</td>
     <td><%= f.text_field(:version) %></td>
