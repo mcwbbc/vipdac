@@ -3,7 +3,7 @@ class TandemParameterFile < ActiveRecord::Base
   TAXONOMY_FILE = "#{RAILS_ROOT}/config/tandem_config/taxonomy.xml"
   
   validates_presence_of :name, :message => "^Name is required"
-  validates_presence_of :taxon, :message => "^Taxonomy is required"
+  validates_presence_of :database, :message => "^Database is required"
 
   validates_uniqueness_of :name, :message => "^The name you entered is already taken"
   
@@ -49,7 +49,7 @@ class TandemParameterFile < ActiveRecord::Base
   end
 
   def taxon_xml
-    %Q(<note type="input" label="protein, taxon">#{taxon}</note>)
+    %Q(<note type="input" label="protein, taxon">#{database}</note>)
   end
 
   def enzyme_xml
@@ -98,7 +98,7 @@ class TandemParameterFile < ActiveRecord::Base
       record.reload
       parameter_file = TandemParameterFile.new
       parameter_file.name = Aws.decode(record['name'])
-      parameter_file.taxon = Aws.decode(record['taxon'])
+      parameter_file.database = Aws.decode(record['database'])
       parameter_file.enzyme = Aws.decode(record['enzyme'])
       parameter_file.n_terminal = Aws.decode(record['n_terminal'])
       parameter_file.c_terminal = Aws.decode(record['c_terminal'])
@@ -139,7 +139,7 @@ class TandemParameterFile < ActiveRecord::Base
   def parameter_hash
     parameters = {}
     parameters['name'] = Aws.encode(name)
-    parameters['taxon'] = Aws.encode(taxon)
+    parameters['database'] = Aws.encode(database)
     parameters['enzyme'] = Aws.encode(enzyme)
     parameters['n_terminal'] = Aws.encode("#{n_terminal}")
     parameters['c_terminal'] = Aws.encode("#{c_terminal}")

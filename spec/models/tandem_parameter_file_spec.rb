@@ -6,7 +6,7 @@ describe TandemParameterFile do
   end
 
   describe "create" do
-    [:name, :taxon].each do |key|
+    [:name, :database].each do |key|
       it "should not create a new instance without '#{key}'" do
         create_tandem_parameter_file(key => nil).should_not be_valid
       end
@@ -41,14 +41,14 @@ describe TandemParameterFile do
       @spg = mock_model(SearchParameterGroup)
       @spg.should_receive(:reload).and_return(true)
       @spg.should_receive(:[]).with('name').and_return(["ZGVtbw=="])
-      @spg.should_receive(:[]).with('taxon').and_return(["aHVtYW5faXBp"])
+      @spg.should_receive(:[]).with('database').and_return(["aHVtYW5faXBp"])
       @spg.should_receive(:[]).with('enzyme').and_return(["W1hdfFtYXQ=="])
       @spg.should_receive(:[]).with('n_terminal').and_return(nil)
       @spg.should_receive(:[]).with('c_terminal').and_return(nil)
       @spg.should_receive(:[]).with('ions').and_return(["LS0tIApiX2lvbjogdHJ1ZQp4X2lvbjogZmFsc2UKY19pb246IGZhbHNlCnlfaW9uOiB0cnVlCnpfaW9uOiBmYWxzZQphX2lvbjogZmFsc2UK"])
       SearchParameterGroup.should_receive(:all_for).with("xtandem").and_return([@spg])
       @pf.should_receive(:name=).with("demo").and_return(true)
-      @pf.should_receive(:taxon=).with("human_ipi").and_return(true)
+      @pf.should_receive(:database=).with("human_ipi").and_return(true)
       @pf.should_receive(:enzyme=).with("[X]|[X]").and_return(true)
       @pf.should_receive(:n_terminal=).with(nil).and_return(true)
       @pf.should_receive(:c_terminal=).with(nil).and_return(true)
@@ -120,7 +120,7 @@ describe TandemParameterFile do
   describe "parameter hash" do
     it "should return a hash with the parameters" do
       pf = create_tandem_parameter_file
-      pf.parameter_hash.should == {"name"=>"am9ibmFtZQ==", "taxon"=>"aHVtYW5faXBp", "ions"=>"LS0tIApiX2lvbjogCnhfaW9uOiAKY19pb246IAp5X2lvbjogCnpfaW9uOiAKYV9pb246IHRydWUK", "n_terminal"=>"", "enzyme"=>"ZW56eW1l", "c_terminal"=>"", "modifications"=>nil}
+      pf.parameter_hash.should == {"name"=>"am9ibmFtZQ==", "database"=>"aHVtYW5faXBp", "ions"=>"LS0tIApiX2lvbjogCnhfaW9uOiAKY19pb246IAp5X2lvbjogCnpfaW9uOiAKYV9pb246IHRydWUK", "n_terminal"=>"", "enzyme"=>"ZW56eW1l", "c_terminal"=>"", "modifications"=>nil}
     end
   end
 
@@ -327,7 +327,7 @@ describe TandemParameterFile do
 
   protected
     def create_tandem_parameter_file(options = {})
-      record = TandemParameterFile.new({ :name => "jobname", :taxon => "human_ipi", :enzyme => "enzyme", :a_ion => true }.merge(options))
+      record = TandemParameterFile.new({ :name => "jobname", :database => "human_ipi", :enzyme => "enzyme", :a_ion => true }.merge(options))
       record
     end
 

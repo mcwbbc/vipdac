@@ -2,7 +2,7 @@ class CreateTandemParameterFiles < ActiveRecord::Migration
   def self.up
     create_table :tandem_parameter_files do |t|
       t.string :name
-      t.string :taxon
+      t.string :database
       t.string :enzyme
       t.boolean :a_ion
       t.boolean :b_ion

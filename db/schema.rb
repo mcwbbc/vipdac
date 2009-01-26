@@ -94,7 +94,7 @@ ActiveRecord::Schema.define(:version => 20090119205259) do
 
   create_table "tandem_parameter_files", :force => true do |t|
     t.string   "name"
-    t.string   "taxon"
+    t.string   "database"
     t.string   "enzyme"
     t.boolean  "a_ion"
     t.boolean  "b_ion"

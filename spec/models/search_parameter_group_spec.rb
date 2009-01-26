@@ -27,8 +27,8 @@ describe SearchParameterGroup do
       end
 
       it "should create a new record associated with #{searcher}" do
-        parameters = {"name"=>"am9ibmFtZQ==", "taxon"=>"aHVtYW5faXBp"}
-        updated_parameters = {"name"=>"am9ibmFtZQ==", "taxon"=>"aHVtYW5faXBp", "searcher"=>"#{searcher}"}
+        parameters = {"name"=>"am9ibmFtZQ==", "database"=>"aHVtYW5faXBp"}
+        updated_parameters = {"name"=>"am9ibmFtZQ==", "database"=>"aHVtYW5faXBp", "searcher"=>"#{searcher}"}
         SearchParameterGroup.should_receive(:create).with(updated_parameters).and_return("record")
         SearchParameterGroup.new_for(parameters, searcher).should == "record"
       end
