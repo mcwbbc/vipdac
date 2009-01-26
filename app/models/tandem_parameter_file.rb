@@ -27,12 +27,6 @@ class TandemParameterFile < ActiveRecord::Base
     ['CNBr', 'N|[X]']
   ]
 
-  def self.taxonomies
-    taxons = File.open(TAXONOMY_FILE).readlines.inject([]) {|array, line| array << $1 if line =~ /<taxon label="(\w+)"/; array}
-    rescue
-      []
-  end
-
   def modification_attributes=(ma)
     ma.each do |a|
       self.tandem_modifications.build(a)

@@ -20,24 +20,6 @@ describe OmssaOption do
     end
   end
 
-
-  describe "databases" do
-    describe "on success" do
-      it "should return a complete hash" do
-        @array = ['<file format="peptide" URL="/pipeline/dbs/ipi.HUMAN.v3.54.fasta" />','<file format="peptide" URL="/pipeline/dbs/25.H_sapiens.fasta" />']
-        File.should_receive(:readlines).with(/taxonomy\.xml$/).and_return(@array)
-        OmssaOption.databases.should == {'ipi.HUMAN.v3.54' => "/pipeline/dbs/ipi.HUMAN.v3.54", '25.H_sapiens' => "/pipeline/dbs/25.H_sapiens"}
-      end
-    end
-
-    describe "on error" do
-      it "should return an empty hash" do
-        File.should_receive(:readlines).with(/taxonomy\.xml$/).and_raise("exception")
-        OmssaOption.databases.should == {}
-      end
-    end
-  end
-
   describe "options_file array" do
     describe "success" do
       it "should load the options file into an array" do

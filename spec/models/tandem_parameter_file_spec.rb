@@ -157,25 +157,6 @@ describe TandemParameterFile do
     end
   end
 
-  describe "when loading the taxonomies" do
-    it "should return an empty array for an exception" do
-      File.stub!(:open).and_raise("error")
-      TandemParameterFile.taxonomies.should == []
-    end
-
-    it "should return an empty array for an empty file" do
-      text = mock("filetext", :readlines => [])
-      File.stub!(:open).and_return(text)
-      TandemParameterFile.taxonomies.should == []
-    end
-
-    it "should return an array" do
-      text = mock("filetext", :readlines => ['<taxon label="human_uni">','<taxon label="human_ipi">'])
-      File.stub!(:open).and_return(text)
-      TandemParameterFile.taxonomies.should == ["human_uni", "human_ipi"]
-    end
-  end
-  
   describe "ions" do
     it "should return [] for no selected ions" do
       @parameter_file.a_ion = false
