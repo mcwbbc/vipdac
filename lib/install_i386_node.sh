@@ -1,6 +1,10 @@
 #!/bin/bash
 
 # CHANGELOG
+# 01/26/2009
+# hoptoad as a gem
+# paperclip as a gem
+#
 # 01/21/2009
 # specify versions of the ipi databases to use
 # update to passenger 2.0.6
