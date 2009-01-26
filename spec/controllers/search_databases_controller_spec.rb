@@ -24,7 +24,7 @@ describe SearchDatabasesController do
     end
   
     it "should find all search_databases paginated" do
-      SearchDatabase.should_receive(:find).with(:all, {:order=>"created_at DESC", :offset=>0, :limit=>10}).and_return([@search_database])
+      SearchDatabase.should_receive(:find).with(:all, {:order=>"name ASC", :offset=>0, :limit=>10}).and_return([@search_database])
       do_get
     end
   

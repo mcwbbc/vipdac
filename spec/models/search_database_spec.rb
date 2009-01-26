@@ -68,7 +68,7 @@ describe SearchDatabase do
 
   describe "page" do
     it "should call paginate" do
-      SearchDatabase.should_receive(:paginate).with({:page => 2, :order => 'created_at DESC', :per_page => 20}).and_return(true)
+      SearchDatabase.should_receive(:paginate).with({:page => 2, :order => 'name ASC', :per_page => 20}).and_return(true)
       SearchDatabase.page(2,20)
     end
   end
