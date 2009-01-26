@@ -24,7 +24,15 @@ class Worker
       remove_item(PIPELINE_TMP)
   end
 
+  def download_search_database(database_name)
+    if SearchDatabase.missing_on_node?(database_name)
+      SearchDatabase.download_to_node(database_name)
+      SearchDatabase.write_taxonomy_file
+    end
+  end
+
   def launch_process
+    download_search_database(message[:search_database])
     starttime = Time.now.to_f
     download_file(local_input_filename, message[:filename])
     download_file(local_parameter_filename, message[:parameter_filename])

@@ -75,18 +75,30 @@ describe Worker do
     end
   end
 
+  describe "download search database" do
+    it "should download and re-write taxonomy if we don't have it" do
+      SearchDatabase.should_receive(:missing_on_node?).with("search_database").and_return(true)
+      SearchDatabase.should_receive(:download_to_node).with("search_database").and_return(true)
+      SearchDatabase.should_receive(:write_taxonomy_file).and_return(true)
+      @worker.download_search_database("search_database").should be_true
+    end
+
+    it "should do nothing if we do have it" do
+      SearchDatabase.should_receive(:missing_on_node?).with("search_database").and_return(false)
+      @worker.download_search_database("search_database").should be_nil
+    end
+  end
+
   describe "launch process" do
-    before(:each) do
+    it "should process the chunk without issue" do
+      @worker.should_receive(:download_search_database).with("search_database").ordered.and_return(true)
       Time.stub!(:now).and_return(1)
       @worker.should_receive(:download_file).with(/\/filename$/, /filename$/).and_return(true)
       @worker.should_receive(:download_file).with(/parameter_filename$/, /parameter_filename$/).and_return(true)
       @worker.should_receive(:send_message).with(START, 1.0, 0.0).and_return(true)
-      @worker.should_receive(:send_message).with(FINISH, 1.0, 1.0).and_return(true)
       @worker.should_receive(:process_file).and_return(true)
-    end
-
-    it "should process the chunk without issue" do
       @worker.should_receive(:upload_output_file).and_return(true)
+      @worker.should_receive(:send_message).with(FINISH, 1.0, 1.0).and_return(true)
       @worker.launch_process
     end
   end
@@ -143,7 +155,6 @@ describe Worker do
       @worker.send_message(JOBPACKED, 0.0, 0.0)
     end
   end
-  
 
   describe "local output filename" do
     describe "for omssa" do
@@ -159,7 +170,6 @@ describe Worker do
     end
   end
 
-
   describe "local input filename" do
     it "should return a filename" do
       @worker.local_input_filename.should match(%r|pipeline/tmp-(\d+?)/filename|)
@@ -171,11 +181,10 @@ describe Worker do
       @worker.local_parameter_filename.should match(%r|pipeline/tmp-(\d+?)/parameter_filename|)
     end
   end
-
   
   protected
     def create_worker(options = {})
-      record = Worker.new({ :type => PROCESS, :chunk_count => 1, :bytes => 10, :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :hash_key => 'hash_key', :searcher => "omssa", :filename => "filename", :bucket_name => "bucket_name", :parameter_filename => "parameter_filename"}.merge(options))
+      record = Worker.new({ :type => PROCESS, :chunk_count => 1, :bytes => 10, :sendtime => 1.0, :chunk_key => "key", :job_id => 12, :hash_key => 'hash_key', :searcher => "omssa", :search_database => "search_database", :filename => "filename", :bucket_name => "bucket_name", :parameter_filename => "parameter_filename"}.merge(options))
       record
     end
 
