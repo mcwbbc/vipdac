@@ -111,7 +111,7 @@ cp bin/formatdb /usr/local/bin/
 cd /usr/local/src
 wget ftp://ftp.thegpm.org/projects/tandem/source/tandem-ubuntu-08-12-01-1.tar.gz
 tar xvfz tandem-ubuntu-08-12-01-1.tar.gz 
-cd tandem-linux-08-02-01-3/src
+cd tandem-ubuntu-08-12-01-1/src
 cp Makefile_ubuntu_32 Makefile
 make
 cp ../bin/* /pipeline/bin/tandem
