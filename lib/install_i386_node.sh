@@ -220,6 +220,8 @@ gem install rubyist-aasm --source http://gems.github.com/ --no-rdoc --no-ri
 gem install rubyist-aasm --source http://gems.github.com/ --no-rdoc --no-ri
 gem install mislav-will_paginate --source http://gems.github.com/ --no-rdoc --no-ri
 gem install mislav-will_paginate --source http://gems.github.com/ --no-rdoc --no-ri
+gem install thoughtbot-paperclip --source http://gems.github.com/ --no-rdoc --no-ri
+gem install thoughtbot-paperclip --source http://gems.github.com/ --no-rdoc --no-ri
 gem install rspec --no-rdoc --no-ri
 gem install rspec --no-rdoc --no-ri
 gem install rspec-rails --no-rdoc --no-ri

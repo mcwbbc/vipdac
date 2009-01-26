@@ -33,6 +33,8 @@ Rails::Initializer.run do |config|
   config.gem 'right_http_connection'
   config.gem 'mislav-will_paginate', :version => '~> 2.3.2', :lib => 'will_paginate', :source => 'http://gems.github.com'
   config.gem 'rubyist-aasm', :version => '~> 2.0.2', :lib => 'aasm', :source => 'http://gems.github.com'
+  config.gem 'thoughtbot-paperclip', :version => '~> 2.2.2', :lib => 'paperclip', :source => 'http://gems.github.com'
+  config.gem 'thoughtbot-hoptoad_notifier', :version => '~> 1.1', :lib => 'hoptoad_notifier', :source => 'http://gems.github.com'
   config.gem 'beanstalk-client', :version => '~> 1.0.2'
   
   # Only load the plugins named here, in the order given. By default, all plugins 
