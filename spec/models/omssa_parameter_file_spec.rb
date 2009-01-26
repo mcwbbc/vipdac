@@ -146,7 +146,7 @@ describe OmssaParameterFile do
 
   describe ".database_option" do
     it "should return '-d self.database '" do
-      @omssa_parameter_file.database_option.should eql("-d #{@omssa_parameter_file.database} ")
+      @omssa_parameter_file.database_option.should eql("-d /pipeline/dbs/#{@omssa_parameter_file.database} ")
     end  
   end
 

@@ -99,7 +99,7 @@ class OmssaParameterFile < ActiveRecord::Base
   end
 
   def database_option
-    "-d #{self.database} "
+    "-d /pipeline/dbs/#{self.database} "
   end
   
   def enzyme_option
