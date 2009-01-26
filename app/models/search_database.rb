@@ -46,6 +46,27 @@ class SearchDatabase < ActiveRecord::Base
       end
     end
 
+    def taxonomy_xml
+      xml = ""
+      records = RemoteSearchDatabase.all
+      x = Builder::XmlMarkup.new(:target => xml, :indent=>2)
+      x.instruct!
+      x.bioml("label" => "x! taxon-to-file matching list") do
+        records.each do |record|
+          record.reload
+          file = Aws.decode(record['search_database_file_name'])
+          x.taxon("label" => "#{file}") do
+            x.file("format" => "peptide", "URL" => "/pipeline/dbs/#{file}")
+          end
+        end
+      end
+      xml
+    end
+      
+    def write_taxonomy_file
+      File.open("/pipeline/bin/tandem/taxonomy.xml", File::RDWR|File::CREAT) { |file| file.puts SearchDatabase.taxonomy_xml}
+    end
+
   end
 
   def process_and_upload

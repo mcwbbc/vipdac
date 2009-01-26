@@ -187,7 +187,25 @@ describe SearchDatabase do
   end
 
   describe "build taxonomy file" do
-    it "should build the taxonomy file based on the available databases"
+    it "should build the taxonomy file based on the available databases" do
+      search_db = {"search_database_file_name" => "encoded"}
+      search_db.should_receive(:reload).and_return(true)
+      Aws.should_receive(:decode).with("encoded").and_return("decoded")
+      RemoteSearchDatabase.should_receive(:all).and_return([search_db])
+      xml = SearchDatabase.taxonomy_xml
+      xml.should match(/label="decoded"/)
+      xml.should match(/URL="\/pipeline\/dbs\/decoded"/)
+    end
+  end
+
+  describe "write taxonomy file" do
+    it "should write the taxonomy file to disk" do
+      SearchDatabase.should_receive(:taxonomy_xml).and_return("xmldata")
+      file = mock("file")
+      file.should_receive(:puts).with("xmldata").and_return(true)
+      File.should_receive(:open).with("/pipeline/bin/tandem/taxonomy.xml", File::RDWR|File::CREAT).and_yield(file)
+      SearchDatabase.write_taxonomy_file
+    end
   end
 
   describe "parameter hash" do
