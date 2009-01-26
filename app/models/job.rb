@@ -168,7 +168,7 @@ class Job < ActiveRecord::Base
   end
 
   def search_database
-    load_parameter_file.database
+    load_parameter_file.database.match(/^(.+)\.fasta$/)[1]
   end
 
   def create_parameter_textfile(parameter_file)

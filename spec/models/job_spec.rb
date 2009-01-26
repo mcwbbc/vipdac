@@ -441,7 +441,7 @@ describe Job do
   describe "search database" do
     it "should return the search database from the parameter file" do
       pf = mock("parameter_file")
-      pf.should_receive(:database).and_return("db")
+      pf.should_receive(:database).and_return("db.fasta")
       @job.should_receive(:load_parameter_file).and_return(pf)
       @job.search_database.should == "db"
     end
