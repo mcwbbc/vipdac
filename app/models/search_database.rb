@@ -1,7 +1,8 @@
 class SearchDatabase < ActiveRecord::Base
 
   include Utilities
-
+  extend Utilities
+  
   before_destroy :remove_s3_files, :remove_from_simpledb
 
   validates_presence_of :name, :message => "^Name is required"
