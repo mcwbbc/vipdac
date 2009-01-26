@@ -19,7 +19,7 @@ class SearchDatabase < ActiveRecord::Base
 
   class << self
     # pagination
-    def page(page=1, limit=10)
+    def page(page=1, limit=15)
       paginate(:page => page,
                :order => 'name ASC',
                :per_page => limit
