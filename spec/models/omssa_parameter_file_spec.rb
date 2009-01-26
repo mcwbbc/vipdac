@@ -73,7 +73,7 @@ describe OmssaParameterFile do
   describe "parameter hash" do
     it "should return a hash with the parameters" do
       pf = create_omssa_parameter_file
-      pf.parameter_hash.should == {"name"=>"dGVzdA==", "precursor_tol"=>"Mi41", "enzyme"=>"MA==", "ions"=>"MSw0", "missed_cleavages"=>"MA==", "product_search"=>"MA==", "modifications"=>"MSwyLDMsNA==", "product_tol"=>"MC44", "max_charge"=>"Mw==", "database"=>"L3BpcGVsaW5lL2Ricy9odW1hbg==", "minimum_charge"=>"Mg==", "precursor_search"=>"MA=="}
+      pf.parameter_hash.should == {"name"=>"dGVzdA==", "precursor_tol"=>"Mi41", "enzyme"=>"MA==", "ions"=>"MSw0", "missed_cleavages"=>"MA==", "product_search"=>"MA==", "modifications"=>"MSwyLDMsNA==", "product_tol"=>"MC44", "max_charge"=>"Mw==", "database"=>"aHVtYW4uZmFzdGE=", "minimum_charge"=>"Mg==", "precursor_search"=>"MA=="}
     end
   end
 
@@ -144,9 +144,15 @@ describe OmssaParameterFile do
     end
   end
 
+  describe "database name" do
+    it "should return the database without the fasta extension" do
+      @omssa_parameter_file.database_name.should == "human"
+    end
+  end
+
   describe ".database_option" do
     it "should return '-d self.database '" do
-      @omssa_parameter_file.database_option.should eql("-d /pipeline/dbs/#{@omssa_parameter_file.database} ")
+      @omssa_parameter_file.database_option.should eql("-d /pipeline/dbs/human ")
     end  
   end
 
@@ -308,7 +314,7 @@ describe OmssaParameterFile do
     def create_omssa_parameter_file(options = {})
       record = OmssaParameterFile.new({
                                        :name => 'test',
-                                       :database => '/pipeline/dbs/human',
+                                       :database => 'human.fasta',
                                        :precursor_search => 0,
                                        :product_search => 0,
                                        :ions => '1,4', 

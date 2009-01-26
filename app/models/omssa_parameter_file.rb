@@ -98,8 +98,12 @@ class OmssaParameterFile < ActiveRecord::Base
     self.ions.split(',') rescue []
   end
 
+  def database_name
+    database.match(/^(.+)\.fasta$/)[1]
+  end
+
   def database_option
-    "-d /pipeline/dbs/#{self.database} "
+    "-d /pipeline/dbs/#{self.database_name} "
   end
   
   def enzyme_option
