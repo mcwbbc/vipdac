@@ -93,7 +93,7 @@ class TandemParameterFile < ActiveRecord::Base
   end
 
   def self.import_from_simpledb
-    records = SearchParameterGroup.all_for("xtandem")
+    records = SearchParameterGroup.all_for("tandem")
     records.each do |record|
       record.reload
       parameter_file = TandemParameterFile.new
@@ -128,12 +128,12 @@ class TandemParameterFile < ActiveRecord::Base
   end
 
   def remove_from_simpledb
-    record = SearchParameterGroup.for_name_and_searcher(name, "xtandem")
+    record = SearchParameterGroup.for_name_and_searcher(name, "tandem")
     record.delete if record
   end
 
   def save_to_simpledb
-    SearchParameterGroup.new_for(parameter_hash, "xtandem")
+    SearchParameterGroup.new_for(parameter_hash, "tandem")
   end
 
   def parameter_hash

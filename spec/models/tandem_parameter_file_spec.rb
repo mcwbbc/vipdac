@@ -46,7 +46,7 @@ describe TandemParameterFile do
       @spg.should_receive(:[]).with('n_terminal').and_return(nil)
       @spg.should_receive(:[]).with('c_terminal').and_return(nil)
       @spg.should_receive(:[]).with('ions').and_return(["LS0tIApiX2lvbjogdHJ1ZQp4X2lvbjogZmFsc2UKY19pb246IGZhbHNlCnlfaW9uOiB0cnVlCnpfaW9uOiBmYWxzZQphX2lvbjogZmFsc2UK"])
-      SearchParameterGroup.should_receive(:all_for).with("xtandem").and_return([@spg])
+      SearchParameterGroup.should_receive(:all_for).with("tandem").and_return([@spg])
       @pf.should_receive(:name=).with("demo").and_return(true)
       @pf.should_receive(:database=).with("human_ipi").and_return(true)
       @pf.should_receive(:enzyme=).with("[X]|[X]").and_return(true)
@@ -106,13 +106,13 @@ describe TandemParameterFile do
       record = mock("simpledb_record")
       record.should_receive(:delete).and_return(true)
       pf = create_tandem_parameter_file
-      SearchParameterGroup.should_receive(:for_name_and_searcher).with("jobname", "xtandem").and_return(record)
+      SearchParameterGroup.should_receive(:for_name_and_searcher).with("jobname", "tandem").and_return(record)
       pf.remove_from_simpledb
     end
 
     it "should do nothing if the record isn't in simpledb" do
       pf = create_tandem_parameter_file
-      SearchParameterGroup.should_receive(:for_name_and_searcher).with("jobname", "xtandem").and_return(nil)
+      SearchParameterGroup.should_receive(:for_name_and_searcher).with("jobname", "tandem").and_return(nil)
       pf.remove_from_simpledb
     end
   end
@@ -128,7 +128,7 @@ describe TandemParameterFile do
     it "should save the encoded parameters to simpledb" do
       pf = create_tandem_parameter_file
       pf.should_receive(:parameter_hash).and_return({:hash => true})
-      SearchParameterGroup.should_receive(:new_for).with({:hash => true}, "xtandem").and_return(true)
+      SearchParameterGroup.should_receive(:new_for).with({:hash => true}, "tandem").and_return(true)
       pf.save_to_simpledb
     end
   end

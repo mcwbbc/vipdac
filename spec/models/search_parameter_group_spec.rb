@@ -14,7 +14,7 @@ describe SearchParameterGroup do
       SearchParameterGroup.should_receive(:connect)
     end
 
-    ["xtandem", "omssa"].each do |searcher|
+    ["tandem", "omssa"].each do |searcher|
       it "should return all the records for #{searcher}" do
         SearchParameterGroup.should_receive(:find_all_by_searcher).with(searcher).and_return(["records"])
         SearchParameterGroup.all_for(searcher).should == ["records"]
