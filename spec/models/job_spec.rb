@@ -297,20 +297,34 @@ describe Job do
     end
   end
 
-  describe "creating a parameter file" do
-    it "should create tandem parameter file for searcher Tandem" do
-      @tandem = mock_model(TandemParameterFile)
-      @tandem.should_receive(:write_file).with(/jobs\/000\/000\/000/).and_return(true)
-      TandemParameterFile.should_receive(:find).with(1).and_return(@tandem)
-      @job = create_job(:searcher => "tandem")
-      @job.create_parameter_file
+  describe "load parameter file" do
+    describe "for tandem" do
+      it "should load the parameter_file" do
+        job = create_job(:searcher => "tandem")
+        tandem = mock_model(TandemParameterFile)
+        TandemParameterFile.should_receive(:find).with(1).and_return(tandem)
+        job.load_parameter_file.should == tandem
+      end
     end
 
-    it "should create a omssa parameter file for searcher OMSSA" do
-      @omssa = mock_model(OmssaParameterFile)
-      @omssa.should_receive(:write_file).with(/jobs\/000\/000\/000/).and_return(true)
-      OmssaParameterFile.should_receive(:find).with(1).and_return(@omssa)
-      @job.create_parameter_file
+    describe "for omssa" do
+      it "should load the parameter_file" do
+        job = create_job(:searcher => "omssa")
+        omssa = mock_model(OmssaParameterFile)
+        OmssaParameterFile.should_receive(:find).with(1).and_return(omssa)
+        job.load_parameter_file.should == omssa
+      end
+    end
+  end
+
+  describe "create parameter textfile" do
+    describe "for tandem" do
+      it "should write out the file" do
+        pf = mock("parameter_file")
+        pf.should_receive(:write_file).with(/jobs\/000\/000\/000/).and_return(true)
+        job = create_job
+        job.create_parameter_textfile(pf).should be_true
+      end
     end
   end
 
@@ -380,13 +394,14 @@ describe Job do
       @job.should_receive(:datafile).and_return("datafile")
       Aws.should_receive(:bucket_name).and_return("bucket")
     end
+
     it "should send a pack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
-      @job.send_message(PACK)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :database => "database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
+      @job.send_message(PACK, "database")
     end
 
     it "should send an unpack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :database => "", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
       @job.send_message(UNPACK)
     end
   end
@@ -412,10 +427,13 @@ describe Job do
 
   describe "background_s3_upload" do
     it "should run the steps" do
-      @job.should_receive(:create_parameter_file).and_return(true)
-      @job.should_receive(:bundle_datafile).and_return(true)
-      @job.should_receive(:upload_datafile_to_s3).and_return(true)
-      @job.should_receive(:send_message).with(UNPACK).and_return(true)
+      parameter_file = mock("paramter_file")
+      parameter_file.should_receive(:database).and_return("database")
+      @job.should_receive(:load_parameter_file).ordered.and_return(parameter_file)
+      @job.should_receive(:create_parameter_textfile).with(parameter_file).ordered.and_return(true)
+      @job.should_receive(:bundle_datafile).ordered.and_return(true)
+      @job.should_receive(:upload_datafile_to_s3).ordered.and_return(true)
+      @job.should_receive(:send_message).with(UNPACK, "database").ordered.and_return(true)
       @job.background_s3_upload
     end
   end

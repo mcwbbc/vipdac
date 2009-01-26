@@ -149,20 +149,26 @@ class Job < ActiveRecord::Base
   end
 
   def background_s3_upload
-    create_parameter_file
+    parameter_file = load_parameter_file
+    create_parameter_textfile(parameter_file)
     bundle_datafile
     upload_datafile_to_s3
-    send_message(UNPACK)
+    send_message(UNPACK, parameter_file.database)
   end
 
-  def create_parameter_file
+  def load_parameter_file
+    parameter_file = nil
     case searcher
       when "omssa"
-        @parameter_file = OmssaParameterFile.find(parameter_file_id)
+        parameter_file = OmssaParameterFile.find(parameter_file_id)
       when "tandem"
-        @parameter_file = TandemParameterFile.find(parameter_file_id)
+        parameter_file = TandemParameterFile.find(parameter_file_id)
     end
-    @parameter_file.write_file(local_datafile_directory)
+    parameter_file
+  end
+
+  def create_parameter_textfile(parameter_file)
+    parameter_file.write_file(local_datafile_directory)
   end
 
   def send_pack_request
@@ -183,8 +189,8 @@ class Job < ActiveRecord::Base
     MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 50, :ttr => 600)
   end
 
-  def send_message(type)
-    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :hash_key => hash_key, :datafile => datafile, :output_file => output_file, :searcher => searcher, :spectra_count => spectra_count, :priority => priority}
+  def send_message(type, database="")
+    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :hash_key => hash_key, :datafile => datafile, :output_file => output_file, :searcher => searcher, :database => database, :spectra_count => spectra_count, :priority => priority}
     MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => 50, :ttr => 600)
   end
 
