@@ -291,20 +291,8 @@ describe OmssaParameterFile do
   describe "write_file" do
     it "should create a correct file" do
       @omssa_parameter_file = create_omssa_parameter_file
-      @omssa_parameter_file.should_receive(:database_option).and_return("-d /pipeline/dbs/human ")
-      @omssa_parameter_file.should_receive(:enzyme_option).and_return("-e 0 ")
-      @omssa_parameter_file.should_receive(:cleavage_option).and_return("-v 3 ")
-      @omssa_parameter_file.should_receive(:precursor_tol_option).and_return("-te 2.5 ")
-      @omssa_parameter_file.should_receive(:product_tol_option).and_return("-to 0.8 ")
-      @omssa_parameter_file.should_receive(:precursor_search_option).and_return("-tem 0 ")
-      @omssa_parameter_file.should_receive(:product_search_option).and_return("-tom 0 ")
-      @omssa_parameter_file.should_receive(:minimum_charge_option).and_return("-zt 2 ")
-      @omssa_parameter_file.should_receive(:max_charge_option).and_return("-zh 3 ")
-      @omssa_parameter_file.should_receive(:ion_option).and_return("-i 1,4 ")
-      @omssa_parameter_file.should_receive(:modification_option).and_return("-mv 0,3 ")
-      @omssa_parameter_file.should_receive(:hidden_options).and_return("-tez 1 -zc 1 -zcc 1")
       file = mock("file")
-      file.should_receive(:puts).and_return(true)
+      file.should_receive(:puts).with("-d /pipeline/dbs/human -e 0 -v 0 -te 2.5 -to 0.8 -tem 0 -tom 0 -zt 2 -zh 3 -i 1,4 -mv 1,2,3,4 -tez 1 -zc 1 -zcc 1").and_return(true)
       File.should_receive(:open).with(RAILS_ROOT + '/tmp/parameters.conf', "w").and_yield(file)
       @omssa_parameter_file.write_file(RAILS_ROOT + '/tmp/')
     end
