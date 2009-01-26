@@ -3,7 +3,6 @@ require File.dirname(__FILE__) + '/../spec_helper'
 describe OmssaOption do
 
   before(:each) do
-    OmssaOption.databases = nil
     OmssaOption.modifications = nil
     OmssaOption.enzymes = nil
     OmssaOption.ions = nil

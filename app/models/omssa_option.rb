@@ -14,10 +14,6 @@ class OmssaOption
       @options_file ||= File.readlines(OPTIONS_FILE) rescue []
     end
 
-    def databases
-      @databases ||= database_file.inject({}) {|h, line| h[$1] = "/pipeline/dbs/#{$1}" if line =~ /\/.+?([^\/]+?)\.fasta/; h }
-    end
-
     def modifications
       @modifications ||= generate_hash(/<mod id='(\d+)'>(.+?)</)
     end
