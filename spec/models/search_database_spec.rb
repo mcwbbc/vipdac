@@ -58,6 +58,14 @@ describe SearchDatabase do
     end
   end
 
+  describe "available for search" do
+    it "should return an array of dbs that are available" do
+      db = mock("db")
+      SearchDatabase.should_receive(:find).with(:all, :conditions => ["available = ?", true], :order => :name).and_return([db])
+      SearchDatabase.available_for_search.should == [db]
+    end
+  end
+
   describe "page" do
     it "should call paginate" do
       SearchDatabase.should_receive(:paginate).with({:page => 2, :order => 'created_at DESC', :per_page => 20}).and_return(true)

@@ -67,6 +67,10 @@ class SearchDatabase < ActiveRecord::Base
       File.open("/pipeline/bin/tandem/taxonomy.xml", File::RDWR|File::CREAT) { |file| file.puts SearchDatabase.taxonomy_xml}
     end
 
+    def available_for_search
+      find(:all, :conditions => ["available = ?", true], :order => :name)
+    end
+
   end
 
   def process_and_upload
