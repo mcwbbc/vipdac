@@ -33,6 +33,7 @@ class Chunk < ActiveRecord::Base
              :job_id => job.id,
              :hash_key => job.hash_key,
              :searcher => job.searcher,
+             :search_database => job.search_database,
              :filename => filename,
              :bucket_name => Aws.bucket_name,
              :parameter_filename => parameter_filename
