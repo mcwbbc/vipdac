@@ -392,16 +392,17 @@ describe Job do
       @job.should_receive(:spectra_count).and_return(100)
       @job.should_receive(:priority).and_return(1000)
       @job.should_receive(:datafile).and_return("datafile")
+      @job.should_receive(:search_database).and_return("search_database")
       Aws.should_receive(:bucket_name).and_return("bucket")
     end
 
     it "should send a pack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :database => "database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
-      @job.send_message(PACK, "database")
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
+      @job.send_message(PACK)
     end
 
     it "should send an unpack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :database => "", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
       @job.send_message(UNPACK)
     end
   end
@@ -428,13 +429,21 @@ describe Job do
   describe "background_s3_upload" do
     it "should run the steps" do
       parameter_file = mock("paramter_file")
-      parameter_file.should_receive(:database).and_return("database")
       @job.should_receive(:load_parameter_file).ordered.and_return(parameter_file)
       @job.should_receive(:create_parameter_textfile).with(parameter_file).ordered.and_return(true)
       @job.should_receive(:bundle_datafile).ordered.and_return(true)
       @job.should_receive(:upload_datafile_to_s3).ordered.and_return(true)
-      @job.should_receive(:send_message).with(UNPACK, "database").ordered.and_return(true)
+      @job.should_receive(:send_message).with(UNPACK).ordered.and_return(true)
       @job.background_s3_upload
+    end
+  end
+
+  describe "search database" do
+    it "should return the search database from the parameter file" do
+      pf = mock("parameter_file")
+      pf.should_receive(:database).and_return("db")
+      @job.should_receive(:load_parameter_file).and_return(pf)
+      @job.search_database.should == "db"
     end
   end
 

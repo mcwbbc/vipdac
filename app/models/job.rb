@@ -153,7 +153,7 @@ class Job < ActiveRecord::Base
     create_parameter_textfile(parameter_file)
     bundle_datafile
     upload_datafile_to_s3
-    send_message(UNPACK, parameter_file.database)
+    send_message(UNPACK)
   end
 
   def load_parameter_file
@@ -165,6 +165,10 @@ class Job < ActiveRecord::Base
         parameter_file = TandemParameterFile.find(parameter_file_id)
     end
     parameter_file
+  end
+
+  def search_database
+    load_parameter_file.database
   end
 
   def create_parameter_textfile(parameter_file)
@@ -189,8 +193,8 @@ class Job < ActiveRecord::Base
     MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 50, :ttr => 600)
   end
 
-  def send_message(type, database="")
-    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :hash_key => hash_key, :datafile => datafile, :output_file => output_file, :searcher => searcher, :database => database, :spectra_count => spectra_count, :priority => priority}
+  def send_message(type)
+    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :hash_key => hash_key, :datafile => datafile, :output_file => output_file, :searcher => searcher, :search_database => search_database, :spectra_count => spectra_count, :priority => priority}
     MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => 50, :ttr => 600)
   end
 
