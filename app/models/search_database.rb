@@ -71,6 +71,13 @@ class SearchDatabase < ActiveRecord::Base
       find(:all, :conditions => ["available = ?", true], :order => :name)
     end
 
+    def select_options
+      databases = SearchDatabase.available_for_search
+      options = databases.map do |database|
+        ["#{database.name} - #{database.version}", "#{database.search_database_file_name}"]
+      end
+    end
+
   end
 
   def process_and_upload

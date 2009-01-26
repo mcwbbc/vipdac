@@ -9,8 +9,8 @@
       <td><%= f.text_field :name %></td>
     </tr>
     <tr valign="top">
-      <td>Taxonomy:</td>
-      <td><%= f.select(:taxon, [["Choose a taxonomy...",""]] + TandemParameterFile.taxonomies) %></td>
+      <td>Database:</td>
+      <td><%= f.select(:database, [["Choose a database...",""]] + SearchDatabase.select_options) %></td>
     </tr>
     <tr valign="top">
       <td>Enzyme:</td>

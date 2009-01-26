@@ -13,7 +13,7 @@
     <tr valign="top">
 			<td>Database</td>
 			<td>
-				<%= f.select :database, [["Choose a database...",""]] + OmssaOption.databases.sort %>
+				<%= f.select :database, [["Choose a database...",""]] + SearchDatabase.select_options %>
 			</td>
 		</tr>
     <tr valign="top">
