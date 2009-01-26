@@ -283,6 +283,42 @@ describe SearchDatabase do
     end
   end
 
+  describe "missing on node?" do
+    it "should return true if the db files aren't on the node" do
+      File.should_receive(:exists?).with("/pipeline/dbs/database_name.fasta").and_return(false)
+      SearchDatabase.missing_on_node?("database_name").should be_true
+    end
+
+    it "should return false if ALL the db files are on the node" do
+      extensions = ["fasta", "phr", "pin", "psd", "psi", "psq", "r2a", "r2d", "r2s"]
+      extensions.each do |extension|
+        File.should_receive(:exists?).with("/pipeline/dbs/database_name.#{extension}").and_return(true)
+      end
+      SearchDatabase.missing_on_node?("database_name").should be_false
+    end
+  end
+
+  describe "download to node" do
+    it "should download the database files to the node from S3" do
+      extensions = ["fasta", "phr", "pin", "psd", "psi", "psq", "r2a", "r2d", "r2s"]
+      extensions.each do |extension|
+        SearchDatabase.should_receive(:download_file).with("/pipeline/dbs/database_name.#{extension}", "search-databases/database_name.#{extension}").and_return(true)
+      end
+      SearchDatabase.download_to_node("database_name").should be_true
+    end
+  end
+
+  describe "search options" do
+    it "should return an array of options for the search database dropdowns" do
+      db = mock("db")
+      db.should_receive(:name).and_return("db")
+      db.should_receive(:version).and_return("version")
+      db.should_receive(:search_database_file_name).and_return("dbfilename")
+      SearchDatabase.should_receive(:available_for_search).and_return([db])
+      SearchDatabase.select_options.should == [["db - version", "dbfilename"]]
+    end
+  end
+
   protected
     def create_search_database(options = {})
       record = SearchDatabase.new({ :name => "database_name", :version => "version", :db_type => 'ebi', :user_uploaded => true, :available => false, :search_database_file_name => 'search_database_file.fasta', :search_database_content_type => 'text/plain', :search_database_file_size => 20, :created_at => "2009-01-10 12:00:00", :updated_at => "2009-01-10 12:00:00", :search_database_updated_at => "2009-01-10 12:00:00"}.merge(options))

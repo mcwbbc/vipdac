@@ -78,6 +78,22 @@ class SearchDatabase < ActiveRecord::Base
       end
     end
 
+    def missing_on_node?(db)
+      extensions = ["fasta", "phr", "pin", "psd", "psi", "psq", "r2a", "r2d", "r2s"]
+      on_node = true
+      extensions.each do |extension|
+        on_node = on_node && File.exists?("/pipeline/dbs/#{db}.#{extension}")
+      end
+      !on_node
+    end
+
+    def download_to_node(db)
+      extensions = ["fasta", "phr", "pin", "psd", "psi", "psq", "r2a", "r2d", "r2s"]
+      extensions.each do |extension|
+        SearchDatabase.download_file("/pipeline/dbs/#{db}.#{extension}", "search-databases/#{db}.#{extension}")
+      end
+    end
+
   end
 
   def process_and_upload
