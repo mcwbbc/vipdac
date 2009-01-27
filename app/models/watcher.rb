@@ -39,5 +39,11 @@ class Watcher
     end while looping_infinitely
   end
 
+  # Returns the default logger or a logger that prints to STDOUT. Necessary for manual
+  # notifications outside of controllers.
+  def logger
+    @logger ||= Logger.new("/pipeline/pipeline.log")
+  end
+
 end
 

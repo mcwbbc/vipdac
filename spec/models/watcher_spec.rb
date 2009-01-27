@@ -43,6 +43,14 @@ describe Watcher do
     end
   end
 
+  describe "logger" do
+    it "should return a logger" do
+      logger = mock("logger")
+      Logger.should_receive(:new).with("/pipeline/pipeline.log").and_return(logger)
+      @watcher.logger.should == logger
+    end
+  end
+
   describe "check queue" do
     it "should process the message if we have one" do
       MessageQueue.should_receive(:get).with(:name => 'node', :peek => false).and_return("message")

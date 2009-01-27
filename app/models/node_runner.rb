@@ -3,7 +3,6 @@ class NodeRunner
   class << self
     def run(arguments)
       node_number = arguments[0].blank? ? 1 : arguments[0]
-      logger = setup_logger
       logger.debug("Launching node-#{node_number} with pid #{$$}")
       check_configuration
       setup_bucket
@@ -21,7 +20,7 @@ class NodeRunner
       end
     end
 
-    def setup_logger
+    def logger
       Logger.new("/pipeline/pipeline.log")
     end
 

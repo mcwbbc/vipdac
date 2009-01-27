@@ -5,7 +5,7 @@ describe NodeRunner do
   describe "run" do
     before(:each) do
       @logger = mock_model(Logger)
-      NodeRunner.should_receive(:setup_logger).and_return(@logger)
+      Logger.should_receive(:new).with("/pipeline/pipeline.log").and_return(@logger)
       NodeRunner.should_receive(:check_configuration).and_return(true)
       NodeRunner.should_receive(:setup_bucket).and_return(true)
       NodeRunner.should_receive(:launch_watcher).and_return(true)
@@ -22,7 +22,6 @@ describe NodeRunner do
       NodeRunner.should_receive(:write_pid_file).with(1234).and_return(true)
       NodeRunner.run([1234])
     end
-
   end
 
   describe "check configuration" do
@@ -52,11 +51,11 @@ describe NodeRunner do
     end
   end
 
-  describe "setup logger" do
+  describe "logger" do
     it "should create a new logger" do
       @logger = mock_model(Logger)
       Logger.should_receive(:new).with("/pipeline/pipeline.log").and_return(@logger)
-      NodeRunner.setup_logger.should == @logger
+      NodeRunner.logger.should == @logger
     end
   end
   
