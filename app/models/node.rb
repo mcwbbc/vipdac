@@ -14,6 +14,11 @@ class Node < ActiveRecord::Base
     def active_nodes
       active = listing.inject([]) { |start, node| start << node if ((node[:aws_state] == "running") || (node[:aws_state] == "pending")); start }
     end
+
+    def status_hash
+      listing.inject({}) {|h, n| h[n[:aws_instance_id]] = n[:aws_state]; h}
+    end
+
   end
 
   def launch

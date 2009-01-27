@@ -8,6 +8,7 @@ class NodesController < ApplicationController
   def index
     @aws_nodes = Node.listing
     @active_nodes = Node.active_nodes
+    @status_hash = Node.status_hash
     @nodes = Node.running
     @warning = (@active_nodes.size != @nodes.size)
   end

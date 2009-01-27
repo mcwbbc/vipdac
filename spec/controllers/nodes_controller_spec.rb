@@ -21,6 +21,7 @@ describe NodesController do
       @aws_nodes = []
       @active_nodes = []
       @nodes = [@node]
+      @status_hash = {'1' => 'running', '2' => 'running', '3' => 'terminated'}
     end
   
     def do_get
@@ -41,6 +42,7 @@ describe NodesController do
       Node.should_receive(:listing).and_return(@aws_nodes)
       Node.should_receive(:active_nodes).and_return(@active_nodes)
       Node.should_receive(:running).and_return(@nodes)
+      Node.should_receive(:status_hash).and_return(@status_hash)
       do_get
     end
   
@@ -48,10 +50,12 @@ describe NodesController do
       Node.should_receive(:listing).and_return(@aws_nodes)
       Node.should_receive(:active_nodes).and_return(@active_nodes)
       Node.should_receive(:running).and_return(@nodes)
+      Node.should_receive(:status_hash).and_return(@status_hash)
       do_get
       assigns[:active_nodes].should == @active_nodes
       assigns[:aws_nodes].should == @aws_nodes
       assigns[:nodes].should == @nodes
+      assigns[:status_hash].should == @status_hash
     end
   end
 

@@ -5,7 +5,7 @@ describe Node do
     before(:each) do
       @node = Node.new(:instance_type => 'm1.small')
       @ec2_mock = mock("ec2")
-      @ec2_mock.stub!(:describe_instances).and_return([{:name => 'a', :aws_state => 'running'},{:name => 'b', :aws_state => 'running'},{:name => 'c', :aws_state => 'terminated'}])
+      @ec2_mock.stub!(:describe_instances).and_return([{:name => 'a', :aws_instance_id => 'i1', :aws_state => 'running'},{:name => 'b', :aws_instance_id => 'i2', :aws_state => 'running'},{:name => 'c', :aws_instance_id => 'i3', :aws_state => 'terminated'}])
       @ec2_mock.stub!(:launch_instances).and_return([:aws_instance_id => 'ec2-instance'])
       @ec2_mock.stub!(:terminate_instances).and_return(true)
 
@@ -70,7 +70,13 @@ describe Node do
       end
 
       it "should have an instance named 'a'" do
-        Node.listing.include?({:name => 'a', :aws_state => 'running'}).should be_true
+        Node.listing.include?({:name => 'a', :aws_instance_id => 'i1', :aws_state => 'running'}).should be_true
+      end
+    end
+
+    describe "status hash" do
+      it "should return a hash with the instance_id as the key, and the status as the value" do
+        Node.status_hash.should == {"i1"=>"running", "i2"=>"running", "i3"=>"terminated"}
       end
     end
 

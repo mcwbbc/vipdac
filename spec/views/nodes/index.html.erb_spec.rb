@@ -15,9 +15,12 @@ describe "/nodes/index.html.erb" do
       @nodes << node
     end 
 
+    status_hash = {'1' => 'running', '2' => 'running', '3' => 'terminated'}
+
     @nodes.stub!(:size).and_return(2)
     @aws_nodes.stub!(:size).and_return(2)
     assigns[:nodes] = @nodes
+    assigns[:status_hash] = status_hash
   end
 
   it "should render list of nodes" do
