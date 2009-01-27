@@ -1,8 +1,19 @@
 <%= page_title("New Node") %>
+<%= all_error_messages_for :node %>
+
 <% form_for @node do |f| %>
-<%= f.error_messages %>
-  <% field_set_tag "Node Details" do %>
-    <%= f.select :instance_type, [["Choose an instance type...",""]] + INSTANCES_ARRAY, :required => true, :label => "Instance Type:" %>
-    <%= f.submit "save", :disable_with => 'saving...' %> <%= f.submit "cancel" %>
-  <% end %>
+  <table>
+    <tr valign="top">
+      <td align="right">Instance Type:</td>
+      <td><%= f.select :instance_type, [["Choose an instance type...",""]] + INSTANCES_ARRAY %></td>
+    </tr>
+    <tr valign="top">
+  		<td align="right">Quantity:</td>
+  		<td><%= select_tag(:quantity, options_for_select(@launchable_nodes, @quantity)) %></td>
+  	</tr>
+    <tr>
+      <td></td>
+      <td><%= f.submit "save", :disable_with => 'saving...' %> <%= f.submit "cancel" %></td>
+    </tr>
+  </table>
 <% end %>

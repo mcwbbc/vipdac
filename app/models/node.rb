@@ -19,6 +19,13 @@ class Node < ActiveRecord::Base
       listing.inject({}) {|h, n| h[n[:aws_instance_id]] = n[:aws_state]; h}
     end
 
+    def launchable_nodes
+      available = 20 - active_nodes.size
+      array = []
+      1.upto(available) { |i| array << "#{i}" }
+      array
+    end
+
   end
 
   def launch

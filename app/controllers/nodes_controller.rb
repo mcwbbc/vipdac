@@ -21,6 +21,7 @@ class NodesController < ApplicationController
   # GET /nodes/new
   def new
     @node = Node.new
+    @launchable_nodes = Node.launchable_nodes
   end
 
   def aws
@@ -30,12 +31,17 @@ class NodesController < ApplicationController
   # POST /nodes
   def create
     @node = Node.new(params[:node])
+    @quantity = params[:quantity]
     if @node.valid?
-      @node.launch
-      @node.save
-      flash[:notice] = 'Node was successfully launched.'
+      1.upto(@quantity.to_i) do |i|
+        @node = Node.new(params[:node])
+        @node.launch
+        @node.save
+      end
+      flash[:notice] = "#{@quantity} Node(s) were successfully launched."
       redirect_to(nodes_url)
     else
+      @launchable_nodes = Node.launchable_nodes
       render :action => "new"
     end
   end

@@ -74,6 +74,12 @@ describe Node do
       end
     end
 
+    describe "launchable nodes" do
+      it "should return an array of 1 to 20-active nodes" do
+        Node.launchable_nodes.should == ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"]
+      end
+    end
+
     describe "status hash" do
       it "should return a hash with the instance_id as the key, and the status as the value" do
         Node.status_hash.should == {"i1"=>"running", "i2"=>"running", "i3"=>"terminated"}

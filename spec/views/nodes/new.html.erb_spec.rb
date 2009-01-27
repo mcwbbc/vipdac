@@ -6,7 +6,9 @@ describe "/nodes/new.html.erb" do
   before(:each) do
     @node = mock_model(Node)
     @node.stub!(:new_record?).and_return(true)
+    @node.stub!(:errors).and_return([])
     @node.stub!(:instance_type).and_return("m1.small")
+    assigns[:launchable_nodes] = ["1", "1"]
     assigns[:node] = @node
   end
 

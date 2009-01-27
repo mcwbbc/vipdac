@@ -148,6 +148,7 @@ describe NodesController do
     before(:each) do
       @node = mock_model(Node)
       Node.stub!(:new).and_return(@node)
+      Node.stub!(:launchable_nodes).and_return([["1", "1"]])
     end
   
     def do_get
@@ -178,49 +179,54 @@ describe NodesController do
       do_get
       assigns[:node].should equal(@node)
     end
+
+    it "should assign the launchable nodes for the view" do
+      do_get
+      assigns[:launchable_nodes].should == [["1", "1"]]
+    end
   end
 
 
   describe "handling POST /nodes" do
-
     before(:each) do
-      @node = mock_model(Node, :to_param => "1")
-      Node.stub!(:new).and_return(@node)
-      @node.stub!(:launch).and_return(true) #don't need it going skynet on us again
+      @node1 = mock_model(Node, :to_param => "1")
+      @node2 = mock_model(Node, :to_param => "2")
+      @node3 = mock_model(Node, :to_param => "3")
+      @node1.stub!(:launch).and_return(true) #don't need it going skynet on us again
+      @node2.stub!(:launch).and_return(true) #don't need it going skynet on us again
+      @node3.stub!(:launch).and_return(true) #don't need it going skynet on us again
     end
-    
-    describe "with successful save" do
-  
-      def do_post
-        @node.should_receive(:valid?).and_return(true)
-        @node.should_receive(:save).and_return(true)
-        post :create, :node => {}
-      end
-  
-      it "should create a new node" do
-        Node.should_receive(:new).with({}).and_return(@node)
-        do_post
-      end
 
-      it "should redirect to the new node" do
+    def do_post
+      post :create, :node => {"instance_type" => "c1.medium"}, "quantity" => "3"
+    end
+
+    describe "with successful save" do
+      it "should create a number of nodes based on the quantity" do
+        @node1.should_receive(:valid?).and_return(true)
+        Node.should_receive(:new).exactly(4).times.with({"instance_type" => "c1.medium"}).and_return(@node1, @node1, @node2, @node3)
+        @node1.should_receive(:save).and_return(true)
+        @node2.should_receive(:save).and_return(true)
+        @node3.should_receive(:save).and_return(true)
+        @node1.should_receive(:launch).and_return(true)
+        @node2.should_receive(:launch).and_return(true)
+        @node3.should_receive(:launch).and_return(true)
         do_post
+        response.flash[:notice].should == "3 Node(s) were successfully launched."
         response.should redirect_to(nodes_url)
       end
-      
     end
     
     describe "with failed save" do
-
-      def do_post
-        @node.should_receive(:valid?).and_return(false)
-        post :create, :node => {}
-      end
-  
       it "should re-render 'new'" do
+        @node1.should_receive(:valid?).and_return(false)
+        Node.should_receive(:new).with({"instance_type" => "c1.medium"}).and_return(@node1)
+        Node.stub!(:launchable_nodes).and_return(["1"])
         do_post
         response.should render_template('new')
+        assigns[:launchable_nodes].should == ["1"]
+        assigns[:quantity].should == "3"
       end
-      
     end
   end
 
