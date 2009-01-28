@@ -94,6 +94,10 @@ apt-get -y dist-upgrade
 DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libevent-dev autoconf automake zlib1g-dev libxml2-dev libssl-dev ruby1.8-dev irb1.8 irb rdoc1.8 libmysql-ruby1.8 libreadline-ruby1.8 flex bison rubygems git-core apache2 mysql-server libmysqlclient15-dev apache2-prefork-dev libxml-smart-perl libxml-simple-perl libxml-sax-expat-perl libyaml-perl libarchive-zip-perl libtext-csv-perl
 apt-get -y autoremove
 
+#remove the default apache2 startup since we're doing it in monit
+#this way apache will only run on the master, and we can be sure all the rake tasks are run before apache starts up
+update-rc.d -f apache2 remove
+
 #download and build beanstalkd
 cd /usr/local/src
 git clone git://github.com/kr/beanstalkd.git  

@@ -5,12 +5,20 @@ class Monitrc
     def run
       logger.debug("Creating monitrc files for #{workers} workers")
       write_node_file
+      check_for_aws_keys
       symlink_reporter if master?
       symlink_beanstalkd if master?
+      symlink_apache if master?
     end
 
     def configuration
       AwsParameters.run
+    end
+
+    def check_for_aws_keys
+      if Aws.access_key.blank? || Aws.secret_key.blank?
+        File.symlink("/pipeline/vipdac/public/missing_keys.html", "/pipeline/vipdac/public/index.html") 
+      end
     end
 
     def logger
@@ -48,8 +56,8 @@ class Monitrc
       File.symlink("/pipeline/vipdac/config/init-d-beanstalkd", "/etc/init.d/beanstalkd")
     end
 
-    def symlink_thin
-      File.symlink("/pipeline/vipdac/config/thin.monitrc", "/etc/monit/thin.monitrc") 
+    def symlink_apache
+      File.symlink("/pipeline/vipdac/config/apache.monitrc", "/etc/monit/apache.monitrc") 
     end
 
   end

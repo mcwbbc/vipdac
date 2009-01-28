@@ -8,25 +8,49 @@ describe Monitrc do
       @logger.should_receive(:debug).with("Creating monitrc files for 2 workers").and_return(true)
       Monitrc.should_receive(:logger).and_return(@logger)
       Monitrc.should_receive(:workers).and_return(2)
+      Monitrc.should_receive(:check_for_aws_keys).and_return(true)
       Monitrc.should_receive(:write_node_file).and_return(true)
     end
 
     describe "as a worker" do
       it "should complete the steps" do
-        Monitrc.should_receive(:master?).exactly(2).times.and_return(false)
+        Monitrc.should_receive(:master?).exactly(3).times.and_return(false)
         Monitrc.should_not_receive(:symlink_reporter)
         Monitrc.should_not_receive(:symlink_beanstalkd)
+        Monitrc.should_not_receive(:symlink_apache)
         Monitrc.run
       end
     end
 
     describe "as a master" do
       it "should complete the steps" do
-        Monitrc.should_receive(:master?).exactly(2).times.and_return(true)
+        Monitrc.should_receive(:master?).exactly(3).times.and_return(true)
         Monitrc.should_receive(:symlink_reporter).and_return(true)
         Monitrc.should_receive(:symlink_beanstalkd).and_return(true)
+        Monitrc.should_receive(:symlink_apache).and_return(true)
         Monitrc.run
       end
+    end
+  end
+
+  describe "check for aws keys" do
+    it "should symlink the html if access key is blank" do
+      Aws.should_receive(:access_key).and_return("")
+      File.should_receive(:symlink).with("/pipeline/vipdac/public/missing_keys.html", "/pipeline/vipdac/public/index.html").and_return(true)
+      Monitrc.check_for_aws_keys
+    end
+
+    it "should symlink the html if secret key is blank" do
+      Aws.should_receive(:access_key).and_return("access")
+      Aws.should_receive(:secret_key).and_return("")
+      File.should_receive(:symlink).with("/pipeline/vipdac/public/missing_keys.html", "/pipeline/vipdac/public/index.html").and_return(true)
+      Monitrc.check_for_aws_keys
+    end
+    
+    it "should do nothing if both keys exist" do
+      Aws.should_receive(:access_key).and_return("access")
+      Aws.should_receive(:secret_key).and_return("secret")
+      Monitrc.check_for_aws_keys
     end
   end
 
@@ -121,10 +145,10 @@ describe Monitrc do
     end
   end
 
-  describe "symlink thin" do
-    it "should set the symlinks for thin" do
-      File.should_receive(:symlink).with("/pipeline/vipdac/config/thin.monitrc", "/etc/monit/thin.monitrc").and_return(true)
-      Monitrc.symlink_thin
+  describe "symlink apache" do
+    it "should set the symlinks for apache" do
+      File.should_receive(:symlink).with("/pipeline/vipdac/config/apache.monitrc", "/etc/monit/apache.monitrc").and_return(true)
+      Monitrc.symlink_apache
     end
   end
 

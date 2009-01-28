@@ -15,7 +15,7 @@ rm -rf /etc/monit/reporter*
 rm -rf /etc/init.d/reporter
 rm -rf /etc/monit/beanstalkd*
 rm -rf /etc/init.d/beanstalkd
-rm -rf /etc/monit/thin*
+rm -rf /etc/monit/apache*
 
 cd /pipeline/vipdac/lib
 /pipeline/vipdac/lib/build_monitrc.rb
