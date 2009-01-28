@@ -16,6 +16,7 @@ rm -rf /etc/init.d/reporter
 rm -rf /etc/monit/beanstalkd*
 rm -rf /etc/init.d/beanstalkd
 rm -rf /etc/monit/apache*
+rm -rf /pipeline/vipdac/public/index.html
 
 cd /pipeline/vipdac/lib
 /pipeline/vipdac/lib/build_monitrc.rb
