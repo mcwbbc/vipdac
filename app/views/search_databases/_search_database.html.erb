@@ -4,6 +4,5 @@
   <td><%=h search_database.filename %></td>
   <td><%=h search_database.version %></td>
   <td><%= is_available?(search_database) %></td>
-  <td>
-  <%= link_to('Delete', search_database, :confirm => 'Are you sure?', :method => :delete) if search_database.user_uploaded? %>
+  <td><%= link_to('Delete', search_database, :confirm => 'Are you sure?', :method => :delete) if search_database.user_uploaded? %></td>
 </tr>
