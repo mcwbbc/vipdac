@@ -1,3 +1,7 @@
+<% content_for :head do %>
+  <meta http-equiv="refresh" content="15" />
+<% end %> 
+
 <%= page_title("Jobs") %>
 <br />
 <%= link_to(image_tag("buttons/create_new_job.png", :alt =>'New job', :border => 0), new_job_path) %>
