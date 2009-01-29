@@ -1,6 +1,6 @@
 <%= page_title("Nodes") %>
-<%= link_to('New node', new_node_path) %>
 <br />
+<%= link_to(image_tag("buttons/create_new_node.png", :alt =>'New node', :border => 0), new_node_path) %>
 <br />
 <br />
 <%= link_to "All AWS Nodes", aws_nodes_path %>: <%= @aws_nodes.size %><br />
