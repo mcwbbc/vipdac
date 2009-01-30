@@ -91,7 +91,7 @@ class Aws
     end
 
     def get_object(object_name)
-      s3i.get(bucket_name, object_name)
+      s3i.get_object(bucket_name, object_name)
     end
 
     def delete_folder(folder_name)

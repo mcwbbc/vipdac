@@ -52,7 +52,7 @@ describe Aws do
     end
 
     it "should get an object from s3" do
-      @s3.should_receive(:get).with("bucket", "object")
+      @s3.should_receive(:get_object).with("bucket", "object")
       Aws.get_object("object")
     end
 
