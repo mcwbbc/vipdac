@@ -3,7 +3,7 @@ namespace :head do
   desc "Import all the Omssa Parameter files from SimpleDB"
   task(:import_omssa => :environment) do
     begin
-      OmssaParameterFile.import_from_simpledb
+      OmssaParameterFile.import
     rescue Exception => e
       puts e
     end

@@ -1,6 +1,9 @@
 class OmssaParameterFile < ActiveRecord::Base
 
   attr_accessor :searcher
+
+  include Utilities
+  extend Utilities
   
   validates_presence_of :name, :message => "^Name is required"
   validates_presence_of :database, :message => "^Please select a database"
@@ -20,7 +23,7 @@ class OmssaParameterFile < ActiveRecord::Base
   PARAMETER_PATH = "#{RAILS_ROOT}/tmp/"
 
   before_save :set_modification_as_string
-  after_destroy :remove_from_simpledb
+  after_destroy :delete
 
   def set_modification_as_string
     self.modifications = convert_modifications_to_string
@@ -41,14 +44,11 @@ class OmssaParameterFile < ActiveRecord::Base
     )
   end
 
-  def self.import_from_simpledb
-    records = SearchParameterGroup.all_for("omssa")
-    records.each do |record|
-      record.reload
+  def self.import
+    files = OmssaParameterFile.remote_file_list("omssa-parameter-files")
+    files.each do |file|
       parameter_file = OmssaParameterFile.new
-      record.attributes.keys.each do |key|
-        parameter_file["#{key}"] = Aws.decode(record["#{key}"])
-      end
+      parameter_file.attributes = YAML.load(parameter_file.retreive(file))
       parameter_file.modifications = parameter_file.convert_modifications_to_array
       parameter_file.save
     end
@@ -57,24 +57,26 @@ class OmssaParameterFile < ActiveRecord::Base
   def parameter_hash
     parameters = {}
     attributes.keys.each do |key|
-      parameters["#{key}"] = Aws.encode("#{attributes[key]}")
+      parameters["#{key}"] = attributes[key]
     end
     parameters.delete("id")
     parameters
   end
 
-  def save_to_simpledb
-    SearchParameterGroup.new_for(parameter_hash, "omssa")
+  def persist
+    send_verified_data("omssa-parameter-files/#{md5_item(name, false)}.yml", parameter_hash.to_yaml, md5_item(parameter_hash.to_yaml, false), {})
   end
 
-  def remove_from_simpledb
-    record = SearchParameterGroup.for_name_and_searcher(name, "omssa")
-    record.delete if record
+  def delete
+    Aws.delete_object("omssa-parameter-files/#{md5_item(name, false)}.yml")
   end
-  
+
+  def retreive(remote_filename)
+    Aws.get_object(remote_filename)
+  end
+
   # writes a parameter file
   def write_file(directory)
-  
     options = database_option
     options << enzyme_option
     options << cleavage_option
