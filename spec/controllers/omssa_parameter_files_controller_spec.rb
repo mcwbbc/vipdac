@@ -119,7 +119,7 @@ describe OmssaParameterFilesController do
       before(:each) do
         @omssa_parameter_file.should_receive(:ions=).with("1,3").and_return(true)
         @omssa_parameter_file.should_receive(:save).and_return(true)
-        @omssa_parameter_file.should_receive(:save_to_simpledb).and_return(true)
+        @omssa_parameter_file.should_receive(:persist).and_return(true)
       end
 
       def do_post
