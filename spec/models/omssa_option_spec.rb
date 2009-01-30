@@ -41,14 +41,14 @@ describe OmssaOption do
         it "should return a hash" do
           @array = ["<mod id='23'>2-amino-3-oxo-butanoic acid T</mod>","<mod id='182'>Asparagine HexNAc</mod>"]
           File.should_receive(:readlines).with(/omssa_config/).and_return(@array)
-          OmssaOption.modifications.should == [['2-amino-3-oxo-butanoic acid T', 23], ['Asparagine HexNAc', 182]]
+          OmssaOption.modifications.should == {'2-amino-3-oxo-butanoic acid T' => 23, 'Asparagine HexNAc' => 182}
         end
       end
 
       describe "on error" do
         it "should return an empty hash" do
           File.should_receive(:readlines).with(/omssa_config/).and_raise("exception")
-          OmssaOption.modifications.should == []
+          OmssaOption.modifications.should == {}
         end
       end
     end
@@ -58,14 +58,14 @@ describe OmssaOption do
         it "should return a hash" do
           @array = ["<enzyme id='0'>Trypsin</enzyme>","<enzyme id='1'>Arg-C</enzyme>"]
           File.should_receive(:readlines).with(/omssa_config/).and_return(@array)
-          OmssaOption.enzymes.should == [['Arg-C', 1], ['Trypsin', 0]]
+          OmssaOption.enzymes.should == {'Arg-C' => 1, 'Trypsin' => 0}
         end
       end
 
       describe "on error" do
         it "should return an empty hash" do
           File.should_receive(:readlines).with(/omssa_config/).and_raise("exception")
-          OmssaOption.enzymes.should == []
+          OmssaOption.enzymes.should == {}
         end
       end
     end
@@ -92,14 +92,14 @@ describe OmssaOption do
         it "should return a hash" do
           @array = ["<search id='0'>monoisotopic</search>", "<search id='1'>average</search>"]
           File.should_receive(:readlines).with(/omssa_config/).and_return(@array)
-          OmssaOption.searches.should == [['average', 1], ['monoisotopic', 0]]
+          OmssaOption.searches.should == {'average' => 1, 'monoisotopic' => 0}
         end
       end
 
       describe "on error" do
         it "should return an empty hash" do
           File.should_receive(:readlines).with(/omssa_config/).and_raise("exception")
-          OmssaOption.searches.should == []
+          OmssaOption.searches.should == {}
         end
       end
     end

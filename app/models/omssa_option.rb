@@ -10,11 +10,11 @@ class OmssaOption
     end
 
     def modifications
-      @modifications ||= generate_hash(/<mod id='(\d+)'>(.+?)</).sort
+      @modifications ||= generate_hash(/<mod id='(\d+)'>(.+?)</)
     end
 
     def enzymes
-      @enzymes ||= generate_hash(/<enzyme id='(\d+)'>(.+?)</).sort
+      @enzymes ||= generate_hash(/<enzyme id='(\d+)'>(.+?)</)
     end
 
     def ions
@@ -22,7 +22,7 @@ class OmssaOption
     end
 
     def searches
-      @searches ||= generate_hash(/<search id='(\d+)'>(.+?)</).sort
+      @searches ||= generate_hash(/<search id='(\d+)'>(.+?)</)
     end
 
     def generate_hash(reg)
