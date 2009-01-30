@@ -44,6 +44,10 @@ module Utilities
     @list
   end
 
+  def retreive(remote_filename)
+    Aws.get_object(remote_filename)
+  end
+
   def download_file(local, remote)
     begin
       File.open(local, File::CREAT|File::RDWR) do |file|

@@ -28,13 +28,6 @@ describe OmssaParameterFile do
     end
   end
 
-  describe "retreive" do
-    it "should return the object string from s3" do
-      Aws.should_receive(:get_object).with("file").and_return("string")
-      @omssa_parameter_file.retreive("file").should == "string"
-    end
-  end
-
   describe "import" do
     it "should load all the available parameter files into the local database" do
       @pf = create_omssa_parameter_file

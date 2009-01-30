@@ -61,6 +61,14 @@ describe Utilities do
     end
   end
 
+  describe "retreive" do
+    it "should return the object string from s3" do
+      @fake = FakeClass.new
+      Aws.should_receive(:get_object).with("file").and_return("string")
+      @fake.retreive("file").should == "string"
+    end
+  end
+
   describe "download file" do
     before(:each) do
       @fake = FakeClass.new

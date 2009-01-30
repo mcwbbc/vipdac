@@ -71,10 +71,6 @@ class OmssaParameterFile < ActiveRecord::Base
     Aws.delete_object("omssa-parameter-files/#{md5_item(name, false)}.yml")
   end
 
-  def retreive(remote_filename)
-    Aws.get_object(remote_filename)
-  end
-
   # writes a parameter file
   def write_file(directory)
     options = database_option
