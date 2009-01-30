@@ -27,14 +27,20 @@ class SearchDatabase < ActiveRecord::Base
     end
 
     def import
-      files = SearchDatabase.remote_file_list("search-database-files")
-      files.each do |file|
-        search_database = SearchDatabase.new
-        hash = YAML.load(search_database.retreive(file))
-        hash.delete("filename")
-        search_database.attributes = hash
-        search_database.save
+      SearchDatabase.remote_database_array.each do |database|
+        search_database = SearchDatabase.create(database)
       end
+    end
+
+    def remote_database_array
+      files = SearchDatabase.remote_file_list("search-database-files")
+      array = []
+      files.each do |file|
+        hash = YAML.load(SearchDatabase.retreive(file))
+        hash.delete("filename")
+        array << hash
+      end
+      array
     end
 
     def insert_default_databases
@@ -47,13 +53,12 @@ class SearchDatabase < ActiveRecord::Base
 
     def taxonomy_xml
       xml = ""
-      records = RemoteSearchDatabase.all
+      databases = SearchDatabase.remote_database_array
       x = Builder::XmlMarkup.new(:target => xml, :indent=>2)
       x.instruct!
       x.bioml("label" => "x! taxon-to-file matching list") do
-        records.each do |record|
-          record.reload
-          file = Aws.decode(record['search_database_file_name'])
+        databases.each do |database|
+          file = database['search_database_file_name']
           x.taxon("label" => "#{file}") do
             x.file("format" => "peptide", "URL" => "/pipeline/dbs/#{file}")
           end

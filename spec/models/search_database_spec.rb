@@ -74,16 +74,21 @@ describe SearchDatabase do
   end
 
   describe "import" do
-    it "should load all the available search databases into the local database" do
-      @sd = create_search_database
-      hash = {'filename' => 'file', 'name' => 'dbname'}
-      @sd.should_receive(:retreive).with("file").and_return("string")
-      YAML.should_receive(:load).with("string").and_return(hash)
-      SearchDatabase.should_receive(:remote_file_list).with("search-database-files").and_return(["file"])
-      SearchDatabase.should_receive(:new).and_return(@sd)
-      @sd.should_receive(:attributes=).with({'name' => 'dbname'}).and_return(true)
-      @sd.should_receive(:save).and_return(true)
+    it "should create a local version of each of the databases in the array" do
+      db = {'name' => 'dbname'}
+      SearchDatabase.should_receive(:remote_database_array).and_return([db])
+      SearchDatabase.should_receive(:create).with(db).and_return(true)
       SearchDatabase.import
+    end
+  end
+
+  describe "remote database array" do
+    it "should build an array of all the available search databases" do
+      hash = {'filename' => 'file', 'name' => 'dbname'}
+      SearchDatabase.should_receive(:remote_file_list).with("search-database-files").and_return(["file"])
+      SearchDatabase.should_receive(:retreive).with("file").and_return("string")
+      YAML.should_receive(:load).with("string").and_return(hash)
+      SearchDatabase.remote_database_array.should == [{'name' => 'dbname'}]
     end
   end
 
@@ -224,13 +229,11 @@ describe SearchDatabase do
 
   describe "build taxonomy file" do
     it "should build the taxonomy file based on the available databases" do
-      search_db = {"search_database_file_name" => "encoded"}
-      search_db.should_receive(:reload).and_return(true)
-      Aws.should_receive(:decode).with("encoded").and_return("decoded")
-      RemoteSearchDatabase.should_receive(:all).and_return([search_db])
+      search_db = {"search_database_file_name" => "filename"}
+      SearchDatabase.should_receive(:remote_database_array).and_return([search_db])
       xml = SearchDatabase.taxonomy_xml
-      xml.should match(/label="decoded"/)
-      xml.should match(/URL="\/pipeline\/dbs\/decoded"/)
+      xml.should match(/label="filename"/)
+      xml.should match(/URL="\/pipeline\/dbs\/filename"/)
     end
   end
 
