@@ -73,6 +73,34 @@ describe SearchDatabase do
     end
   end
 
+  describe "import" do
+    it "should load all the available search databases into the local database" do
+      @sd = create_search_database
+      hash = {'filename' => 'file', 'name' => 'dbname'}
+      @sd.should_receive(:retreive).with("file").and_return("string")
+      YAML.should_receive(:load).with("string").and_return(hash)
+      SearchDatabase.should_receive(:remote_file_list).with("search-database-files").and_return(["file"])
+      SearchDatabase.should_receive(:new).and_return(@sd)
+      @sd.should_receive(:attributes=).with({'name' => 'dbname'}).and_return(true)
+      @sd.should_receive(:save).and_return(true)
+      SearchDatabase.import
+    end
+  end
+
+  describe "persist" do
+    it "should send the yamlized parameters to s3" do
+      @search_database.should_receive(:send_verified_data).with("search-database-files/ded71029ed304895d57098959b32ca9d.yml", "--- \nname: database_name\ncreated_at: 2009-01-10 12:00:00 UTC\navailable: \"false\"\nsearch_database_file_size: \"20\"\nupdated_at: 2009-01-10 12:00:00 UTC\nsearch_database_content_type: text/plain\nsearch_database_file_name: search_database_file.fasta\nsearch_database_updated_at: 2009-01-10 12:00:00 UTC\nversion: version\nfilename: search_database_file\ndb_type: ebi\nuser_uploaded: \"true\"\n", "472adfbc95187686fb4a7714b7306003", {}).and_return(true)
+      @search_database.persist
+    end
+  end
+
+  describe "delete" do
+    it "should remove the data file from s3" do
+      Aws.should_receive(:delete_object).with("search-database-files/ded71029ed304895d57098959b32ca9d.yml").and_return(true)
+      @search_database.delete
+    end
+  end
+
   describe "filename" do
     it "should return the search database filename with .fasta stripped" do
       @search_database.filename.should == "search_database_file"
@@ -91,7 +119,7 @@ describe SearchDatabase do
       @search_database.should_receive(:run_convert_databases).ordered.and_return(true)
       @search_database.should_receive(:upload_to_s3).ordered.and_return(true)
       @search_database.should_receive(:update_status_to_available).ordered.and_return(true)
-      @search_database.should_receive(:save_to_simpledb).ordered.and_return(true)
+      @search_database.should_receive(:persist).ordered.and_return(true)
       @search_database.process_and_upload
     end
   end
@@ -184,12 +212,12 @@ describe SearchDatabase do
 
   describe "insert default databases" do
     it "should read in the yaml file and insert the default databases" do
+      @database = mock("database")
+      @database.should_receive(:persist).exactly(9).times.and_return(true)
       database_files = ["122.R_norvegicus.fasta", "18.E_coli_K12.fasta", "25.H_sapiens.fasta", "40.S_cerevisiae_ATCC_204508.fasta", "59.M_musculus.fasta", "ipi.HUMAN.v3.54.fasta", "ipi.MOUSE.v3.54.fasta", "ipi.RAT.v3.54.fasta", "orf_trans.fasta"]
       database_files.each do |database|
-        SearchDatabase.should_receive(:create).with(hash_including({:search_database_file_name => "#{database}"})).and_return(true)
-        RemoteSearchDatabase.should_receive(:new_encode_for).with(hash_including({:search_database_file_name => "#{database}"})).and_return(true)
+        SearchDatabase.should_receive(:create).with(hash_including({:search_database_file_name => "#{database}"})).and_return(@database)
       end
-      RemoteSearchDatabase.should_receive(:delete_default).and_return(true)
       SearchDatabase.insert_default_databases
     end
   end
@@ -218,68 +246,7 @@ describe SearchDatabase do
 
   describe "parameter hash" do
     it "should return a hash with the parameters" do
-      @search_database.parameter_hash.should == {"name"=>"ZGF0YWJhc2VfbmFtZQ==", "created_at"=>"MjAwOS0wMS0xMCAxMjowMDowMCBVVEM=", "available"=>"ZmFsc2U=", "search_database_file_size"=>"MjA=", "updated_at"=>"MjAwOS0wMS0xMCAxMjowMDowMCBVVEM=", "search_database_content_type"=>"dGV4dC9wbGFpbg==", "search_database_file_name"=>"c2VhcmNoX2RhdGFiYXNlX2ZpbGUuZmFzdGE=", "search_database_updated_at"=>"MjAwOS0wMS0xMCAxMjowMDowMCBVVEM=", "version"=>"dmVyc2lvbg==", "filename"=>"c2VhcmNoX2RhdGFiYXNlX2ZpbGU=", "db_type"=>"ZWJp", "user_uploaded"=>"dHJ1ZQ=="}
-    end
-  end
-
-  describe "import from simpledb" do
-    it "should import the databases from simpleDB" do
-      @sd = SearchDatabase.new
-      @rsd = mock_model(RemoteSearchDatabase)
-      @rsd.should_receive(:reload).and_return(true)
-      attributes = mock("hash")
-      attributes.should_receive(:keys).and_return(['name', 'created_at', 'available', 'search_database_file_size', 'updated_at', 'search_database_content_type', 'search_database_file_name', 'search_database_updated_at', 'version', 'filename', 'db_type', 'user_uploaded'])
-      @rsd.should_receive(:attributes).and_return(attributes)
-      @rsd.should_receive(:[]).with('name').and_return(["ZGF0YWJhc2VfbmFtZQ=="])
-      @rsd.should_receive(:[]).with('created_at').and_return(["MjAwOS0wMS0xMCAxMjowMDowMCBVVEM="])
-      @rsd.should_receive(:[]).with('available').and_return(["ZmFsc2U="])
-      @rsd.should_receive(:[]).with('search_database_file_size').and_return(["MjA="])
-      @rsd.should_receive(:[]).with('updated_at').and_return(["MjAwOS0wMS0xMCAxMjowMDowMCBVVEM="])
-      @rsd.should_receive(:[]).with('search_database_content_type').and_return(["dGV4dC9wbGFpbg=="])
-      @rsd.should_receive(:[]).with('search_database_file_name').and_return(["c2VhcmNoX2RhdGFiYXNlX2ZpbGUuZmFzdGE="])
-      @rsd.should_receive(:[]).with('search_database_updated_at').and_return(["MjAwOS0wMS0xMCAxMjowMDowMCBVVEM="])
-      @rsd.should_receive(:[]).with('version').and_return(["dmVyc2lvbg=="])
-      @rsd.should_receive(:[]).with('filename').and_return(["c2VhcmNoX2RhdGFiYXNlX2ZpbGU="])
-      @rsd.should_receive(:[]).with('db_type').and_return(["ZWJp"])
-      @rsd.should_receive(:[]).with('user_uploaded').and_return(["dHJ1ZQ=="])
-      RemoteSearchDatabase.should_receive(:all).and_return([@rsd])
-      @sd.should_receive(:[]=).with("name", "database_name").and_return(true)
-      @sd.should_receive(:[]=).with("created_at", "2009-01-10 12:00:00 UTC").and_return(true)
-      @sd.should_receive(:[]=).with("available", "false").and_return(true)
-      @sd.should_receive(:[]=).with("search_database_file_size", "20").and_return(true)
-      @sd.should_receive(:[]=).with("updated_at", "2009-01-10 12:00:00 UTC").and_return(true)
-      @sd.should_receive(:[]=).with("search_database_content_type", "text/plain").and_return(true)
-      @sd.should_receive(:[]=).with("search_database_file_name", "search_database_file.fasta").and_return(true)
-      @sd.should_receive(:[]=).with("search_database_updated_at", "2009-01-10 12:00:00 UTC").and_return(true)
-      @sd.should_receive(:[]=).with("version", "version").and_return(true)
-      @sd.should_receive(:[]=).with("filename", "search_database_file").and_return(true)
-      @sd.should_receive(:[]=).with("db_type", "ebi").and_return(true)
-      @sd.should_receive(:[]=).with("user_uploaded", "true").and_return(true)
-      SearchDatabase.should_receive(:new).and_return(@sd)
-      @sd.should_receive(:save).and_return(true)
-      SearchDatabase.import_from_simpledb
-    end
-  end
-
-  describe "save to simple db" do
-    it "should save the encoded parameters to simpledb" do
-      @search_database.should_receive(:parameter_hash).and_return({:hash => true})
-      RemoteSearchDatabase.should_receive(:new_for).with({:hash => true}).and_return(true)
-      @search_database.save_to_simpledb
-    end
-  end
-
-  describe "remove from simpledb" do
-    it "should remove the record from simpledb" do
-      record = mock("simpledb_record")
-      record.should_receive(:delete).and_return(true)
-      RemoteSearchDatabase.should_receive(:for_filename).with("search_database_file").and_return(record)
-      @search_database.remove_from_simpledb
-    end
-
-    it "should do nothing if the record isn't in simpledb" do
-      RemoteSearchDatabase.should_receive(:for_filename).with("search_database_file").and_return(nil)
-      @search_database.remove_from_simpledb
+      @search_database.parameter_hash.should == {"name"=>"database_name", "created_at"=>"2009-01-10 12:00:00 UTC", "available"=>"false", "search_database_file_size"=>"20", "updated_at"=>"2009-01-10 12:00:00 UTC", "search_database_content_type"=>"text/plain", "search_database_file_name"=>"search_database_file.fasta", "search_database_updated_at"=>"2009-01-10 12:00:00 UTC", "version"=>"version", "filename"=>"search_database_file", "db_type"=>"ebi", "user_uploaded"=>"true"}
     end
   end
 

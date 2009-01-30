@@ -21,7 +21,7 @@ namespace :head do
   desc "Import all the search databases from SimpleDB"
   task(:import_search_databases => :environment) do
     begin
-      SearchDatabase.import_from_simpledb
+      SearchDatabase.import
     rescue Exception => e
       puts e
     end

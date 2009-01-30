@@ -3,7 +3,7 @@ class SearchDatabase < ActiveRecord::Base
   include Utilities
   extend Utilities
   
-  before_destroy :remove_s3_files, :remove_from_simpledb
+  before_destroy :remove_s3_files, :delete
 
   validates_presence_of :name, :message => "^Name is required"
   validates_presence_of :version, :message => "^Version file is required"
@@ -26,24 +26,22 @@ class SearchDatabase < ActiveRecord::Base
       )
     end
 
-    def import_from_simpledb
-      records = RemoteSearchDatabase.all
-      records.each do |record|
-        record.reload
-        parameter_file = SearchDatabase.new
-        record.attributes.keys.each do |key|
-          parameter_file["#{key}"] = Aws.decode(record["#{key}"])
-        end
-        parameter_file.save
+    def import
+      files = SearchDatabase.remote_file_list("search-database-files")
+      files.each do |file|
+        search_database = SearchDatabase.new
+        hash = YAML.load(search_database.retreive(file))
+        hash.delete("filename")
+        search_database.attributes = hash
+        search_database.save
       end
     end
 
     def insert_default_databases
       databases = YAML.load_file(File.join(RAILS_ROOT, 'config', 'search_databases.yml'))
-      RemoteSearchDatabase.delete_default
       databases.each do |database_hash|
         search_database = SearchDatabase.create(database_hash)
-        remote = RemoteSearchDatabase.new_encode_for(database_hash)
+        search_database.persist
       end
     end
 
@@ -94,7 +92,24 @@ class SearchDatabase < ActiveRecord::Base
         SearchDatabase.download_file("/pipeline/dbs/#{db}.#{extension}", "search-databases/#{db}.#{extension}")
       end
     end
+  end
 
+  def parameter_hash
+    parameters = {}
+    attributes.keys.each do |key|
+      parameters["#{key}"] = "#{attributes[key]}"
+    end
+    parameters["filename"] = filename
+    parameters.delete("id")
+    parameters
+  end
+
+  def persist
+    send_verified_data("search-database-files/#{md5_item(name, false)}.yml", parameter_hash.to_yaml, md5_item(parameter_hash.to_yaml, false), {})
+  end
+
+  def delete
+    Aws.delete_object("search-database-files/#{md5_item(name, false)}.yml")
   end
 
   def process_and_upload
@@ -103,26 +118,7 @@ class SearchDatabase < ActiveRecord::Base
     run_convert_databases
     upload_to_s3
     update_status_to_available
-    save_to_simpledb
-  end
-
-  def parameter_hash
-    parameters = {}
-    attributes.keys.each do |key|
-      parameters["#{key}"] = Aws.encode("#{attributes[key]}")
-    end
-    parameters["filename"] = Aws.encode("#{filename}")
-    parameters.delete("id")
-    parameters
-  end
-
-  def save_to_simpledb
-    RemoteSearchDatabase.new_for(parameter_hash)
-  end
-
-  def remove_from_simpledb
-    record = RemoteSearchDatabase.for_filename(filename)
-    record.delete if record
+    persist
   end
 
   def remove_s3_files
