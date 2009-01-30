@@ -13,13 +13,13 @@
     <tr valign="top">
 			<td>Database</td>
 			<td>
-				<%= f.select :database, [["Choose a database...",""]] + SearchDatabase.select_options %>
+				<%= f.select(:database, [["Choose a database...",""]] + SearchDatabase.select_options) %>
 			</td>
 		</tr>
     <tr valign="top">
 			<td>Enzyme</td>
 			<td>
-    		<%= f.select :enzyme, OmssaOption.enzymes.sort %>
+    		<%= f.select(:enzyme, OmssaOption.enzymes) %>
 			</td>
 		</tr>
     <tr valign="top">
@@ -43,13 +43,13 @@
     <tr valign="top">
 			<td>Precursor Search</td>
 			<td>
-				<%= f.select :precursor_search, OmssaOption.searches.sort %>
+				<%= f.select :precursor_search, OmssaOption.searches %>
 			</td>
 		</tr>
     <tr valign="top">
 			<td>Product Search</td>
 			<td>
-				<%= f.select :product_search, OmssaOption.searches.sort %>
+				<%= f.select :product_search, OmssaOption.searches %>
 			</td>
 		</tr>
     <tr valign="top">
@@ -67,14 +67,14 @@
     <tr valign="top">
 			<td>Variable Modifications</td>
 			<td>
-				<%= f.select :modifications, OmssaOption.modifications.sort, {}, {:size => 10, :multiple => true, :style => "height:100%;"} %>
+				<%= f.select :modifications, OmssaOption.modifications, {}, {:size => 10, :multiple => true, :style => "height:100%;"} %>
 			</td>
 		</tr>
     <tr valign="top">
 			<td>Ions</td>
 			<td>														
     		<% OmssaOption.ions.keys.sort.each do |ion| %>
-    			<label><input id="omssa_parameter_file_ions" name="ion<%= OmssaOption.ions[ion]%>" required="true" type="checkbox" value="<%= OmssaOption.ions[ion] %>" <%= @omssa_parameter_file.ions.include?(OmssaOption.ions[ion]) ? "checked" : "" %> /><%= ion %></label>
+    			<label><input id="omssa_parameter_file_ions" name="ion<%= OmssaOption.ions[ion]%>" required="true" type="checkbox" value="<%= OmssaOption.ions[ion] %>" <%= @omssa_parameter_file.ions.include?(OmssaOption.ions[ion].to_s) ? "checked" : "" %> /><%= ion %></label>
     		<% end %>
     	</td>
 	</tr>
