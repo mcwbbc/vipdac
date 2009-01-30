@@ -236,16 +236,9 @@ describe Job do
   end
 
   describe "output files" do
-    before(:each) do
-      @job.should_receive(:hash_key).and_return('hash_key')
-      Aws.should_receive(:bucket_name).and_return("bucket")
-      file = {:contents => [{:key => "file1"}, {:key => "file2"}]}
-      s3 = mock("s3")
-      s3.should_receive(:incrementally_list_bucket).with("bucket", { 'prefix' => "hash_key/out" }).and_yield(file)
-      Aws.should_receive(:s3i).and_return(s3)
-    end
-
     it "should return an array of filenames" do
+      @job.should_receive(:hash_key).and_return("hash")
+      @job.should_receive(:remote_file_list).with("hash/out").and_return(["file1", "file2"])
       @job.output_files.should == ["file1", "file2"]
     end
   end

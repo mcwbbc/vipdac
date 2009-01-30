@@ -117,10 +117,7 @@ class Job < ActiveRecord::Base
   end
 
   def output_files
-    Aws.s3i.incrementally_list_bucket(Aws.bucket_name, { 'prefix' => "#{hash_key}/out" }) do |file|
-      @list = file[:contents].map {|content| content[:key] }
-    end
-    @list
+    remote_file_list("#{hash_key}/out")
   end
 
   def packing?

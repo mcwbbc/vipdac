@@ -37,6 +37,13 @@ module Utilities
     end
   end
 
+  def remote_file_list(prefix)
+    Aws.s3i.incrementally_list_bucket(Aws.bucket_name, { 'prefix' => "#{prefix}" }) do |file|
+      @list = file[:contents].map {|content| content[:key] }
+    end
+    @list
+  end
+
   def download_file(local, remote)
     begin
       File.open(local, File::CREAT|File::RDWR) do |file|

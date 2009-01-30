@@ -24,8 +24,16 @@ describe Utilities do
     end
   end
 
-  def extract_etag(hash)
-    hash[:headers]['etag'].gsub(/\"/, '')
+  describe "remote file list" do
+    it "should return an array of filenames" do
+      @fake = FakeClass.new
+      Aws.should_receive(:bucket_name).and_return("bucket")
+      file = {:contents => [{:key => "file1"}, {:key => "file2"}]}
+      s3 = mock("s3")
+      s3.should_receive(:incrementally_list_bucket).with("bucket", { 'prefix' => "path" }).and_yield(file)
+      Aws.should_receive(:s3i).and_return(s3)
+      @fake.remote_file_list("path").should == ["file1", "file2"]
+    end
   end
 
   describe "extract etag" do
