@@ -38,7 +38,7 @@ class Chunk < ActiveRecord::Base
              :bucket_name => Aws.bucket_name,
              :parameter_filename => parameter_filename
            }
-    MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => job.priority, :ttr => 600)
+    MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => job.priority, :ttr => 1200)
   end
   
   def self.reporter_chunk(report)

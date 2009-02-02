@@ -1,7 +1,7 @@
 class BeanstalkMessageQueue
   DEFAULT_PORT = 11300
   DEFAULT_PRIORITY = 65536
-  TTR = 600
+  TTR = 1200
 
   class << self
 

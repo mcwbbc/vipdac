@@ -2,12 +2,6 @@ require File.dirname(__FILE__) + '/../spec_helper'
 
 describe MessageQueue do
 
-      def put(hash)
-  #      AwsMessageQueue.send_message(hash[:name], hash[:message])
-        BeanstalkMessageQueue.send_message(hash[:name], hash[:message], hash[:priority], 0, hash[:ttr])
-      end
-
-
   describe "get" do
     it "should require a queue name" do
        lambda { MessageQueue.get() }.should raise_error(ArgumentError)
@@ -32,8 +26,8 @@ describe MessageQueue do
 
     it "should put a message on the queue" do
 #      AwsMessageQueue.should_receive(:send_message).with('name', 'message').and_return(true)
-      BeanstalkMessageQueue.should_receive(:send_message).with('name', 'message', 10, 0, 600).and_return(true)
-      MessageQueue.put(:name => 'name', :message => 'message', :priority => 10, :ttr => 600).should be_true
+      BeanstalkMessageQueue.should_receive(:send_message).with('name', 'message', 10, 0, 1200).and_return(true)
+      MessageQueue.put(:name => 'name', :message => 'message', :priority => 10, :ttr => 1200).should be_true
     end
 
     it "should put a message on the queue with the defaults" do

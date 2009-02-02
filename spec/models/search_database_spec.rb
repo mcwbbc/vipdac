@@ -53,7 +53,7 @@ describe SearchDatabase do
   describe "send_background_upload_message" do
     it "should send a background upload head message" do
       @search_database.should_receive(:id).and_return(12)
-      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => PROCESSDATABASE, :database_id => 12}.to_yaml, :priority => 20, :ttr => 600).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => PROCESSDATABASE, :database_id => 12}.to_yaml, :priority => 20, :ttr => 1200).and_return(true)
       @search_database.send_background_process_message
     end
   end

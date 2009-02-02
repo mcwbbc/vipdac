@@ -36,22 +36,22 @@ class Job < ActiveRecord::Base
     end
   end
 
-  # check if we're packing, and that we started it more than 10 minutes ago
+  # check if we're packing, and that we started it more than 20 minutes ago
 
   def stuck_packing?
-    packing? && started_pack_at < 10.minutes.ago.to_f
+    packing? && started_pack_at < 1200.seconds.ago.to_f
   end
 
   # check if any chunks are stuck
   # if incomplete is empty, nothing can be stuck
-  # and if we have any, and the last one we finish was more than 10 minutes ago, we're stuck
+  # and if we have any, and the last one we finish was more than 20 minutes ago, we're stuck
   # TODO: need to deal with something having a higher priority, since it would make the job appear to be stuck
 
   def stuck_chunks?
     return false if chunks.incomplete.empty? #if all the chunks are complete, we can't have stuck ones
     chunk = chunks.complete.first(:order => 'finished_at DESC')
     if chunk
-      chunk.finished_at < 10.minutes.ago.to_f
+      chunk.finished_at < 1200.seconds.ago.to_f
     else
       false
     end
@@ -187,12 +187,12 @@ class Job < ActiveRecord::Base
 
   def send_background_upload_message
     hash = {:type => BACKGROUNDUPLOAD, :job_id => id}
-    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 50, :ttr => 600)
+    MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 50, :ttr => 1200)
   end
 
   def send_message(type)
     hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :hash_key => hash_key, :datafile => datafile, :output_file => output_file, :searcher => searcher, :search_database => search_database, :spectra_count => spectra_count, :priority => priority}
-    MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => 50, :ttr => 600)
+    MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => 50, :ttr => 1200)
   end
 
   def bundle_datafile

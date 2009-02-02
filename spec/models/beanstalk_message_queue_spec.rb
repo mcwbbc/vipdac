@@ -63,7 +63,7 @@ describe BeanstalkMessageQueue do
     describe "with not connected error" do
       it "should sleep for 10 seconds" do
         queue = mock("queue")
-        queue.should_receive(:put).with('message', 65536, 0, 600).and_raise(Beanstalk::NotConnected)
+        queue.should_receive(:put).with('message', 65536, 0, 1200).and_raise(Beanstalk::NotConnected)
         BeanstalkMessageQueue.should_receive(:get_queue).with('cheese').and_return(queue)
         BeanstalkMessageQueue.should_receive(:sleep).with(10).and_return(false)
         BeanstalkMessageQueue.send_message('cheese', 'message')
@@ -72,7 +72,7 @@ describe BeanstalkMessageQueue do
     
     it "should send a message with the default parameters" do
       queue = mock("queue")
-      queue.should_receive(:put).with('message', 65536, 0, 600)
+      queue.should_receive(:put).with('message', 65536, 0, 1200)
       BeanstalkMessageQueue.should_receive(:get_queue).with('cheese').and_return(queue)
       BeanstalkMessageQueue.send_message('cheese', 'message')
     end
@@ -86,7 +86,7 @@ describe BeanstalkMessageQueue do
 
     it "should send a message with the nil parameters" do
       queue = mock("queue")
-      queue.should_receive(:put).with('message', 65536, 0, 600)
+      queue.should_receive(:put).with('message', 65536, 0, 1200)
       BeanstalkMessageQueue.should_receive(:get_queue).with('cheese').and_return(queue)
       BeanstalkMessageQueue.send_message('cheese', 'message', nil, 0, nil)
     end

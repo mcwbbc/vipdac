@@ -35,7 +35,7 @@ describe Job do
         @job.stuck_packing?.should be_false
       end
 
-      it "should be false if it started packing less than 10 minutes ago" do
+      it "should be false if it started packing less than 20 minutes ago" do
         @job.should_receive(:packing?).and_return(true)
         @job.should_receive(:started_pack_at).and_return(5.minutes.ago.to_f)
         @job.stuck_packing?.should be_false
@@ -43,9 +43,9 @@ describe Job do
     end
 
     describe "when stuck" do
-      it "should be true if we're packing at it's been more than 10 minutes since we started" do
+      it "should be true if we're packing at it's been more than 20 minutes since we started" do
         @job.should_receive(:packing?).and_return(true)
-        @job.should_receive(:started_pack_at).and_return(11.minutes.ago.to_f)
+        @job.should_receive(:started_pack_at).and_return(1215.seconds.ago.to_f)
         @job.stuck_packing?.should be_true
       end
     end
@@ -70,14 +70,14 @@ describe Job do
       @job.stuck_chunks?.should be_false
     end
 
-    it "should be true if it finished more than 10 minutes ago" do
+    it "should be true if it finished more than 20 minutes ago" do
       @incomplete.should_receive(:empty?).and_return(false)
       @complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(@chunk)
-      @chunk.should_receive(:finished_at).and_return(11.minutes.ago.to_f)
+      @chunk.should_receive(:finished_at).and_return(1215.seconds.ago.to_f)
       @job.stuck_chunks?.should be_true
     end
 
-    it "should be false if it finished less than 10 minutes ago" do
+    it "should be false if it finished less than 20 minutes ago" do
       @incomplete.should_receive(:empty?).and_return(false)
       @complete.should_receive(:first).with(:order => 'finished_at DESC').and_return(@chunk)
       @chunk.should_receive(:finished_at).and_return(5.minutes.ago.to_f)
@@ -372,7 +372,7 @@ describe Job do
   describe "send_background_upload_message" do
     it "should send a background upload head message" do
       @job.should_receive(:id).and_return(12)
-      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => BACKGROUNDUPLOAD, :job_id => 12}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => BACKGROUNDUPLOAD, :job_id => 12}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
       @job.send_background_upload_message
     end
   end
@@ -390,12 +390,12 @@ describe Job do
     end
 
     it "should send a pack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
       @job.send_message(PACK)
     end
 
     it "should send an unpack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 600).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
       @job.send_message(UNPACK)
     end
   end
