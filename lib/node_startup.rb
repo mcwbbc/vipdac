@@ -39,7 +39,6 @@ require '../app/models/packer'
 require '../app/models/tandem_packer'
 require '../app/models/omssa_packer'
 require '../app/models/search_database'
-require '../app/models/remote_search_database'
 
 require '../app/models/watcher'
 require '../app/models/worker'
