@@ -12,7 +12,7 @@ namespace :head do
   desc "Import all the Tandem Parameter files from SimpleDB"
   task(:import_tandem => :environment) do
     begin
-      TandemParameterFile.import_from_simpledb
+      TandemParameterFile.import
     rescue Exception => e
       puts e
     end

@@ -29,61 +29,72 @@ describe TandemParameterFile do
     end
 
     it "should require at least two ions" do
-      @parameter_file.should_not be_valid
-      @parameter_file.b_ion = true
       @parameter_file.should be_valid
+      @parameter_file.b_ion = false
+      @parameter_file.should_not be_valid
     end
   end
 
-  describe "import from simple db" do
+  describe "persist" do
+    it "should send the yamlized parameters to s3" do
+      @parameter_file.should_receive(:send_verified_data).with("tandem-parameter-files/209d808516a1c96827605429062f82e3.yml", "--- \nname: jobname\ncreated_at: \nb_ion: true\nenzyme: enzyme\nn_terminal: \nc_ion: \nupdated_at: \nx_ion: \nc_terminal: \ny_ion: true\nmodifications: \ndatabase: human_ipi\nz_ion: \na_ion: \n", "07a54e42b4264a6869c3fdb33e69e936", {}).and_return(true)
+      @parameter_file.persist
+    end
+  end
+
+  describe "delete" do
+    it "should remove the data file from s3" do
+      Aws.should_receive(:delete_object).with("tandem-parameter-files/209d808516a1c96827605429062f82e3.yml").and_return(true)
+      @parameter_file.delete
+    end
+  end
+
+  describe "import" do
     before(:each) do
       @pf = create_tandem_parameter_file
-      @spg = mock_model(SearchParameterGroup)
-      @spg.should_receive(:reload).and_return(true)
-      @spg.should_receive(:[]).with('name').and_return(["ZGVtbw=="])
-      @spg.should_receive(:[]).with('database').and_return(["aHVtYW5faXBp"])
-      @spg.should_receive(:[]).with('enzyme').and_return(["W1hdfFtYXQ=="])
-      @spg.should_receive(:[]).with('n_terminal').and_return(nil)
-      @spg.should_receive(:[]).with('c_terminal').and_return(nil)
-      @spg.should_receive(:[]).with('ions').and_return(["LS0tIApiX2lvbjogdHJ1ZQp4X2lvbjogZmFsc2UKY19pb246IGZhbHNlCnlfaW9uOiB0cnVlCnpfaW9uOiBmYWxzZQphX2lvbjogZmFsc2UK"])
-      SearchParameterGroup.should_receive(:all_for).with("tandem").and_return([@spg])
-      @pf.should_receive(:name=).with("demo").and_return(true)
-      @pf.should_receive(:database=).with("human_ipi").and_return(true)
-      @pf.should_receive(:enzyme=).with("[X]|[X]").and_return(true)
-      @pf.should_receive(:n_terminal=).with(nil).and_return(true)
-      @pf.should_receive(:c_terminal=).with(nil).and_return(true)
-      @pf.should_receive(:setup_ions).with("--- \nb_ion: true\nx_ion: false\nc_ion: false\ny_ion: true\nz_ion: false\na_ion: false\n").and_return(true)
+      @pf.should_receive(:retreive).with("file").and_return("string")
+      TandemParameterFile.should_receive(:remote_file_list).with("tandem-parameter-files").and_return(["file"])
       TandemParameterFile.should_receive(:new).and_return(@pf)
     end
 
     describe "with valid save" do
-      it "should create modifications" do
+      before(:each) do
         @pf.should_receive(:save).and_return(true)
-        @spg.should_receive(:[]).with('modifications').and_return(nil)
-        @pf.should_receive(:create_modifications).with(nil).and_return(true)
-        TandemParameterFile.import_from_simpledb
+      end
+
+      it "should create modifications" do
+        @hash = {"modifications" => [{"mass"=>"12.0", "amino_acid"=>"abc"}, {"mass"=>"-2.0", "amino_acid"=>"def"}]}
+        YAML.should_receive(:load).with("string").and_return(@hash)
+        @pf.should_receive(:create_modifications).with([{"mass"=>"12.0", "amino_acid"=>"abc"}, {"mass"=>"-2.0", "amino_acid"=>"def"}]).and_return(true)
+        TandemParameterFile.import
+      end
+
+      it "should not create modifications" do
+        @hash = {"modifications" => nil}
+        YAML.should_receive(:load).with("string").and_return(@hash)
+        TandemParameterFile.import
       end
     end
 
     describe "without save" do
       it "should not create modifications" do
+        @hash = {"modifications" => nil}
+        YAML.should_receive(:load).with("string").and_return(@hash)
         @pf.should_receive(:save).and_return(false)
-        TandemParameterFile.import_from_simpledb
+        TandemParameterFile.import
       end
     end
   end
 
   describe "create modifications" do
-    it "should parse the yaml string and create a tandem modification for each member of the array" do
+    it "should create a tandem modification for each member of the array" do
       pf = create_tandem_parameter_file
       tmods = mock("array")
       tmods.should_receive(:create).with(:mass => "1.0", :amino_acid => "abc").and_return(true)
       tmods.should_receive(:create).with(:mass => "2.0", :amino_acid => "def").and_return(true)
       pf.should_receive(:tandem_modifications).twice.and_return(tmods)
-      yaml = '--- \n- mass: "1.0"\n  amino_acid: abc\n- mass: "2.0"\n  amino_acid: def\n'
       array = [{"mass"=>"1.0", "amino_acid"=>"abc"}, {"mass"=>"2.0", "amino_acid"=>"def"}]
-      YAML.should_receive(:load).with(yaml).and_return(array)
-      pf.create_modifications(yaml)
+      pf.create_modifications(array)
     end
   end
 
@@ -101,65 +112,43 @@ describe TandemParameterFile do
     end
   end
 
-  describe "remove from simpledb" do
-    it "should remove the record from simpledb" do
-      record = mock("simpledb_record")
-      record.should_receive(:delete).and_return(true)
-      pf = create_tandem_parameter_file
-      SearchParameterGroup.should_receive(:for_name_and_searcher).with("jobname", "tandem").and_return(record)
-      pf.remove_from_simpledb
-    end
-
-    it "should do nothing if the record isn't in simpledb" do
-      pf = create_tandem_parameter_file
-      SearchParameterGroup.should_receive(:for_name_and_searcher).with("jobname", "tandem").and_return(nil)
-      pf.remove_from_simpledb
-    end
-  end
-
   describe "parameter hash" do
     it "should return a hash with the parameters" do
       pf = create_tandem_parameter_file
-      pf.parameter_hash.should == {"name"=>"am9ibmFtZQ==", "database"=>"aHVtYW5faXBp", "ions"=>"LS0tIApiX2lvbjogCnhfaW9uOiAKY19pb246IAp5X2lvbjogCnpfaW9uOiAKYV9pb246IHRydWUK", "n_terminal"=>"", "enzyme"=>"ZW56eW1l", "c_terminal"=>"", "modifications"=>nil}
+      pf.parameter_hash.should == {"name"=>"jobname", "created_at"=>nil, "b_ion"=>true, "enzyme"=>"enzyme", "n_terminal"=>nil, "c_ion"=>nil, "updated_at"=>nil, "x_ion"=>nil, "c_terminal"=>nil, "y_ion"=>true, "modifications"=>nil, "database"=>"human_ipi", "z_ion"=>nil, "a_ion"=>nil}
     end
-  end
 
-  describe "save to simple db" do
-    it "should save the encoded parameters to simpledb" do
+    it "should return an array of modifications" do
       pf = create_tandem_parameter_file
-      pf.should_receive(:parameter_hash).and_return({:hash => true})
-      SearchParameterGroup.should_receive(:new_for).with({:hash => true}, "tandem").and_return(true)
-      pf.save_to_simpledb
+      m1 = mock_model(TandemModification, :mass => 12.0, :amino_acid => "abc")
+      m2 = mock_model(TandemModification, :mass => -2.0, :amino_acid => "def")
+      modifications = [m1, m2]
+      pf.should_receive(:tandem_modifications).twice.and_return(modifications)
+      pf.parameter_hash.should == {"name"=>"jobname", "created_at"=>nil, "b_ion"=>true, "enzyme"=>"enzyme", "n_terminal"=>nil, "c_ion"=>nil, "updated_at"=>nil, "x_ion"=>nil, "c_terminal"=>nil, "y_ion"=>true, "modifications"=>[{"mass"=>"12.0", "amino_acid"=>"abc"}, {"mass"=>"-2.0", "amino_acid"=>"def"}], "database"=>"human_ipi", "z_ion"=>nil, "a_ion"=>nil}
     end
   end
 
-  describe "yaml modifications" do
+  describe "modifications array" do
     it "should return a yaml string for the modifictions in the parameter file" do
       m1 = mock_model(TandemModification, :mass => 12.0, :amino_acid => "abc")
       m2 = mock_model(TandemModification, :mass => -2.0, :amino_acid => "def")
       modifications = [m1, m2]
       pf = create_tandem_parameter_file
       pf.should_receive(:tandem_modifications).twice.and_return(modifications)
-      pf.yaml_modifications.should == "--- \n- mass: \"12.0\"\n  amino_acid: abc\n- mass: \"-2.0\"\n  amino_acid: def\n"
+      pf.modifications_array.should == [{"mass"=>"12.0", "amino_acid"=>"abc"}, {"mass"=>"-2.0", "amino_acid"=>"def"}]
     end
 
     it "should return a yaml string for the modifictions in the parameter file" do
       pf = create_tandem_parameter_file
       pf.should_receive(:tandem_modifications).and_return([])
-      pf.yaml_modifications.should == nil
-    end
-  end
-
-  describe "yaml ions" do
-    it "should return a yaml string for the ions in the parameter file" do
-      pf = create_tandem_parameter_file
-      pf.yaml_ions.should == "--- \nb_ion: \nx_ion: \nc_ion: \ny_ion: \nz_ion: \na_ion: true\n"
+      pf.modifications_array.should == nil
     end
   end
 
   describe "ions" do
     it "should return [] for no selected ions" do
-      @parameter_file.a_ion = false
+      @parameter_file.b_ion = false
+      @parameter_file.y_ion = false
       @parameter_file.ions.should == []
     end
 
@@ -171,13 +160,13 @@ describe TandemParameterFile do
   
   describe "ion_names" do
     it "should return '' for no selected ions" do
-      @parameter_file.a_ion = false
+      @parameter_file.b_ion = false
+      @parameter_file.y_ion = false
       @parameter_file.ion_names.should == ''
     end
 
-    it "should return 'A-ions B-ions' for 2 selected ions" do
-      @parameter_file.b_ion = true
-      @parameter_file.ion_names.should == "A-ions B-ions"
+    it "should return 'B-ions Y-ions' for 2 selected ions" do
+      @parameter_file.ion_names.should == "B-ions Y-ions"
     end
   end
 
@@ -327,7 +316,7 @@ describe TandemParameterFile do
 
   protected
     def create_tandem_parameter_file(options = {})
-      record = TandemParameterFile.new({ :name => "jobname", :database => "human_ipi", :enzyme => "enzyme", :a_ion => true }.merge(options))
+      record = TandemParameterFile.new({ :name => "jobname", :database => "human_ipi", :enzyme => "enzyme", :b_ion => true, :y_ion => true }.merge(options))
       record
     end
 
