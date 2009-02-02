@@ -120,17 +120,19 @@ describe TandemParameterFilesController do
     
     describe "with successful save" do
       def do_post
-        @tandem_parameter_file.should_receive(:save).and_return(true)
-        @tandem_parameter_file.should_receive(:save_to_simpledb).and_return(true)
         post :create, :tandem_parameter_file => {}
       end
   
       it "should create a new tandem_parameter_file" do
+        @tandem_parameter_file.should_receive(:save).and_return(true)
+        @tandem_parameter_file.should_receive(:persist).and_return(true)
         TandemParameterFile.should_receive(:new).with({}).and_return(@tandem_parameter_file)
         do_post
       end
 
       it "should redirect to the tandem_parameter_files_url" do
+        @tandem_parameter_file.should_receive(:save).and_return(true)
+        @tandem_parameter_file.should_receive(:persist).and_return(true)
         do_post
         response.should redirect_to(tandem_parameter_files_url)
       end
@@ -138,11 +140,11 @@ describe TandemParameterFilesController do
     
     describe "with failed save" do
       def do_post
-        @tandem_parameter_file.should_receive(:save).and_return(false)
         post :create, :tandem_parameter_file => {}
       end
   
       it "should re-render 'new'" do
+        @tandem_parameter_file.should_receive(:save).and_return(false)
         do_post
         response.should render_template('new')
       end
