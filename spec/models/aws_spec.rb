@@ -201,10 +201,9 @@ describe Aws do
     describe "workers" do
       it "should return a number of wokers based on the instance type" do
         Aws.workers("m1.small").should == 1
-        Aws.workers("c1.medium").should == 2
+        Aws.workers("c1.medium").should == 1
       end
     end
-
   end
 
   describe "folder name" do

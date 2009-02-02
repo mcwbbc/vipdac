@@ -1,6 +1,6 @@
 class Aws
 
-  INSTANCE_WORKERS = {'m1.small' => 1, 'c1.medium' => 2}
+  INSTANCE_WORKERS = {'m1.small' => 1, 'c1.medium' => 1}
 
   class << self
 
