@@ -50,7 +50,7 @@ class Unpacker
     text = ""
     outfile = ""
     File.open(mgf_filename).each do |line|
-      filenumber = "%04d" % filecount
+      filenumber = "%08d" % filecount
       outfile = "#{mgf_dir}/#{input_name}-#{filenumber}.mgf"
       text << line
       ions+=1 if line =~ /END IONS/

@@ -127,11 +127,11 @@ describe Unpacker do
       File.should_receive(:open).with("filename.mgf").and_return(big_file)
       outfile = mock("outfile")
       outfile.should_receive(:write).with(big_file[0..1199].to_s).and_return(true)
-      File.should_receive(:open).with(/unpack\/mgfs\/filename-0000.mgf/, 'w').and_yield(outfile)
+      File.should_receive(:open).with(/unpack\/mgfs\/filename-00000000.mgf/, 'w').and_yield(outfile)
 
       outfile2 = mock("outfile2")
       outfile2.should_receive(:write).with(big_file[1200..1205].to_s).and_return(true)
-      File.should_receive(:open).with(/unpack\/mgfs\/filename-0001.mgf/, 'w').and_yield(outfile2)
+      File.should_receive(:open).with(/unpack\/mgfs\/filename-00000001.mgf/, 'w').and_yield(outfile2)
       @unpacker.split_original_mgf
     end
 
@@ -147,11 +147,11 @@ describe Unpacker do
       File.should_receive(:open).with("filename.mgf").and_return(big_file)
       outfile = mock("outfile")
       outfile.should_receive(:write).with(big_file[0..599].to_s).and_return(true)
-      File.should_receive(:open).with(/unpack\/mgfs\/filename-0000.mgf/, 'w').and_yield(outfile)
+      File.should_receive(:open).with(/unpack\/mgfs\/filename-00000000.mgf/, 'w').and_yield(outfile)
 
       outfile2 = mock("outfile2")
       outfile2.should_receive(:write).with(big_file[600..605].to_s).and_return(true)
-      File.should_receive(:open).with(/unpack\/mgfs\/filename-0001.mgf/, 'w').and_yield(outfile2)
+      File.should_receive(:open).with(/unpack\/mgfs\/filename-00000001.mgf/, 'w').and_yield(outfile2)
       @unpacker.split_original_mgf
     end
 
