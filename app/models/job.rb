@@ -4,7 +4,7 @@ class Job < ActiveRecord::Base
 
   before_create :set_defaults
 
-  has_many :chunks, :dependent => :destroy, :order => 'filename'
+  has_many :chunks, :dependent => :destroy, :order => 'finished_at DESC, started_at DESC'
   
   has_attached_file :mgf, :path => ":rails_root/public/jobs/:id_partition/:basename.:extension"
   validates_attachment_presence :mgf, :message => "^MGF file is required"
