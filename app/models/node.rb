@@ -20,9 +20,8 @@ class Node < ActiveRecord::Base
     end
 
     def launchable_nodes
-      available = 20 - active_nodes.size
       array = []
-      1.upto(available) { |i| array << "#{i}" }
+      1.upto(20) { |i| array << "#{i}" }
       array
     end
 
