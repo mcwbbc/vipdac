@@ -1,6 +1,6 @@
 namespace :head do
 
-  desc "Import all the Omssa Parameter files from SimpleDB"
+  desc "Import all the Omssa Parameter files from S3"
   task(:import_omssa => :environment) do
     begin
       OmssaParameterFile.import
@@ -9,7 +9,7 @@ namespace :head do
     end
   end
 
-  desc "Import all the Tandem Parameter files from SimpleDB"
+  desc "Import all the Tandem Parameter files from S3"
   task(:import_tandem => :environment) do
     begin
       TandemParameterFile.import
@@ -18,7 +18,7 @@ namespace :head do
     end
   end
 
-  desc "Import all the search databases from SimpleDB"
+  desc "Import all the search databases from S3"
   task(:import_search_databases => :environment) do
     begin
       SearchDatabase.import
