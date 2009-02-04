@@ -10,12 +10,11 @@ class SearchDatabase < ActiveRecord::Base
   validates_presence_of :db_type, :message => "^Database type is required"
 
   validates_uniqueness_of :version, :scope => :name
-  validates_uniqueness_of :search_database_file_name
-  validates_uniqueness_of :search_database_file_name
-  validates_format_of :search_database_file_name, :with => /\.fasta$/, :message => "^Search database file isn't a fasta file"
 
   has_attached_file :search_database, :path => ":rails_root/public/search_databases/:id_partition/:basename.:extension"
   validates_attachment_presence :search_database, :message => "^Search database file is required"
+  validates_uniqueness_of :search_database_file_name
+  validates_format_of :search_database_file_name, :with => /\.fasta$/, :message => "^Search database file isn't a fasta file"
 
   class << self
     # pagination

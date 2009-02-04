@@ -34,7 +34,7 @@ describe SearchDatabase do
         @search_database.save
         duplicate = create_search_database(:name => "other")
         duplicate.should_not be_valid
-        duplicate.should have(2).errors_on(:search_database_file_name)
+        duplicate.should have(1).errors_on(:search_database_file_name)
       end
 
       it "should be valid with a unique name" do
