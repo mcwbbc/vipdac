@@ -1,0 +1,16 @@
+<%= page_title("Datafiles") %>
+<br />
+<%= link_to(image_tag("buttons/new_datafile.png", :alt =>'New datafile', :border => 0), new_datafile_path) %>
+<br />
+<br />
+<table width="100%">
+  <tr class="row-header">
+    <th width="30%">Name</th>
+    <th width="30%">Filename</th>
+    <th width="10%">Status</th>
+    <th width="10%">Action</th>
+  </tr>
+<%= render(:partial => "datafile", :collection => @datafiles) %>
+</table>
+
+<%= render(:partial => "shared/pagination", :locals => { :items => @datafiles }) %>

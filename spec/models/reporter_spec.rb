@@ -84,6 +84,13 @@ describe Reporter do
       end
     end
 
+    describe "process datafile message" do
+      it "should process the search database" do
+        @report.should_receive(:[]).with(:type).and_return(PROCESSDATAFILE)
+        @reporter.should_receive(:process_datafile).with(@report, @message).and_return(true)
+      end
+    end
+
     describe "unpacking message" do
       it "should set the job status to unpacking" do
         @report.should_receive(:[]).with(:type).and_return(JOBUNPACKING)
@@ -323,6 +330,22 @@ describe Reporter do
       search_database.should be_nil
     end
   end
+
+  describe "load datafile" do
+    it "should load a datafile with the id" do
+      @datafile = mock_model(Datafile)
+      Datafile.stub!(:find).and_return(@datafile)
+      datafile = @reporter.load_datafile("id")
+      datafile.should == @datafile
+    end
+
+    it "should log an exception if the datafile doesn't exist" do
+      HoptoadNotifier.should_receive(:notify).with({:request=>{:params=>"id"}, :error_message=>"Datafile Load Error: Exception", :error_class=>"Invalid Datafile"}).and_return(true)
+      Datafile.stub!(:find).and_raise(Exception)
+      datafile = @reporter.load_datafile("id")
+      datafile.should be_nil
+    end
+  end
   
   describe "check job status" do
     before(:each) do
@@ -510,7 +533,7 @@ describe Reporter do
     end
 
     describe "success" do
-      it "should update the status of the job" do
+      it "should process the search database" do
         @reporter.should_receive(:load_search_database).with(1234).and_return(@search_database)
         @search_database.should_receive(:process_and_upload).and_return(true)
         @reporter.process_search_database(@report, @message)
@@ -522,6 +545,32 @@ describe Reporter do
         @reporter.should_receive(:load_search_database).with(1234).and_return(nil)
         @search_database.should_not_receive(:process_and_upload)
         @reporter.process_search_database(@report, @message)
+      end
+    end
+  end
+
+  describe "process datafile" do
+    before(:each) do
+      @datafile = mock_model(Datafile)
+      @message = mock("message")
+      @report = mock("report")
+      @report.should_receive(:[]).with(:datafile_id).and_return(1234)
+      @message.should_receive(:delete).and_return(true)
+    end
+
+    describe "success" do
+      it "should process the datafile" do
+        @reporter.should_receive(:load_datafile).with(1234).and_return(@datafile)
+        @datafile.should_receive(:process_and_upload).and_return(true)
+        @reporter.process_datafile(@report, @message)
+      end
+    end
+
+    describe "failure" do
+      it "should delete the message if the datafile doesn't exist" do
+        @reporter.should_receive(:load_datafile).with(1234).and_return(nil)
+        @datafile.should_not_receive(:process_and_upload)
+        @reporter.process_datafile(@report, @message)
       end
     end
   end

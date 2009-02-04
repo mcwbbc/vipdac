@@ -1,7 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
 
-  map.resources :search_databases, :tandem_parameter_files, :omssa_parameter_files
-  
+  map.resources :search_databases, :tandem_parameter_files, :omssa_parameter_files, :datafiles
 
   map.resources :jobs,
                 :collection => { 

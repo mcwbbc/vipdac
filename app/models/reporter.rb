@@ -86,6 +86,8 @@ class Reporter
           background_upload(report, message)
         when PROCESSDATABASE
           process_search_database(report, message)
+        when PROCESSDATAFILE
+          process_datafile(report, message)
         when JOBUNPACKING
           job_status(report, message, "Unpacking")
         when JOBUNPACKED
@@ -163,6 +165,16 @@ class Reporter
     message.delete
   end
 
+  # process the datafile in the background
+
+  def process_datafile(report, message)
+    datafile = load_datafile(report[:datafile_id])
+    if datafile
+      datafile.process_and_upload
+    end
+    message.delete
+  end
+
   # upload the datafile in the background
 
   def background_upload(report, message)
@@ -193,6 +205,21 @@ class Reporter
     chunk.save!
     chunk.send_process_message if process_message
     message.delete
+  end
+
+  # load a datafile from the DB
+
+  def load_datafile(id)
+    begin 
+      Datafile.find(id)
+    rescue Exception => e
+      HoptoadNotifier.notify(
+        :error_class => "Invalid Datafile", 
+        :error_message => "Datafile Load Error: #{e.message}", 
+        :request => { :params => id }
+      )
+      nil
+    end
   end
 
   # load a search_database from the DB

@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090119205259) do
+ActiveRecord::Schema.define(:version => 20090204185044) do
 
   create_table "chunks", :force => true do |t|
     t.integer  "job_id"
@@ -22,6 +22,17 @@ ActiveRecord::Schema.define(:version => 20090119205259) do
     t.float    "sent_at",            :default => 0.0
     t.float    "started_at",         :default => 0.0
     t.float    "finished_at",        :default => 0.0
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "datafiles", :force => true do |t|
+    t.string   "name"
+    t.string   "status"
+    t.string   "uploaded_file_name"
+    t.string   "uploaded_content_type"
+    t.integer  "uploaded_file_size"
+    t.datetime "uploaded_updated_at"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

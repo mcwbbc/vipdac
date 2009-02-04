@@ -1,0 +1,6 @@
+<tr valign="top">
+  <td><%=h datafile.name %></td>
+  <td><%=h datafile.uploaded_file_name %></td>
+  <td><%=h datafile.status %></td>
+  <td><%= link_to('Delete', datafile, :confirm => 'Are you sure?', :method => :delete) %></td>
+</tr>

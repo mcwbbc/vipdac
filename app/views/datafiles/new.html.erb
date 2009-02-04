@@ -1,0 +1,33 @@
+<%= page_title("New Datafile") %>
+
+<%= all_error_messages_for :datafile %>
+
+<script type="text/javascript">
+  Event.observe(window, 'load', function() {
+    $('upload').uploadProgress({
+      prototypePath: "/javascripts/prototype.js",
+      uploadProgressPath: "/javascripts/upload_progress.js"
+    });
+  });
+</script>
+<% form_for(@datafile, :html => { :id => 'upload', :multipart => true }) do |f| %>
+<table>
+  <tr valign="top">
+    <td>Name:</td>
+    <td><%= f.text_field(:name) %></td>
+  </tr>
+  <tr>
+    <td>MGF datafile:</td>
+    <td><%= f.file_field(:uploaded) %></td>
+  </tr>
+  <tr>
+    <td>Upload progress:</td>
+    <td><div id="progress" class="bar"><div id="progressbar">&nbsp;</div></div></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><%= f.submit("save", :disable_with => 'saving...') %> <%= f.submit("cancel") %></td>
+  </tr>
+  </table>
+  <%= f.hidden_field("status", :value => "Processing") %>
+<% end %>

@@ -53,6 +53,7 @@
 
   BACKGROUNDUPLOAD = "BACKGROUNDUPLOAD".freeze unless self.class.const_defined? "BACKGROUNDUPLOAD"
   PROCESSDATABASE = "PROCESSDATABASE".freeze unless self.class.const_defined? "PROCESSDATABASE"
+  PROCESSDATAFILE = "PROCESSDATAFILE".freeze unless self.class.const_defined? "PROCESSDATAFILE"
 
   PACK = "PACK".freeze unless self.class.const_defined? "PACK"
   FINISHED = "FINISHED".freeze unless self.class.const_defined? "FINISHED"
