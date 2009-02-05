@@ -26,16 +26,8 @@ class Unpacker
     "#{UNPACK_DIR}/#{message[:datafile]}"
   end
 
-  def remote_mgf_file
-    "datafiles/#{message[:datafile]}"
-  end
-  
   def local_parameter_file
     "#{UNPACK_DIR}/#{PARAMETER_FILENAME}"
-  end
-
-  def remote_parameter_file
-    "#{message[:hash_key]}/#{PARAMETER_FILENAME}"
   end
 
   def write_file(filename, text)

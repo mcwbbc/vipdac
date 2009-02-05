@@ -13,25 +13,13 @@ describe Unpacker do
   
   describe "local mgf file" do
     it "should return a filename string" do
-      @unpacker.local_mgf_file.should match(/unpack\/datafile.mgf/)
+      @unpacker.local_mgf_file.should match(/unpack\/datafile\.mgf$/)
     end
   end
 
   describe "local parameter file" do
     it "should return a filename string" do
-      @unpacker.local_parameter_file.should match(/unpack\/parameters.conf/)
-    end
-  end
-
-  describe "remote mgf file" do
-    it "should return a filename string" do
-      @unpacker.remote_mgf_file.should match(/datafiles\/datafile.mgf/)
-    end
-  end
-
-  describe "remote parameter file" do
-    it "should return a filename string" do
-      @unpacker.remote_parameter_file.should match(/hash_key\/parameters.conf/)
+      @unpacker.local_parameter_file.should match(/unpack\/parameters\.conf$/)
     end
   end
 
