@@ -273,6 +273,22 @@ describe Utilities do
     end
   end
 
+  describe "remote mgf file" do
+    it "should return a filename string" do
+      @fake = FakeClass.new
+      @fake.should_receive(:message).and_return({:datafile => "datafile.mgf"})
+      @fake.remote_mgf_file.should match(/datafiles\/datafile.mgf/)
+    end
+  end
+
+  describe "remote parameter file" do
+    it "should return a filename string" do
+      @fake = FakeClass.new
+      @fake.should_receive(:message).and_return({:hash_key => "hash_key"})
+      @fake.remote_parameter_file.should match(/hash_key\/parameters.conf/)
+    end
+  end
+
   class FakeClass
     include Utilities
   end

@@ -1,5 +1,13 @@
 module Utilities
 
+  def remote_mgf_file
+    "datafiles/#{message[:datafile]}"
+  end
+
+  def remote_parameter_file
+    "#{message[:hash_key]}/#{PARAMETER_FILENAME}"
+  end
+
   def ignore?(exception) #:nodoc:
     ignore_these = HoptoadNotifier.ignore.flatten
     ignore_these.include?(exception.class) || ignore_these.include?(exception.class.name)
