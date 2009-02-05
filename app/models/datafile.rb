@@ -29,7 +29,7 @@ class Datafile < ActiveRecord::Base
     end
 
     def remote_datafile_array
-      files = Datafile.remote_file_list("datafile-files")
+      files = Datafile.remote_file_list("datafile-records")
       array = []
       files.each do |file|
         hash = YAML.load(Datafile.retreive(file))
@@ -61,11 +61,11 @@ class Datafile < ActiveRecord::Base
   end
 
   def persist
-    send_verified_data("datafile-files/#{md5_item(name, false)}.yml", parameter_hash.to_yaml, md5_item(parameter_hash.to_yaml, false), {})
+    send_verified_data("datafile-records/#{md5_item(name, false)}.yml", parameter_hash.to_yaml, md5_item(parameter_hash.to_yaml, false), {})
   end
 
   def delete
-    Aws.delete_object("datafile-files/#{md5_item(name, false)}.yml")
+    Aws.delete_object("datafile-records/#{md5_item(name, false)}.yml")
   end
 
   def process_and_upload

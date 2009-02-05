@@ -45,7 +45,7 @@ class OmssaParameterFile < ActiveRecord::Base
   end
 
   def self.import
-    files = OmssaParameterFile.remote_file_list("omssa-parameter-files")
+    files = OmssaParameterFile.remote_file_list("omssa-parameter-records")
     files.each do |file|
       parameter_file = OmssaParameterFile.new
       parameter_file.attributes = YAML.load(parameter_file.retreive(file))
@@ -64,11 +64,11 @@ class OmssaParameterFile < ActiveRecord::Base
   end
 
   def persist
-    send_verified_data("omssa-parameter-files/#{md5_item(name, false)}.yml", parameter_hash.to_yaml, md5_item(parameter_hash.to_yaml, false), {})
+    send_verified_data("omssa-parameter-records/#{md5_item(name, false)}.yml", parameter_hash.to_yaml, md5_item(parameter_hash.to_yaml, false), {})
   end
 
   def delete
-    Aws.delete_object("omssa-parameter-files/#{md5_item(name, false)}.yml")
+    Aws.delete_object("omssa-parameter-records/#{md5_item(name, false)}.yml")
   end
 
   # writes a parameter file

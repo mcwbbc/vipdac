@@ -96,7 +96,7 @@ class TandemParameterFile < ActiveRecord::Base
   end
 
   def self.import
-    files = TandemParameterFile.remote_file_list("tandem-parameter-files")
+    files = TandemParameterFile.remote_file_list("tandem-parameter-records")
     files.each do |file|
       parameter_file = TandemParameterFile.new
       hash = YAML.load(parameter_file.retreive(file))
@@ -134,11 +134,11 @@ class TandemParameterFile < ActiveRecord::Base
   end
 
   def persist
-    send_verified_data("tandem-parameter-files/#{md5_item(name, false)}.yml", parameter_hash.to_yaml, md5_item(parameter_hash.to_yaml, false), {})
+    send_verified_data("tandem-parameter-records/#{md5_item(name, false)}.yml", parameter_hash.to_yaml, md5_item(parameter_hash.to_yaml, false), {})
   end
 
   def delete
-    Aws.delete_object("tandem-parameter-files/#{md5_item(name, false)}.yml")
+    Aws.delete_object("tandem-parameter-records/#{md5_item(name, false)}.yml")
   end
 
   def modifications_array

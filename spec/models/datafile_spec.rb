@@ -85,7 +85,7 @@ describe Datafile do
   describe "remote datafile array" do
     it "should build an array of all the available datafiles" do
       hash = {'filename' => 'file', 'name' => 'filename'}
-      Datafile.should_receive(:remote_file_list).with("datafile-files").and_return(["file"])
+      Datafile.should_receive(:remote_file_list).with("datafile-records").and_return(["file"])
       Datafile.should_receive(:retreive).with("file").and_return("string")
       YAML.should_receive(:load).with("string").and_return(hash)
       Datafile.remote_datafile_array.should == [{'name' => 'filename'}]
@@ -94,14 +94,14 @@ describe Datafile do
 
   describe "persist" do
     it "should send the yamlized parameters to s3" do
-      @datafile.should_receive(:send_verified_data).with("datafile-files/6091de836f9094c2f45cee0aed9bb8ac.yml", "--- \nname: datafile_name\ncreated_at: 2009-01-10 12:00:00 UTC\nuploaded_content_type: text/plain\nupdated_at: 2009-01-10 12:00:00 UTC\nuploaded_updated_at: 2009-01-10 12:00:00 UTC\nuploaded_file_size: \"20\"\nuploaded_file_name: datafile_file.mgf\nstatus: available\n", "d57f0b1b999b8caeac31ae2412b6c410", {}).and_return(true)
+      @datafile.should_receive(:send_verified_data).with("datafile-records/6091de836f9094c2f45cee0aed9bb8ac.yml", "--- \nname: datafile_name\ncreated_at: 2009-01-10 12:00:00 UTC\nuploaded_content_type: text/plain\nupdated_at: 2009-01-10 12:00:00 UTC\nuploaded_updated_at: 2009-01-10 12:00:00 UTC\nuploaded_file_size: \"20\"\nuploaded_file_name: datafile_file.mgf\nstatus: available\n", "d57f0b1b999b8caeac31ae2412b6c410", {}).and_return(true)
       @datafile.persist
     end
   end
 
   describe "delete" do
     it "should remove the data file from s3" do
-      Aws.should_receive(:delete_object).with("datafile-files/6091de836f9094c2f45cee0aed9bb8ac.yml").and_return(true)
+      Aws.should_receive(:delete_object).with("datafile-records/6091de836f9094c2f45cee0aed9bb8ac.yml").and_return(true)
       @datafile.delete
     end
   end

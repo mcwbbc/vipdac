@@ -16,14 +16,14 @@ describe OmssaParameterFile do
 
   describe "persist" do
     it "should send the yamlized parameters to s3" do
-      @omssa_parameter_file.should_receive(:send_verified_data).with("omssa-parameter-files/098f6bcd4621d373cade4e832627b4f6.yml", "--- \nname: test\nprecursor_tol: 2.5\nenzyme: 0\nions: \"1,4\"\nmissed_cleavages: 0\nproduct_search: 0\nmodifications: \"1,2,3,4\"\nproduct_tol: 0.8\nmax_charge: 3\ndatabase: human.fasta\nminimum_charge: 2\nprecursor_search: 0\n", "66d31cb9c957de63e7c1e6b55bfd5391", {}).and_return(true)
+      @omssa_parameter_file.should_receive(:send_verified_data).with("omssa-parameter-records/098f6bcd4621d373cade4e832627b4f6.yml", "--- \nname: test\nprecursor_tol: 2.5\nenzyme: 0\nions: \"1,4\"\nmissed_cleavages: 0\nproduct_search: 0\nmodifications: \"1,2,3,4\"\nproduct_tol: 0.8\nmax_charge: 3\ndatabase: human.fasta\nminimum_charge: 2\nprecursor_search: 0\n", "66d31cb9c957de63e7c1e6b55bfd5391", {}).and_return(true)
       @omssa_parameter_file.persist
     end
   end
 
   describe "delete" do
     it "should remove the data file from s3" do
-      Aws.should_receive(:delete_object).with("omssa-parameter-files/098f6bcd4621d373cade4e832627b4f6.yml").and_return(true)
+      Aws.should_receive(:delete_object).with("omssa-parameter-records/098f6bcd4621d373cade4e832627b4f6.yml").and_return(true)
       @omssa_parameter_file.delete
     end
   end
@@ -35,7 +35,7 @@ describe OmssaParameterFile do
       hash = {}
       @pf.should_receive(:retreive).with("file").and_return("string")
       YAML.should_receive(:load).with("string").and_return(hash)
-      OmssaParameterFile.should_receive(:remote_file_list).with("omssa-parameter-files").and_return(["file"])
+      OmssaParameterFile.should_receive(:remote_file_list).with("omssa-parameter-records").and_return(["file"])
       OmssaParameterFile.should_receive(:new).and_return(@pf)
       @pf.should_receive(:save).and_return(true)
       OmssaParameterFile.import

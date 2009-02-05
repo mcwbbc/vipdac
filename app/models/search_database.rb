@@ -32,7 +32,7 @@ class SearchDatabase < ActiveRecord::Base
     end
 
     def remote_database_array
-      files = SearchDatabase.remote_file_list("search-database-files")
+      files = SearchDatabase.remote_file_list("search-database-records")
       array = []
       files.each do |file|
         hash = YAML.load(SearchDatabase.retreive(file))
@@ -109,11 +109,11 @@ class SearchDatabase < ActiveRecord::Base
   end
 
   def persist
-    send_verified_data("search-database-files/#{md5_item(name, false)}.yml", parameter_hash.to_yaml, md5_item(parameter_hash.to_yaml, false), {})
+    send_verified_data("search-database-records/#{md5_item(name, false)}.yml", parameter_hash.to_yaml, md5_item(parameter_hash.to_yaml, false), {})
   end
 
   def delete
-    Aws.delete_object("search-database-files/#{md5_item(name, false)}.yml")
+    Aws.delete_object("search-database-records/#{md5_item(name, false)}.yml")
   end
 
   def process_and_upload

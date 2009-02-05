@@ -37,14 +37,14 @@ describe TandemParameterFile do
 
   describe "persist" do
     it "should send the yamlized parameters to s3" do
-      @parameter_file.should_receive(:send_verified_data).with("tandem-parameter-files/209d808516a1c96827605429062f82e3.yml", "--- \nname: jobname\ncreated_at: \nb_ion: true\nenzyme: enzyme\nn_terminal: \nc_ion: \nupdated_at: \nx_ion: \nc_terminal: \ny_ion: true\nmodifications: \ndatabase: human_ipi\nz_ion: \na_ion: \n", "07a54e42b4264a6869c3fdb33e69e936", {}).and_return(true)
+      @parameter_file.should_receive(:send_verified_data).with("tandem-parameter-records/209d808516a1c96827605429062f82e3.yml", "--- \nname: jobname\ncreated_at: \nb_ion: true\nenzyme: enzyme\nn_terminal: \nc_ion: \nupdated_at: \nx_ion: \nc_terminal: \ny_ion: true\nmodifications: \ndatabase: human_ipi\nz_ion: \na_ion: \n", "07a54e42b4264a6869c3fdb33e69e936", {}).and_return(true)
       @parameter_file.persist
     end
   end
 
   describe "delete" do
     it "should remove the data file from s3" do
-      Aws.should_receive(:delete_object).with("tandem-parameter-files/209d808516a1c96827605429062f82e3.yml").and_return(true)
+      Aws.should_receive(:delete_object).with("tandem-parameter-records/209d808516a1c96827605429062f82e3.yml").and_return(true)
       @parameter_file.delete
     end
   end
@@ -53,7 +53,7 @@ describe TandemParameterFile do
     before(:each) do
       @pf = create_tandem_parameter_file
       @pf.should_receive(:retreive).with("file").and_return("string")
-      TandemParameterFile.should_receive(:remote_file_list).with("tandem-parameter-files").and_return(["file"])
+      TandemParameterFile.should_receive(:remote_file_list).with("tandem-parameter-records").and_return(["file"])
       TandemParameterFile.should_receive(:new).and_return(@pf)
     end
 

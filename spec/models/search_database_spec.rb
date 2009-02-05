@@ -85,7 +85,7 @@ describe SearchDatabase do
   describe "remote database array" do
     it "should build an array of all the available search databases" do
       hash = {'filename' => 'file', 'name' => 'dbname'}
-      SearchDatabase.should_receive(:remote_file_list).with("search-database-files").and_return(["file"])
+      SearchDatabase.should_receive(:remote_file_list).with("search-database-records").and_return(["file"])
       SearchDatabase.should_receive(:retreive).with("file").and_return("string")
       YAML.should_receive(:load).with("string").and_return(hash)
       SearchDatabase.remote_database_array.should == [{'name' => 'dbname'}]
@@ -94,14 +94,14 @@ describe SearchDatabase do
 
   describe "persist" do
     it "should send the yamlized parameters to s3" do
-      @search_database.should_receive(:send_verified_data).with("search-database-files/ded71029ed304895d57098959b32ca9d.yml", "--- \nname: database_name\ncreated_at: 2009-01-10 12:00:00 UTC\navailable: \"false\"\nsearch_database_file_size: \"20\"\nupdated_at: 2009-01-10 12:00:00 UTC\nsearch_database_content_type: text/plain\nsearch_database_file_name: search_database_file.fasta\nsearch_database_updated_at: 2009-01-10 12:00:00 UTC\nversion: version\nfilename: search_database_file\ndb_type: ebi\nuser_uploaded: \"true\"\n", "472adfbc95187686fb4a7714b7306003", {}).and_return(true)
+      @search_database.should_receive(:send_verified_data).with("search-database-records/ded71029ed304895d57098959b32ca9d.yml", "--- \nname: database_name\ncreated_at: 2009-01-10 12:00:00 UTC\navailable: \"false\"\nsearch_database_file_size: \"20\"\nupdated_at: 2009-01-10 12:00:00 UTC\nsearch_database_content_type: text/plain\nsearch_database_file_name: search_database_file.fasta\nsearch_database_updated_at: 2009-01-10 12:00:00 UTC\nversion: version\nfilename: search_database_file\ndb_type: ebi\nuser_uploaded: \"true\"\n", "472adfbc95187686fb4a7714b7306003", {}).and_return(true)
       @search_database.persist
     end
   end
 
   describe "delete" do
     it "should remove the data file from s3" do
-      Aws.should_receive(:delete_object).with("search-database-files/ded71029ed304895d57098959b32ca9d.yml").and_return(true)
+      Aws.should_receive(:delete_object).with("search-database-records/ded71029ed304895d57098959b32ca9d.yml").and_return(true)
       @search_database.delete
     end
   end
