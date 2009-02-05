@@ -4,8 +4,8 @@ class OmssaPacker < Packer
     begin
       make_directory(PACK_DIR)
       download_results_files
-      download_datafile
-      unzip_file(local_datafile, PACK_DIR)
+      download_file(local_mgf_file, remote_mgf_file)
+      download_file(local_parameter_file, remote_parameter_file)
       generate_ez2_file
       zip_files
       send_file(bucket_object(local_zipfile), local_zipfile) # this will upload the file
@@ -18,12 +18,12 @@ class OmssaPacker < Packer
     OmssaPacker.run_omssa_aws2ez2_unix(ez2_parameter_string)
   end
 
-  def download_datafile
-    download_file(local_datafile, message[:datafile])
+  def local_mgf_file
+    "#{PACK_DIR}/#{message[:datafile]}"
   end
 
-  def local_datafile
-    "#{PACK_DIR}/data.zip"
+  def local_parameter_file
+    "#{PACK_DIR}/#{PARAMETER_FILENAME}"
   end
 
   def ez2_parameter_string

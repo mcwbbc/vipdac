@@ -64,39 +64,50 @@ describe OmssaPacker do
     end
   end
 
-  describe "download datafile" do
-    it "should download the original datafile" do
-      @packer.should_receive(:download_file).with(/\/pipeline\/tmp-.+\/pack\/data.zip/, "datafile.zip").and_return(true)
-      @packer.download_datafile
+  def run
+    begin
+      make_directory(PACK_DIR)
+      download_results_files
+      download_file(local_mgf_file, remote_mgf_file)
+      download_file(local_parameter_file, remote_parameter_file)
+      generate_ez2_file
+      zip_files
+      send_file(bucket_object(local_zipfile), local_zipfile) # this will upload the file
     end
-  end
-
-  describe "local datafile" do
-    it "should be the unpack dir data.zip" do
-      @packer.local_datafile.should match(/\/pipeline\/tmp-.+\/data.zip/)
-    end
+    ensure
+      remove_item(PACK_DIR)
   end
 
   describe "run" do
     it "should complete all the steps" do
-      @packer = create_packer(:output_file => "file")
-      @packer.should_receive(:local_zipfile).twice.and_return("local_zipfile")
-      @packer.should_receive(:local_datafile).and_return("local_datafile")
-      @packer.should_receive(:make_directory).with(PACK_DIR).and_return(true)
-      @packer.should_receive(:download_results_files).and_return(true)
-      @packer.should_receive(:download_datafile).and_return(true)
-      @packer.should_receive(:unzip_file).with("local_datafile", PACK_DIR).and_return(true)
-      @packer.should_receive(:zip_files).and_return(true)
-      @packer.should_receive(:generate_ez2_file).and_return(true)
-      @packer.should_receive(:send_file).with("completed-jobs/local_zipfile", "local_zipfile").and_return(true)
+      @packer = create_packer(:output_file => "file-results.zip")
+      @packer.should_receive(:make_directory).with(PACK_DIR).ordered.and_return(true)
+      @packer.should_receive(:download_results_files).ordered.and_return(true)
+      @packer.should_receive(:download_file).with(/pack\/datafile\.mgf$/, "datafiles/datafile.mgf").ordered.and_return(true)
+      @packer.should_receive(:download_file).with(/pack\/parameters\.conf$/, "hash_key/parameters.conf").ordered.and_return(true)
+      @packer.should_receive(:generate_ez2_file).ordered.and_return(true)
+      @packer.should_receive(:zip_files).ordered.and_return(true)
+      @packer.should_receive(:send_file).with("completed-jobs/file-results.zip", /pack\/file-results\.zip$/).ordered.and_return(true)
       @packer.should_receive(:remove_item).with(/\/pipeline\/tmp-(.+?)\/pack/).and_return(true)
       @packer.run
     end
   end
 
+  describe "local mgf file" do
+    it "should return a filename string" do
+      @packer.local_mgf_file.should match(/pack\/datafile\.mgf$/)
+    end
+  end
+
+  describe "local parameter file" do
+    it "should return a filename string" do
+      @packer.local_parameter_file.should match(/pack\/parameters\.conf$/)
+    end
+  end
+
   protected
     def create_packer(options = {})
-      record = OmssaPacker.new({:type => PACK, :bucket_name => "bucket", :job_id => 1234, :datafile => "datafile.zip", :output_file => "omssa-results.zip", :searcher => "omssa"}.merge(options))
+      record = OmssaPacker.new({:type => PACK, :bucket_name => "bucket", :job_id => 1234, :hash_key => "hash_key", :datafile => "datafile.mgf", :output_file => "omssa-results.zip", :searcher => "omssa"}.merge(options))
       record
     end
 
