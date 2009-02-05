@@ -9,6 +9,7 @@ class Chunk < ActiveRecord::Base
   named_scope :working, :conditions => ['started_at > ? AND finished_at = ?', 0, 0]
   named_scope :complete, :conditions => ['started_at > ? AND finished_at > ?', 0, 0]
   named_scope :incomplete, :conditions => ['finished_at = ?', 0]
+  named_scope :recent, {:limit => 10, :order => 'finished_at DESC, started_at DESC'}
 
   def status
     return "Created" if (started_at == 0)

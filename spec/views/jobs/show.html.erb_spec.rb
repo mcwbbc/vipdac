@@ -5,8 +5,11 @@ describe "/jobs/show.html.erb" do
   
   before(:each) do
     @job = mock_model(Job)
+
+    working = mock("working", :recent => [], :size => 0)
+    complete = mock("complete", :recent => [], :size => 0)
   
-    chunks = mock("chunks", :pending => [], :working => [], :complete => [], :empty? => true, :size => 0)
+    chunks = mock("chunks", :pending => [], :working => working, :complete => complete, :empty? => true, :size => 0)
     @job.stub!(:chunks).and_return(chunks)
     @job.stub!(:status).and_return("pending")
     @job.stub!(:searcher).and_return("tandem")

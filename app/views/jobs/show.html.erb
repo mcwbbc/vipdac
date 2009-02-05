@@ -18,4 +18,9 @@ Working chunks: <%=h @job.chunks.working.size %><br />
 Complete chunks: <%=h @job.chunks.complete.size %><br />
 <br />
 <br />
-<%= render(:partial => "shared/chunks", :locals => { :chunks => @job.chunks }) if !@job.chunks.empty? %>
+Last 10 working chunks
+<%= render(:partial => "shared/chunks", :locals => { :chunks => @job.chunks.working.recent }) %>
+<br />
+Last 10 recently completed chunks
+<%= render(:partial => "shared/chunks", :locals => { :chunks => @job.chunks.complete.recent }) %>
+
