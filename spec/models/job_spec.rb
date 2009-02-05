@@ -7,7 +7,7 @@ describe Job do
   end
 
   describe "create" do
-    [:name, :searcher, :parameter_file_id, :mgf_file_name, :spectra_count, :priority].each do |key|
+    [:name, :searcher, :parameter_file_id, :datafile_id, :spectra_count, :priority].each do |key|
       it "should not create a new instance without '#{key}'" do
         create_job(key => nil).should_not be_valid
       end
@@ -157,16 +157,11 @@ describe Job do
   end
 
   describe "remove_s3_files" do
-    before(:each) do
-      @job.datafile = "hello.zip"
-    end
-    
-    it "should have the proper key" do
-      @job.s3_results_key.should eql("completed-jobs/hello-results.zip")
-    end
-    
     it "should remove a file from s3 and return true" do
-      Aws.stub!(:delete_object).and_return(true)
+      @job.s3_results_key.should eql("completed-jobs/jobname-results.zip")
+      @job.should_receive(:hash_key).and_return("hashkey")
+      Aws.should_receive(:delete_object).with("completed-jobs/jobname-results.zip").and_return(true)
+      Aws.should_receive(:delete_object).with("hashkey/parameters.conf").and_return(true)
       @job.remove_s3_files
     end
   end
@@ -243,6 +238,20 @@ describe Job do
     end
   end
 
+  describe "output file" do
+    it "should return the clean name with -results.zip added" do
+      @job.should_receive(:clean_name).and_return("hellothere")
+      @job.output_file.should == "hellothere-results.zip"
+    end
+  end
+
+  describe "clean name" do
+    it "should return a downcased string with no spaces, odd characters" do
+      @job.name = "Hello there!!"
+      @job.clean_name.should == "hellothere"
+    end
+  end
+
   describe "processed?" do
     before(:each) do
       @chunk = mock_model(Chunk)
@@ -271,25 +280,6 @@ describe Job do
     end
   end
 
-  describe "when creating the local zip file" do
-    before(:each) do
-      Object.send(:remove_const, 'Job')
-      load 'job.rb'
-      @job.id = 12
-    end
-    it "should have an id partition" do
-      @job.id_partition.should eql("000/000/012")
-    end
-
-    it "should have a local datafile directory" do
-      @job.local_datafile_directory.should match(/\/public\/jobs\/000\/000\/012\//)
-    end
-
-    it "should have a local zipfile" do
-      @job.local_zipfile.should match(/\/public\/jobs\/000\/000\/012\/jobname.zip/)
-    end
-  end
-
   describe "load parameter file" do
     describe "for tandem" do
       it "should load the parameter_file" do
@@ -314,7 +304,7 @@ describe Job do
     describe "for tandem" do
       it "should write out the file" do
         pf = mock("parameter_file")
-        pf.should_receive(:write_file).with(/jobs\/000\/000\/000/).and_return(true)
+        pf.should_receive(:write_file).with(/vipdac\/tmp/).and_return(true)
         job = create_job
         job.create_parameter_textfile(pf).should be_true
       end
@@ -326,46 +316,26 @@ describe Job do
       Digest::SHA1.stub!(:hexdigest).and_return("hex")
       @job.set_defaults
     end
-    it "should set the datafile name" do
-      @job.datafile.should eql("pending-jobs/jobname.zip")
-    end
+
     it "should set the status" do
       @job.status.should eql("Pending")
     end
+
     it "should set hash_key" do
       @job.hash_key.should eql("hex")
     end
+
     it "should set created_at" do
       @job.created_at.should_not be_nil
     end
   end
 
-  describe "bundle datafile" do
-    before(:each) do
-      @zipfile = mock("zipfile")
-      @zipfile.should_receive(:add).once.with("mgf_file", /mgf_file/).and_return(true)
-      @zipfile.should_receive(:add).once.with("parameters.conf", /parameters.conf/).and_return(true)
-      Zip::ZipFile.should_receive(:open).with(/jobname.zip/, 1).and_yield(@zipfile)
-    end
-
-    it "should delete the existing zipfile" do
-      File.should_receive(:exist?).once.and_return(true)
-      File.should_receive(:delete).once.and_return(true)
-      @job.bundle_datafile
-    end
-
-    it "should create a zip file" do
-      File.should_receive(:exist?).and_return(false)
-      @job.bundle_datafile
-    end
-  end
-
-  describe "upload data file to s3" do
-    it "should put the zip file on s3" do
-      @job.should_receive(:zipfile_name).and_return("zipfile_name")
-      @job.should_receive(:local_zipfile).and_return("local_zipfile")
-      @job.should_receive(:send_file).with("pending-jobs/zipfile_name","local_zipfile").and_return(true)
-      @job.upload_datafile_to_s3.should be_true
+  describe "upload parameter file to s3" do
+    it "should put the parameter file on s3" do
+      @job.should_receive(:hash_key).and_return("hashkey")
+      @job.should_receive(:local_parameter_file).and_return("local_parameter_file")
+      @job.should_receive(:send_file).with("hashkey/#{PARAMETER_FILENAME}", "local_parameter_file").and_return(true)
+      @job.upload_parameter_file_to_s3.should be_true
     end
   end
 
@@ -379,23 +349,25 @@ describe Job do
 
   describe "send message" do
     before(:each) do
+      datafile = mock("datafile", :uploaded_file_name => "uploaded.mgf")
+      
       @job.should_receive(:output_file).and_return("file")
       @job.should_receive(:id).and_return(12)
       @job.should_receive(:hash_key).and_return('hash_key')
       @job.should_receive(:spectra_count).and_return(100)
       @job.should_receive(:priority).and_return(1000)
-      @job.should_receive(:datafile).and_return("datafile")
+      @job.should_receive(:datafile).and_return(datafile)
       @job.should_receive(:search_database).and_return("search_database")
       Aws.should_receive(:bucket_name).and_return("bucket")
     end
 
     it "should send a pack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "uploaded.mgf", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
       @job.send_message(PACK)
     end
 
     it "should send an unpack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "uploaded.mgf", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
       @job.send_message(UNPACK)
     end
   end
@@ -424,8 +396,7 @@ describe Job do
       parameter_file = mock("paramter_file")
       @job.should_receive(:load_parameter_file).ordered.and_return(parameter_file)
       @job.should_receive(:create_parameter_textfile).with(parameter_file).ordered.and_return(true)
-      @job.should_receive(:bundle_datafile).ordered.and_return(true)
-      @job.should_receive(:upload_datafile_to_s3).ordered.and_return(true)
+      @job.should_receive(:upload_parameter_file_to_s3).ordered.and_return(true)
       @job.should_receive(:send_message).with(UNPACK).ordered.and_return(true)
       @job.background_s3_upload
     end
@@ -457,9 +428,15 @@ describe Job do
     end
   end
 
+  describe "local parameter file" do
+    it "should return the local parameter file" do
+      @job.local_parameter_file.should match(/parameters.conf$/)
+    end
+  end
+
   protected
     def create_job(options = {})
-      record = Job.new({ :name => "jobname", :mgf_file_name => 'mgf_file', :mgf_content_type => 'text/plain', :mgf_file_size => 20, :searcher => "omssa", :parameter_file_id => 1, :spectra_count => 200, :priority => 1000 }.merge(options))
+      record = Job.new({ :name => "jobname", :datafile_id => 10, :searcher => "omssa", :parameter_file_id => 1, :spectra_count => 200, :priority => 1000 }.merge(options))
       record
     end
 end

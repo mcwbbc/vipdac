@@ -2,15 +2,6 @@
 
 <%= all_error_messages_for :job %>
 
-<script type="text/javascript">
-  Event.observe(window, 'load', function() {
-    $('upload').uploadProgress({
-      prototypePath: "/javascripts/prototype.js",
-      uploadProgressPath: "/javascripts/upload_progress.js"
-    });
-  });
-</script>
-
 <% form_for @job, :html => { :id => 'upload', :multipart => true }  do |f| %>
 <table>
   <tr valign="top">
@@ -26,8 +17,8 @@
     <td><%= f.text_field(:spectra_count) %></td>
   </tr>
   <tr>
-    <td>MGF File:</td>
-    <td><%= f.file_field(:mgf) %></td>
+    <td>Data File:</td>
+		<td><%= f.select :datafile_id, Datafile.select_options %></td>
   </tr>
   <tr>
     <td>Search Application:</td>
@@ -37,10 +28,6 @@
   <tr>
     <td>Parameter File:</td>
     <td><div id="parameter_files"><%= render(:partial => "parameter_files", :locals => { :f => f }) %></div></td>
-  </tr>
-  <tr>
-    <td>Upload progress:</td>
-    <td><div id="progress" class="bar"><div id="progressbar">&nbsp;</div></div></td>
   </tr>
   <tr>
     <td></td>

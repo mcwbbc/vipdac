@@ -4,14 +4,15 @@ class Job < ActiveRecord::Base
 
   before_create :set_defaults
 
+  belongs_to :datafile
+
   has_many :chunks, :dependent => :destroy, :order => 'finished_at DESC, started_at DESC'
-  
-  has_attached_file :mgf, :path => ":rails_root/public/jobs/:id_partition/:basename.:extension"
-  validates_attachment_presence :mgf, :message => "^MGF file is required"
 
   validates_presence_of :name, :message => "^Name is required"
   validates_presence_of :searcher, :message => "^Search method is required"
   validates_presence_of :parameter_file_id, :message => "^Parameter file is required"
+  validates_presence_of :datafile_id, :message => "^Datafile is required"
+
   validates_presence_of :spectra_count, :message => "^Spectra count is required"
   validates_presence_of :priority, :message => "^Priority is required"
   validates_numericality_of :spectra_count, :message => "^Spectra count is not a number"
@@ -94,7 +95,7 @@ class Job < ActiveRecord::Base
   end
 
   def remove_s3_files
-    Aws.delete_object(s3_results_key) && Aws.delete_object(datafile)
+    Aws.delete_object(s3_results_key) && Aws.delete_object("#{hash_key}/#{PARAMETER_FILENAME}")
   end
 
   def s3_results_key
@@ -108,7 +109,6 @@ class Job < ActiveRecord::Base
   def set_defaults
     self.status = "Pending"
     self.created_at = Time.now
-    self.datafile = "pending-jobs/#{zipfile_name}"
     self.hash_key = Digest::SHA1.hexdigest(self.object_id.to_s+self.created_at.to_s)
   end
 
@@ -148,8 +148,7 @@ class Job < ActiveRecord::Base
   def background_s3_upload
     parameter_file = load_parameter_file
     create_parameter_textfile(parameter_file)
-    bundle_datafile
-    upload_datafile_to_s3
+    upload_parameter_file_to_s3
     send_message(UNPACK)
   end
 
@@ -181,8 +180,11 @@ class Job < ActiveRecord::Base
   end
 
   def output_file
-    output = datafile.split('/').last.match(/(.+)\.zip$/)[1]
-    output+"-results.zip"
+    clean_name+"-results.zip"
+  end
+
+  def clean_name
+    name.gsub(/[^0-9A-Za-z.\-]/, '').downcase
   end
 
   def send_background_upload_message
@@ -191,36 +193,19 @@ class Job < ActiveRecord::Base
   end
 
   def send_message(type)
-    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :hash_key => hash_key, :datafile => datafile, :output_file => output_file, :searcher => searcher, :search_database => search_database, :spectra_count => spectra_count, :priority => priority}
+    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :hash_key => hash_key, :datafile => datafile.uploaded_file_name, :output_file => output_file, :searcher => searcher, :search_database => search_database, :spectra_count => spectra_count, :priority => priority}
     MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => 50, :ttr => 1200)
   end
 
-  def bundle_datafile
-    File.delete(local_zipfile) if File.exist?(local_zipfile) #avoid the already added file exception
-    Zip::ZipFile.open(local_zipfile, Zip::ZipFile::CREATE) { |zipfile|
-      zipfile.add(mgf_file_name, local_datafile_directory+mgf_file_name)
-      zipfile.add(PARAMETER_FILENAME, local_datafile_directory+PARAMETER_FILENAME)
-    }
-  end
-
-  def upload_datafile_to_s3
-    send_file("pending-jobs/#{zipfile_name}", local_zipfile)
+  def upload_parameter_file_to_s3
+    send_file("#{hash_key}/#{PARAMETER_FILENAME}", local_parameter_file)
   end
   
-  def zipfile_name
-    "#{name}.zip"
-  end
-  
-  def local_zipfile
-    @local_zipfile ||= File.join(local_datafile_directory, zipfile_name)
+  def local_parameter_file
+    File.join(local_datafile_directory, PARAMETER_FILENAME)
   end
 
   def local_datafile_directory
-    File.join(RAILS_ROOT, "/public/jobs/#{id_partition}/")
+    File.join(RAILS_ROOT, "/tmp/")
   end
-  
-  def id_partition
-    ("%09d" % id).scan(/\d{3}/).join("/")
-  end
-
 end

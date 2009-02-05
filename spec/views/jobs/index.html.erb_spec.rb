@@ -7,21 +7,22 @@ describe "/jobs/index.html.erb" do
     @chunks = mock("chunks", :pending => [], :working => [], :complete => [], :empty? => true, :size => 0)
 
     @jobs = []
+    @datafile = mock("datafile", :uploaded_file_name => "uploaded.mgf")
+    
     0.upto(2) do |i|
       job = mock_model(Job)
       job.stub!(:chunks).and_return(@chunks)
       job.stub!(:status).and_return("pending")
       job.stub!(:searcher).and_return("tandem")
       job.stub!(:link).and_return("website")
-      job.stub!(:datafile).and_return("pending-jobs/datafile")
       job.stub!(:launched_at).and_return(Time.now.to_f)
       job.stub!(:finished_at).and_return(Time.now.to_f)
+      job.stub!(:datafile).and_return(@datafile)
       job.stub!(:processing_time).and_return(100.0)
       job.stub!(:maximum_chunk_time).and_return(100.0)
       job.stub!(:minimum_chunk_time).and_return(100.0)
       job.stub!(:average_chunk_time).and_return(100.0)
       job.stub!(:name).and_return("name")
-      job.stub!(:mgf_file_name).and_return("mgf_file_name")
       job.stub!(:spectra_count).and_return(200)
       job.stub!(:priority).and_return(200)
 

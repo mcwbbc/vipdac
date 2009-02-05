@@ -39,10 +39,10 @@ ActiveRecord::Schema.define(:version => 20090204185044) do
 
   create_table "jobs", :force => true do |t|
     t.integer  "parameter_file_id"
+    t.integer  "datafile_id"
     t.string   "name"
     t.string   "status"
     t.string   "searcher"
-    t.string   "datafile"
     t.string   "hash_key"
     t.string   "link",              :default => ""
     t.integer  "spectra_count"
@@ -50,10 +50,6 @@ ActiveRecord::Schema.define(:version => 20090204185044) do
     t.float    "launched_at",       :default => 0.0
     t.float    "finished_at",       :default => 0.0
     t.float    "started_pack_at",   :default => 0.0
-    t.string   "mgf_file_name"
-    t.string   "mgf_content_type"
-    t.integer  "mgf_file_size"
-    t.datetime "mgf_updated_at"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

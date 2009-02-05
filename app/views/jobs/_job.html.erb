@@ -1,7 +1,7 @@
 <tr valign="top">
   <td><%=h job.id %></td>
   <td><%= link_to(job.name, job) %></td>
-  <td><%=h job.mgf_file_name %></td>
+  <td><%=h job.datafile.uploaded_file_name %></td>
   <td><%=h PRIORITY_HASH[job.priority] %></td>
   <td><%=h job.status %></td>
   <td><%= complete_bar(job) %></td>
