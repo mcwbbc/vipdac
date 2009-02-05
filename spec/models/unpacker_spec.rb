@@ -11,15 +11,27 @@ describe Unpacker do
     end
   end
   
-  describe "local zipfile" do
+  describe "local mgf file" do
     it "should return a filename string" do
-      @unpacker.local_zipfile.should match(/unpack\/data.zip/)
+      @unpacker.local_mgf_file.should match(/unpack\/datafile.mgf/)
     end
   end
 
   describe "local parameter file" do
     it "should return a filename string" do
       @unpacker.local_parameter_file.should match(/unpack\/parameters.conf/)
+    end
+  end
+
+  describe "remote mgf file" do
+    it "should return a filename string" do
+      @unpacker.remote_mgf_file.should match(/datafiles\/datafile.mgf/)
+    end
+  end
+
+  describe "remote parameter file" do
+    it "should return a filename string" do
+      @unpacker.remote_parameter_file.should match(/hash_key\/parameters.conf/)
     end
   end
 
@@ -77,14 +89,13 @@ describe Unpacker do
 
   describe "run" do
     it "should complete all the steps" do
-      @unpacker.should_receive(:send_job_message).twice.and_return(true)
-      @unpacker.should_receive(:make_directory).and_return(true)
-      @unpacker.should_receive(:download_file).and_return(true)
-      @unpacker.should_receive(:unzip_file).and_return(true)
-      @unpacker.should_receive(:split_original_mgf).and_return(true)
-      @unpacker.should_receive(:local_parameter_file).twice.and_return("parameters.conf")
-      @unpacker.should_receive(:send_file).with("hash_key/parameters.conf", "parameters.conf").and_return(true)
-      @unpacker.should_receive(:upload_split_mgf_files).and_return(true)
+      @unpacker.should_receive(:send_job_message).with("JOBUNPACKING").ordered.and_return(true)
+      @unpacker.should_receive(:make_directory).with(/unpack$/).ordered.and_return(true)
+      @unpacker.should_receive(:download_file).with(/unpack\/datafile\.mgf$/, "datafiles/datafile.mgf").ordered.and_return(true)
+      @unpacker.should_receive(:download_file).with(/unpack\/parameters\.conf$/, /parameters\.conf$/).ordered.and_return(true)
+      @unpacker.should_receive(:split_original_mgf).ordered.and_return(true)
+      @unpacker.should_receive(:upload_split_mgf_files).ordered.and_return(true)
+      @unpacker.should_receive(:send_job_message).with("JOBUNPACKED").ordered.and_return(true)
       @unpacker.should_receive(:remove_item).and_return(true)
       @unpacker.run
     end
@@ -154,7 +165,6 @@ describe Unpacker do
       File.should_receive(:open).with(/unpack\/mgfs\/filename-00000001.mgf/, 'w').and_yield(outfile2)
       @unpacker.split_original_mgf
     end
-
   end
 
   describe "writing the output file" do
@@ -168,7 +178,7 @@ describe Unpacker do
 
   protected
     def create_unpacker(options = {})
-      record = Unpacker.new({:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :searcher => "omssa", :spectra_count => 200}.merge(options))
+      record = Unpacker.new({:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile.mgf", :searcher => "omssa", :spectra_count => 200}.merge(options))
       record
     end
 

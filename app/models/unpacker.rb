@@ -12,10 +12,9 @@ class Unpacker
     begin
       send_job_message(JOBUNPACKING)
       make_directory(UNPACK_DIR)
-      download_file(local_zipfile, message[:datafile])
-      unzip_file(local_zipfile, UNPACK_DIR)
+      download_file(local_mgf_file, remote_mgf_file)
+      download_file(local_parameter_file, remote_parameter_file)
       split_original_mgf
-      send_file(bucket_object(local_parameter_file), local_parameter_file)
       upload_split_mgf_files
       send_job_message(JOBUNPACKED)
     end
@@ -23,12 +22,20 @@ class Unpacker
       remove_item(UNPACK_DIR)
   end
 
-  def local_zipfile
-    "#{UNPACK_DIR}/data.zip"
+  def local_mgf_file
+    "#{UNPACK_DIR}/#{message[:datafile]}"
+  end
+
+  def remote_mgf_file
+    "datafiles/#{message[:datafile]}"
   end
   
   def local_parameter_file
     "#{UNPACK_DIR}/#{PARAMETER_FILENAME}"
+  end
+
+  def remote_parameter_file
+    "#{message[:hash_key]}/#{PARAMETER_FILENAME}"
   end
 
   def write_file(filename, text)
