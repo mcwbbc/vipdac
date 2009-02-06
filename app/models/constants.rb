@@ -59,3 +59,5 @@
   FINISHED = "FINISHED".freeze unless self.class.const_defined? "FINISHED"
 
   SEARCHERS = ['omssa', 'tandem'].freeze unless self.class.const_defined? "SEARCHERS"
+
+  TOOL_VERSIONS = YAML::load_file( File.join(RAILS_ROOT, 'config', 'tool_versions.yml') ).freeze unless self.class.const_defined? "TOOL_VERSIONS"
