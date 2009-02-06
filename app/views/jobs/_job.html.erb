@@ -13,5 +13,5 @@
   <td><%=h pretty_time(job.maximum_chunk_time) %></td>
   <td><%=h pretty_time(job.minimum_chunk_time) %></td>
   <td><%=h pretty_time(job.average_chunk_time) %></td>
-  <td><strong><%= link_to('Download Results', job.link) if !job.link.blank? %></strong>  <%= link_to('Delete', job, :confirm => 'Are you sure?', :method => :delete) %></td>
+  <td><%= link_to('Delete', job, :confirm => 'Are you sure?', :method => :delete) %></td>
 </tr>
