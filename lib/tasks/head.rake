@@ -1,5 +1,14 @@
 namespace :head do
 
+  desc "Import all the resultfile records from S3"
+  task(:import_resultfiles => :environment) do
+    begin
+      Resultfile.import
+    rescue Exception => e
+      puts e
+    end
+  end
+
   desc "Import all the datafile records from S3"
   task(:import_datafiles => :environment) do
     begin
