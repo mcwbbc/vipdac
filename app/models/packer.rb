@@ -35,7 +35,7 @@ class Packer
   end
 
   def local_zipfile
-    "#{PACK_DIR}/"+message[:output_file]
+    "#{PACK_DIR}/#{message[:resultfile_name]}.zip"
   end
 
   def zip_files
@@ -47,7 +47,7 @@ class Packer
   end
   
   def bucket_object(file_path)
-    "completed-jobs/"+input_file(file_path)
+    "resultfiles/"+input_file(file_path)
   end
 
   def output_filenames

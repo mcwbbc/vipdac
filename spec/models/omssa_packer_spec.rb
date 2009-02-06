@@ -8,7 +8,7 @@ describe OmssaPacker do
 
   describe "create ez2 file" do
     it "should return an ez2 filename based on the zipfile name" do
-      @packer.local_ez2file.should match(/omssa-results$/)
+      @packer.local_ez2file.should match(/resultfilename$/)
     end
 
     it "should create an input string" do
@@ -16,7 +16,7 @@ describe OmssaPacker do
     end
 
     it "should create an output string" do
-      @packer.ez2_output.should match(/--output=(.+?)omssa-results$/)
+      @packer.ez2_output.should match(/--output=(.+?)resultfilename$/)
     end
 
     it "should create a mgf string" do
@@ -87,7 +87,7 @@ describe OmssaPacker do
       @packer.should_receive(:download_file).with(/pack\/parameters\.conf$/, "hash_key/parameters.conf").ordered.and_return(true)
       @packer.should_receive(:generate_ez2_file).ordered.and_return(true)
       @packer.should_receive(:zip_files).ordered.and_return(true)
-      @packer.should_receive(:send_file).with("completed-jobs/file-results.zip", /pack\/file-results\.zip$/).ordered.and_return(true)
+      @packer.should_receive(:send_file).with("resultfiles/resultfilename.zip", /pack\/resultfilename\.zip$/).ordered.and_return(true)
       @packer.should_receive(:remove_item).with(/\/pipeline\/tmp-(.+?)\/pack/).and_return(true)
       @packer.run
     end
@@ -107,7 +107,7 @@ describe OmssaPacker do
 
   protected
     def create_packer(options = {})
-      record = OmssaPacker.new({:type => PACK, :bucket_name => "bucket", :job_id => 1234, :hash_key => "hash_key", :datafile => "datafile.mgf", :output_file => "omssa-results.zip", :searcher => "omssa"}.merge(options))
+      record = OmssaPacker.new({:type => PACK, :bucket_name => "bucket", :job_id => 1234, :hash_key => "hash_key", :datafile => "datafile.mgf", :resultfile_name => "resultfilename", :searcher => "omssa"}.merge(options))
       record
     end
 

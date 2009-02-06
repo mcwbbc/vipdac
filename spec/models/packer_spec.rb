@@ -29,14 +29,14 @@ describe Packer do
 
   describe "local zipfile" do
     it "should return the zipfile name" do
-      @packer = create_packer(:output_file => "file")
-      @packer.local_zipfile.should match(/^\/pipeline\/tmp-.+\/pack\/file$/)
+      @packer = create_packer
+      @packer.local_zipfile.should match(/^\/pipeline\/tmp-.+\/pack\/result_file.zip$/)
     end
   end
 
   describe "bucket object" do
     it "should return a filename string" do
-      @packer.bucket_object("dir/file").should == "completed-jobs/file"
+      @packer.bucket_object("dir/result_file.zip").should == "resultfiles/result_file.zip"
     end
   end
 
@@ -44,12 +44,6 @@ describe Packer do
     it "should return an array of files with the extensions" do
       Dir.should_receive(:[]).and_return(["this.xml", "that.csv", "another.conf"])
       @packer.output_filenames.should == ["this.xml", "that.csv", "another.conf"]
-    end
-  end
-
-  def download_results_files
-    manifest.each do |file|
-      download_file("#{PACK_DIR}/"+input_file(file), file)
     end
   end
 
@@ -78,9 +72,9 @@ describe Packer do
       @packer = create_packer(:output_file => "file")
       @packer.should_receive(:make_directory).and_return(true)
       @packer.should_receive(:download_results_files).and_return(true)
-      @packer.should_receive(:local_zipfile).twice.and_return("local_zipfile")
+      @packer.should_receive(:local_zipfile).twice.and_return("local_zipfile.zip")
       @packer.should_receive(:zip_files).and_return(true)
-      @packer.should_receive(:send_file).with("completed-jobs/local_zipfile", "local_zipfile").and_return(true)
+      @packer.should_receive(:send_file).with("resultfiles/local_zipfile.zip", "local_zipfile.zip").and_return(true)
       @packer.should_receive(:remove_item).and_return(true)
       @packer.run
     end
@@ -88,7 +82,7 @@ describe Packer do
 
   protected
     def create_packer(options = {})
-      record = Packer.new({:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :output_file => "output_file", :searcher => "omssa"}.merge(options))
+      record = Packer.new({:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :resultfile_name => "result_file", :searcher => "omssa"}.merge(options))
       record
     end
 

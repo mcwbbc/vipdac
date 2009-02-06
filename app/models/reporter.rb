@@ -95,7 +95,7 @@ class Reporter
         when JOBPACKING
           job_status(report, message, "Packing")
         when JOBPACKED
-          set_job_download_link(report, message)
+          set_job_complete(report, message)
         else
           message.delete
       end
@@ -127,18 +127,20 @@ class Reporter
 
   # string for the download from S3 link
   
-  def create_job_link(report, job)
-    "http://s3.amazonaws.com/#{report[:bucket_name]}/completed-jobs/#{job.output_file}"
+  def create_resultfile_link(report, job)
+    "http://s3.amazonaws.com/#{report[:bucket_name]}/resultfiles/#{job.resultfile_name}.zip"
   end
 
   # update the job with a download link and marked complete
 
-  def set_job_download_link(report, message)
+  def set_job_complete(report, message)
     job = load_job(report[:job_id])
     if job
+      resultfile = Resultfile.new(:name => job.resultfile_name, :link => create_resultfile_link(report, job))
+      resultfile.save!
+      resultfile.persist
       job.status = "Complete"
       job.finished_at = Time.now.to_f
-      job.link = create_job_link(report, job)
       job.save!
       job.remove_s3_working_folder
     end

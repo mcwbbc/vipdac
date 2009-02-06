@@ -158,11 +158,18 @@ describe Job do
 
   describe "remove_s3_files" do
     it "should remove a file from s3 and return true" do
-      @job.s3_results_key.should eql("completed-jobs/jobname-results.zip")
       @job.should_receive(:hash_key).and_return("hashkey")
-      Aws.should_receive(:delete_object).with("completed-jobs/jobname-results.zip").and_return(true)
       Aws.should_receive(:delete_object).with("hashkey/parameters.conf").and_return(true)
       @job.remove_s3_files
+    end
+  end
+
+  describe "parameter file name" do
+    it "should return the name of the parameter file used by the job" do
+      pf = mock("parameter_file")
+      pf.should_receive(:name).and_return("Big Name")
+      @job.should_receive(:load_parameter_file).and_return(pf)
+      @job.parameter_file_name.should == "bigname"
     end
   end
 
@@ -238,17 +245,20 @@ describe Job do
     end
   end
 
-  describe "output file" do
-    it "should return the clean name with -results.zip added" do
-      @job.should_receive(:clean_name).and_return("hellothere")
-      @job.output_file.should == "hellothere-results.zip"
+  describe "resultfile name" do
+    it "should create a name for the result file based on the job attributes" do
+      @job.should_receive(:search_database).and_return("database")
+      @job.should_receive(:parameter_file_name).and_return("parameterfilename")
+      df = mock("datafile")
+      df.should_receive(:uploaded_file_name).and_return("thing.mgf")
+      @job.should_receive(:datafile).and_return(df)
+      @job.resultfile_name.should == "jobname_thing_database_omssa_parameterfilename_200"
     end
   end
 
-  describe "clean name" do
+  describe "clean string" do
     it "should return a downcased string with no spaces, odd characters" do
-      @job.name = "Hello there!!"
-      @job.clean_name.should == "hellothere"
+      @job.clean_string("Hello There!!").should == "hellothere"
     end
   end
 
@@ -351,7 +361,7 @@ describe Job do
     before(:each) do
       datafile = mock("datafile", :uploaded_file_name => "uploaded.mgf")
       
-      @job.should_receive(:output_file).and_return("file")
+      @job.should_receive(:resultfile_name).and_return("resultfile.zip")
       @job.should_receive(:id).and_return(12)
       @job.should_receive(:hash_key).and_return('hash_key')
       @job.should_receive(:spectra_count).and_return(100)
@@ -362,12 +372,12 @@ describe Job do
     end
 
     it "should send a pack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "uploaded.mgf", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "uploaded.mgf", :resultfile_name => "resultfile.zip", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
       @job.send_message(PACK)
     end
 
     it "should send an unpack node message" do
-      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "uploaded.mgf", :output_file => "file", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
+      MessageQueue.should_receive(:put).with(:name => 'node', :message => {:type => UNPACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "uploaded.mgf", :resultfile_name => "resultfile.zip", :searcher => "omssa", :search_database => "search_database", :spectra_count => 100, :priority => 1000}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
       @job.send_message(UNPACK)
     end
   end

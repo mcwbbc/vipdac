@@ -95,11 +95,7 @@ class Job < ActiveRecord::Base
   end
 
   def remove_s3_files
-    Aws.delete_object(s3_results_key) && Aws.delete_object("#{hash_key}/#{PARAMETER_FILENAME}")
-  end
-
-  def s3_results_key
-    "completed-jobs/#{output_file}"
+    Aws.delete_object("#{hash_key}/#{PARAMETER_FILENAME}")
   end
 
   def remove_s3_working_folder
@@ -167,6 +163,10 @@ class Job < ActiveRecord::Base
     load_parameter_file.database.match(/^(.+)\.fasta$/)[1]
   end
 
+  def parameter_file_name
+    clean_string(load_parameter_file.name)
+  end
+
   def create_parameter_textfile(parameter_file)
     parameter_file.write_file(local_datafile_directory)
   end
@@ -179,12 +179,12 @@ class Job < ActiveRecord::Base
     send_message(PACK)
   end
 
-  def output_file
-    clean_name+"-results.zip"
+  def resultfile_name
+    "#{clean_string(name)}_#{datafile.uploaded_file_name.split('.').first}_#{search_database}_#{searcher}_#{parameter_file_name}_#{spectra_count}"
   end
 
-  def clean_name
-    name.gsub(/[^0-9A-Za-z.\-]/, '').downcase
+  def clean_string(string)
+    string.gsub(/[^0-9A-Za-z.\-]/, '').downcase
   end
 
   def send_background_upload_message
@@ -193,7 +193,7 @@ class Job < ActiveRecord::Base
   end
 
   def send_message(type)
-    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :hash_key => hash_key, :datafile => datafile.uploaded_file_name, :output_file => output_file, :searcher => searcher, :search_database => search_database, :spectra_count => spectra_count, :priority => priority}
+    hash = {:type => type, :bucket_name => Aws.bucket_name, :job_id => id, :hash_key => hash_key, :datafile => datafile.uploaded_file_name, :resultfile_name => resultfile_name, :searcher => searcher, :search_database => search_database, :spectra_count => spectra_count, :priority => priority}
     MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => 50, :ttr => 1200)
   end
 

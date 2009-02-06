@@ -18,7 +18,8 @@ class Resultfile < ActiveRecord::Base
 
     def import
       Resultfile.remote_resultfile_array.each do |database|
-        resultfile = Resultfile.create(database)
+        resultfile = Resultfile.find(:first, :conditions => ["name = ?", database["name"]])
+        Resultfile.create(database) if !resultfile
       end
     end
 

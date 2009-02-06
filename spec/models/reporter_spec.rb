@@ -115,7 +115,7 @@ describe Reporter do
     describe "packed message" do
       it "should set the job status to packed" do
         @report.should_receive(:[]).with(:type).and_return(JOBPACKED)
-        @reporter.should_receive(:set_job_download_link).with(@report, @message).and_return(true)
+        @reporter.should_receive(:set_job_complete).with(@report, @message).and_return(true)
       end
     end
 
@@ -390,28 +390,35 @@ describe Reporter do
         @reporter.check_job_status(@report)
       end
     end
-
   end
 
-  describe "set job download link" do
+  describe "set job complete" do
     before(:each) do
       @report = mock("report")
       @report.should_receive(:[]).with(:job_id).and_return(1234)
       @message = mock("message")
       @job = mock_model(Job)
+      @resultfile = mock_model(Resultfile)
       Time.stub!(:now).and_return(1)
     end
+
     describe "success" do
       it "should have a valid job link" do
-        @reporter.should_receive(:create_job_link).and_return("job_link")
-        @job.should_receive(:link=).with("job_link").and_return(true)
+        @reporter.should_receive(:load_job).with(1234).and_return(@job)
+        @job.should_receive(:resultfile_name).and_return("resultfile")
+        @reporter.should_receive(:create_resultfile_link).with(@report, @job).and_return("link")
+
+        Resultfile.should_receive(:new).with({:link=>"link", :name=>"resultfile"}).and_return(@resultfile)
+        @resultfile.should_receive(:save!).and_return(true)
+        @resultfile.should_receive(:persist).and_return(true)
+
         @job.should_receive(:status=).with("Complete").and_return(true)
         @job.should_receive(:finished_at=).with(1.0).and_return(true)
         @job.should_receive(:save!).and_return(true)
+
         @job.should_receive(:remove_s3_working_folder).and_return(true)
         @message.should_receive(:delete).and_return(true)
-        @reporter.should_receive(:load_job).with(1234).and_return(@job)
-        @reporter.set_job_download_link(@report, @message)
+        @reporter.set_job_complete(@report, @message)
       end
     end
 
@@ -421,18 +428,18 @@ describe Reporter do
         @job.should_not_receive(:remove_s3_working_folder)
         @message.should_receive(:delete).and_return(true)
         @reporter.should_receive(:load_job).with(1234).and_return(nil)
-        @reporter.set_job_download_link(@report, @message)
+        @reporter.set_job_complete(@report, @message)
       end
     end
   end
 
-  describe "create job link" do
+  describe "create result file link" do
     it "should return a string with the s3 link" do
       report = mock("report")
       report.should_receive(:[]).with(:bucket_name).and_return("bucket_name")
       job = mock_model(Job)
-      job.should_receive(:output_file).and_return("outputfile")
-      @reporter.create_job_link(report, job).should == "http://s3.amazonaws.com/bucket_name/completed-jobs/outputfile"
+      job.should_receive(:resultfile_name).and_return("outputfile")
+      @reporter.create_resultfile_link(report, job).should == "http://s3.amazonaws.com/bucket_name/resultfiles/outputfile.zip"
     end
   end
 
