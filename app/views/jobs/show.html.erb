@@ -7,11 +7,16 @@
 <%= link_to 'Back', jobs_path %>
 <br />
 <br />
+Datafile name: <%=h @job.datafile.uploaded_file_name %><br />
 Status: <%=h @job.status %><br />
+Priority: <%=h PRIORITY_HASH[@job.priority] %><br />
 Searcher: <%=h SEARCHER_HASH[@job.searcher] %><br />
 Spectra Count: <%=h @job.spectra_count %><br />
 Processing Time (in seconds): <%=h age_in_seconds(@job.launched_at, @job.finished_at) %><br />
 Progress: <%= complete_bar(@job) %><br /> 
+Max chunk time: <%=h pretty_time(@job.maximum_chunk_time) %><br />
+Min chunk time: <%=h pretty_time(@job.minimum_chunk_time) %><br />
+Ave chunk time: <%=h pretty_time(@job.average_chunk_time) %><br />
 Total chunks: <%= @job.chunks.empty? ? 0 : @job.chunks.first.chunk_count %><br />
 Pending chunks: <%=h @job.chunks.pending.size %><br />
 Working chunks: <%=h @job.chunks.working.size %><br />
@@ -23,4 +28,3 @@ Last 10 working chunks
 <br />
 Last 10 recently completed chunks
 <%= render(:partial => "shared/chunks", :locals => { :chunks => @job.chunks.complete.recent }) %>
-
