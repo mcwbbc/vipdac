@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090204185044) do
+ActiveRecord::Schema.define(:version => 20090206153711) do
 
   create_table "chunks", :force => true do |t|
     t.integer  "job_id"
@@ -75,6 +75,13 @@ ActiveRecord::Schema.define(:version => 20090204185044) do
     t.integer "max_charge"
     t.string  "ions"
     t.string  "modifications"
+  end
+
+  create_table "resultfiles", :force => true do |t|
+    t.string   "name"
+    t.string   "link",       :default => ""
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "search_databases", :force => true do |t|

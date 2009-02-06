@@ -1,0 +1,8 @@
+<tr valign="top">
+  <td><%=h resultfile.name %></td>
+  <td>
+    <strong><%= link_to('Download', resultfile.link) %></strong>
+    <%= link_to('Analyze', resultfile_path(resultfile)) %>
+    <%= link_to('Delete', resultfile, :confirm => 'Are you sure?', :method => :delete) %>
+  </td>
+</tr>

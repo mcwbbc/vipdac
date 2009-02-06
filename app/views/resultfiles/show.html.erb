@@ -1,0 +1,8 @@
+<%= page_title(@resultfile.name) %>
+
+<%= link_to 'Back', resultfiles_path %>
+<br />
+<br />
+<strong><%= link_to('Download', @resultfile.link) %></strong>
+<%= link_to('Delete', @resultfile, :confirm => 'Are you sure?', :method => :delete) %>
+<br />
