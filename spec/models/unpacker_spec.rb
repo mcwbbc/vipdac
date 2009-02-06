@@ -89,10 +89,20 @@ describe Unpacker do
     end
   end
 
+  describe "setup filename" do
+    it "should return the output file string" do
+      @unpacker.setup_filename(0, "mgf", "filename").should == "mgf/filename-00000000.mgf"
+    end
+
+    it "should return the output file string and create a directory for the thousands number" do
+      @unpacker.setup_filename(1000, "mgf", "filename").should == "mgf/filename-00001000.mgf"
+    end
+  end
+
   describe "splitting the mgf file" do
     before(:each) do
       @unpacker.stub!(:mgf_filename).and_return("filename.mgf")
-      Dir.should_receive(:mkdir).and_return(true)
+      Dir.stub!(:mkdir).and_return(true)
     end
 
     describe "directory management" do
@@ -103,6 +113,7 @@ describe Unpacker do
         outfile.should_receive(:write).with(file_contents.to_s).and_return(true)
         File.should_receive(:open).with(/unpack\/mgfs\/filename-(.+).mgf/, 'w').and_yield(outfile)
       end
+
       it "should remove the mgf directory if it exists" do
         File.should_receive(:exists?).and_return(true, false)
         FileUtils.should_receive(:rm_r).and_return(true)

@@ -49,8 +49,7 @@ class Unpacker
     text = ""
     outfile = ""
     File.open(mgf_filename).each do |line|
-      filenumber = "%08d" % filecount
-      outfile = "#{mgf_dir}/#{input_name}-#{filenumber}.mgf"
+      outfile = setup_filename(filecount, mgf_dir, input_name)
       text << line
       ions+=1 if line =~ /END IONS/
       if (ions == message[:spectra_count])
@@ -61,6 +60,11 @@ class Unpacker
       end
     end
     write_file(outfile, text)
+  end
+
+  def setup_filename(count, dir, input)
+    filenumber = "%08d" % count
+    outfile = "#{dir}/#{input}-#{filenumber}.mgf"
   end
 
   def send_job_message(type)
