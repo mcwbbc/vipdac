@@ -37,6 +37,22 @@ class Job < ActiveRecord::Base
     end
   end
 
+  # output statistcal information as json for web app consuming
+  
+  def statistics
+    h = {}
+    h['searcher'] = searcher
+    h['spectra_count'] = spectra_count
+    h['launched_at'] = launched_at
+    h['finished_at'] = finished_at
+    h['started_pack_at'] = started_pack_at
+    h['chunks'] = []
+    chunks.each do |chunk|
+      h['chunks'] << chunk.stats_hash
+    end
+    h.to_json
+  end
+
   # check if we're packing, and that we started it more than 20 minutes ago
 
   def stuck_packing?

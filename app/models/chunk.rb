@@ -33,6 +33,16 @@ class Chunk < ActiveRecord::Base
     end
   end
   
+  def stats_hash
+    h = {}
+    h['instance_size'] = instance_size
+    h['bytes'] = bytes
+    h['sent_at'] = sent_at
+    h['started_at'] = started_at
+    h['finished_at'] = finished_at
+    h
+  end
+  
   def status
     return "Created" if (started_at == 0)
     return "Working" if (finished_at == 0)

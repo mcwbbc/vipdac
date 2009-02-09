@@ -444,6 +444,18 @@ describe Job do
     end
   end
 
+  describe "statistics" do
+    it "should return a json string of the statistical data" do
+      @job.launched_at = 1.0
+      @job.finished_at = 3.0
+      @job.started_pack_at = 2.0
+      chunk = mock_model(Chunk)
+      chunk.should_receive(:stats_hash).and_return({'instance_size' => 'c1.medium'})
+      @job.should_receive(:chunks).and_return([chunk])
+      @job.statistics.should == "{\"launched_at\": 1.0, \"searcher\": \"omssa\", \"finished_at\": 3.0, \"spectra_count\": 200, \"chunks\": [{\"instance_size\": \"c1.medium\"}], \"started_pack_at\": 2.0}"
+    end
+  end
+
   protected
     def create_job(options = {})
       record = Job.new({ :name => "jobname", :datafile_id => 10, :searcher => "omssa", :parameter_file_id => 1, :spectra_count => 200, :priority => 1000 }.merge(options))
