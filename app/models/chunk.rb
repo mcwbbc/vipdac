@@ -11,6 +11,27 @@ class Chunk < ActiveRecord::Base
   named_scope :incomplete, :conditions => ['finished_at = ?', 0]
   named_scope :recent, {:limit => 10, :order => 'finished_at DESC, started_at DESC'}
 
+  class << self
+    def find_for_node(instance, limit)
+      find(:all, :conditions => ["instance_id LIKE ?", "#{instance}%"], :order => "updated_at DESC", :limit => limit)
+    end
+
+    def reporter_chunk(report)
+      chunk = Chunk.find_or_create_by_chunk_key(report[:chunk_key])
+      chunk.job_id = report[:job_id]
+      chunk.instance_id = report[:instance_id]
+      chunk.filename = report[:filename]
+      chunk.parameter_filename = report[:parameter_filename]
+      chunk.bytes = report[:bytes].to_i
+      chunk.chunk_key = report[:chunk_key]
+      chunk.chunk_count = report[:chunk_count].to_i if report[:chunk_count]
+      chunk.sent_at = report[:sendtime].to_f
+      chunk.started_at = report[:starttime].to_f
+      chunk.finished_at = (chunk.finished_at > 0) ? chunk.finished_at : report[:finishtime].to_f
+      chunk
+    end
+  end
+  
   def status
     return "Created" if (started_at == 0)
     return "Working" if (finished_at == 0)
@@ -41,20 +62,4 @@ class Chunk < ActiveRecord::Base
            }
     MessageQueue.put(:name => 'node', :message => hash.to_yaml, :priority => job.priority, :ttr => 1200)
   end
-  
-  def self.reporter_chunk(report)
-    chunk = Chunk.find_or_create_by_chunk_key(report[:chunk_key])
-    chunk.job_id = report[:job_id]
-    chunk.instance_id = report[:instance_id]
-    chunk.filename = report[:filename]
-    chunk.parameter_filename = report[:parameter_filename]
-    chunk.bytes = report[:bytes].to_i
-    chunk.chunk_key = report[:chunk_key]
-    chunk.chunk_count = report[:chunk_count].to_i if report[:chunk_count]
-    chunk.sent_at = report[:sendtime].to_f
-    chunk.started_at = report[:starttime].to_f
-    chunk.finished_at = (chunk.finished_at > 0) ? chunk.finished_at : report[:finishtime].to_f
-    chunk
-  end
-  
 end

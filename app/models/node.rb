@@ -24,7 +24,6 @@ class Node < ActiveRecord::Base
       1.upto(20) { |i| array << "#{i}" }
       array
     end
-
   end
 
   def launch
@@ -54,6 +53,8 @@ class Node < ActiveRecord::Base
   
   def describe
     Aws.ec2.describe_instances([instance_id]).first
+    rescue RightAws::AwsError
+      {:aws_state => "INVALID", :aws_reason => "INVALID", :aws_image_id => "INVALID", :dns_name => "INVALID", :aws_launch_time => "INVALID"}
   end
   
   def remove_launched_instance
@@ -63,7 +64,7 @@ class Node < ActiveRecord::Base
   end
 
   def chunks(limit=10)
-    @chunks ||= Chunk.find(:all, :conditions => ["instance_id LIKE ?", "#{self.instance_id}%"], :order => "updated_at DESC", :limit => limit)
+    Chunk.find_for_node(instance_id, limit)
   end
 
 end

@@ -14,9 +14,6 @@ describe Node do
       Aws.stub!(:amis).and_return({'x86_64' => 'bigone', 'i386' => 'smallone'})
       Aws.stub!(:workers).with('m1.small').and_return(1)
       Aws.stub!(:workers).with('c1.medium').and_return(4)
-    
-      Chunk.stub!(:find).and_return([{:chunk_id => 1},{:chunk_id => 2}])
-
     end
 
     describe "instance id" do
@@ -35,10 +32,15 @@ describe Node do
         @node.instance_id = 'b'
         @node.describe.should eql('b')
       end
+
+      it "should return an hash of invalid on error" do
+        @ec2_mock.should_receive(:describe_instances).with(['b']).and_raise(RightAws::AwsError)
+        @node.instance_id = 'b'
+        @node.describe.should == {:aws_state => "INVALID", :aws_reason => "INVALID", :aws_image_id => "INVALID", :dns_name => "INVALID", :aws_launch_time => "INVALID"}
+      end
     end
 
     describe "creating a new node" do
-
       it "should have an instance type" do
         @node.instance_type.should eql('m1.small')
       end
@@ -107,6 +109,7 @@ describe Node do
           @node.user_data.should eql("aws_access=access,aws_secret=secret,workers=4,role=worker,beanstalkd=100.100.100.100")
         end
       end
+
       describe "with folder name" do
         it "should return a string with the user data with 4 worker for a meduim instance" do
           Aws.should_receive(:folder).twice.and_return("user_folder")
@@ -129,9 +132,9 @@ describe Node do
     end
 
     describe "chunks" do
-      it "should have 1 chunk" do
-        Object.send(:remove_const, 'Node')
-        load 'node.rb'
+      it "should have 2 chunks" do
+        @node = Node.new(:instance_type => 'm1.small', :instance_id => "id")
+        Chunk.should_receive(:find_for_node).with("id", 10).and_return([{:chunk_id => 1},{:chunk_id => 2}])
         @node.chunks.size.should eql(2)
       end
     end

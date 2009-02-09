@@ -115,6 +115,13 @@ describe Chunk do
     end
   end
 
+  describe "find for node" do
+    it "should return an array of chunks for instance with a limit" do
+      Chunk.should_receive(:find).with(:all, {:limit=>10, :conditions=>["instance_id LIKE ?", "id%"], :order=>"updated_at DESC"}).and_return(["chunk"])
+      Chunk.find_for_node("id", 10).should == ["chunk"]
+    end
+  end
+
   describe "reporter chunk" do
     before(:each) do
       @report = {:chunk_key => "key", :job_id => 1234, :instance_id => "instance-id", :filename => "filename", :parameter_filename => "parameter_filename",
