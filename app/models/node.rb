@@ -24,6 +24,10 @@ class Node < ActiveRecord::Base
       1.upto(20) { |i| array << "#{i}" }
       array
     end
+
+    def size_of_node(instance)
+      find(:first, :select => 'instance_type', :conditions => ["instance_id LIKE ?", "#{instance}%"])
+    end
   end
 
   def launch

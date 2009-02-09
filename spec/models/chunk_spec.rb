@@ -131,15 +131,18 @@ describe Chunk do
     describe "new chunk" do
       it "should create a new chunk" do
         new_chunk = create_chunk
+        Node.should_receive(:size_of_node).with("instance-id").and_return("c1.medium")
         Chunk.should_receive(:find_or_create_by_chunk_key).with("key").and_return(new_chunk)
         chunk = Chunk.reporter_chunk(@report)
         chunk.finished_at.should == 3.0
       end
     end
+
     describe "old chunk" do
       it "should load the chunk from the db" do
         db_chunk = create_chunk
         db_chunk.finished_at = 2.5
+        Node.should_receive(:size_of_node).with("instance-id").and_return("c1.medium")
         Chunk.should_receive(:find_or_create_by_chunk_key).with("key").and_return(db_chunk)
         chunk = Chunk.reporter_chunk(@report)
         chunk.finished_at.should == 2.5

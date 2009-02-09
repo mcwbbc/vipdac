@@ -4,6 +4,7 @@ class CreateChunks < ActiveRecord::Migration
       t.integer :job_id
       t.string :chunk_key
       t.string :instance_id
+      t.string :instance_size
       t.string :filename
       t.string :parameter_filename
       t.integer :bytes

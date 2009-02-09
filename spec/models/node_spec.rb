@@ -16,6 +16,13 @@ describe Node do
       Aws.stub!(:workers).with('c1.medium').and_return(4)
     end
 
+    describe "size of node" do
+      it "should return the text string for the node size" do
+        Node.should_receive(:find).with(:first, {:conditions=>["instance_id LIKE ?", "id%"], :select=>"instance_type"}).and_return("c1.medium")
+        Node.size_of_node("id").should == "c1.medium"
+      end
+    end
+
     describe "instance id" do
       it "should be unique" do
         @node = Node.new(:instance_type => 'm1.small', :instance_id => "id")

@@ -20,6 +20,7 @@ class Chunk < ActiveRecord::Base
       chunk = Chunk.find_or_create_by_chunk_key(report[:chunk_key])
       chunk.job_id = report[:job_id]
       chunk.instance_id = report[:instance_id]
+      chunk.instance_size = Node.size_of_node(report[:instance_id])
       chunk.filename = report[:filename]
       chunk.parameter_filename = report[:parameter_filename]
       chunk.bytes = report[:bytes].to_i
