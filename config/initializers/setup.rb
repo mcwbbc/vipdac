@@ -15,3 +15,5 @@ require 'digest/md5'
 require 'beanstalk-client'
 require 'paperclip'
 require 'hoptoad_notifier'
+
+TOOL_VERSIONS = YAML::load_file( File.join(RAILS_ROOT, 'config', 'tool_versions.yml') ).freeze unless self.class.const_defined? "TOOL_VERSIONS"
