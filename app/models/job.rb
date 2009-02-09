@@ -50,7 +50,7 @@ class Job < ActiveRecord::Base
     chunks.each do |chunk|
       h['chunks'] << chunk.stats_hash
     end
-    h.to_json
+    h
   end
 
   # check if we're packing, and that we started it more than 20 minutes ago

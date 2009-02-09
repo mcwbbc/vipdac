@@ -452,7 +452,7 @@ describe Job do
       chunk = mock_model(Chunk)
       chunk.should_receive(:stats_hash).and_return({'instance_size' => 'c1.medium'})
       @job.should_receive(:chunks).and_return([chunk])
-      @job.statistics.should == "{\"launched_at\": 1.0, \"searcher\": \"omssa\", \"finished_at\": 3.0, \"spectra_count\": 200, \"chunks\": [{\"instance_size\": \"c1.medium\"}], \"started_pack_at\": 2.0}"
+      @job.statistics.should == {"launched_at"=>1.0, "searcher"=>"omssa", "finished_at"=>3.0, "spectra_count"=>200, "chunks"=>[{"instance_size"=>"c1.medium"}], "started_pack_at"=>2.0}
     end
   end
 
