@@ -40,17 +40,29 @@ class Job < ActiveRecord::Base
   # output statistcal information as json for web app consuming
   
   def statistics
-    h = {}
-    h['searcher'] = searcher
-    h['spectra_count'] = spectra_count
-    h['launched_at'] = launched_at
-    h['finished_at'] = finished_at
-    h['started_pack_at'] = started_pack_at
+    h = attributes
+    h.delete("id")
+    h.delete("parameter_file_id")
+    h.delete("datafile_id")
+    h.delete("name")
+    h.delete("status")
+    h.delete("link")
+    h.delete("priority")
+    h.delete("created_at")
+    h.delete("updated_at")
+    h['parameters'] = create_parameter_file_hash
     h['chunks'] = []
     chunks.each do |chunk|
       h['chunks'] << chunk.stats_hash
     end
     h
+  end
+
+  # load the parameter file, and have it return the fields for statistic tracking
+
+  def create_parameter_file_hash
+    parameter_file = load_parameter_file
+    parameter_file.stats_hash
   end
 
   # check if we're packing, and that we started it more than 20 minutes ago

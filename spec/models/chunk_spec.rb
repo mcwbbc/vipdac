@@ -152,8 +152,8 @@ describe Chunk do
 
   describe "stats hash" do
     it "should return a hash of the statistical data" do
-      chunk = create_chunk(:instance_size => 'c1.medium', :bytes => 1234, :sent_at => 1.0, :started_at => 2.0, :finished_at => 3.0)
-      chunk.stats_hash.should == {"bytes"=>1234, "finished_at"=>3.0, "instance_size"=>"c1.medium", "sent_at"=>1.0, "started_at"=>2.0}
+      chunk = create_chunk(:instance_size => 'c1.medium', :instance_id => "i-1234-1111", :bytes => 1234, :sent_at => 1.0, :started_at => 2.0, :finished_at => 3.0)
+      chunk.stats_hash.should == {"bytes"=>1234, "finished_at"=>3.0, "instance_id"=>"i-1234-1111", "instance_size"=>"c1.medium", "sent_at"=>1.0, "started_at"=>2.0}
     end
   end
 

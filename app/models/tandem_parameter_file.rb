@@ -30,6 +30,29 @@ class TandemParameterFile < ActiveRecord::Base
     ['CNBr', 'M|[X]']
   ]
 
+  class << self
+    def page(page=1, limit=10)
+      paginate(:page => page,
+               :order => 'name',
+               :per_page => limit
+      )
+    end
+
+    def import
+      files = TandemParameterFile.remote_file_list("tandem-parameter-records")
+      files.each do |file|
+        parameter_file = TandemParameterFile.new
+        hash = YAML.load(parameter_file.retreive(file))
+        modifications = hash["modifications"]
+        hash.delete("modifications")
+        parameter_file.attributes = hash
+        if parameter_file.save && modifications
+          parameter_file.create_modifications(modifications)
+        end
+      end
+    end
+  end
+
   def modification_attributes=(ma)
     ma.each do |a|
       self.tandem_modifications.build(a)
@@ -42,13 +65,6 @@ class TandemParameterFile < ActiveRecord::Base
 
   def ion_names
     IONS.inject("") {|a,i| a << "#{i}-ions " if instance_eval("#{i.downcase}_ion") == true; a }.chomp(" ")
-  end
-
-  def self.page(page=1, limit=10)
-    paginate(:page => page,
-             :order => 'name',
-             :per_page => limit
-    )
   end
 
   def taxon_xml
@@ -95,20 +111,6 @@ class TandemParameterFile < ActiveRecord::Base
     xml
   end
 
-  def self.import
-    files = TandemParameterFile.remote_file_list("tandem-parameter-records")
-    files.each do |file|
-      parameter_file = TandemParameterFile.new
-      hash = YAML.load(parameter_file.retreive(file))
-      modifications = hash["modifications"]
-      hash.delete("modifications")
-      parameter_file.attributes = hash
-      if parameter_file.save && modifications
-        parameter_file.create_modifications(modifications)
-      end
-    end
-  end
-
   def create_modifications(modifications)
     modifications.each do |m|
       tandem_modifications.create(:amino_acid => m['amino_acid'], :mass => m['mass'])
@@ -123,11 +125,16 @@ class TandemParameterFile < ActiveRecord::Base
     end
   end
 
+  def stats_hash
+    h = parameter_hash
+    h.delete("created_at")
+    h.delete("updated_at")
+    h['name'] = md5_item(name, false)
+    h
+  end
+
   def parameter_hash
-    parameters = {}
-    attributes.keys.each do |key|
-      parameters["#{key}"] = attributes[key]
-    end
+    parameters = attributes
     parameters["modifications"] = modifications_array
     parameters.delete("id")
     parameters

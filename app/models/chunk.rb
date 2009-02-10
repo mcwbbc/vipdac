@@ -33,13 +33,18 @@ class Chunk < ActiveRecord::Base
     end
   end
   
+  # create a hash of the chunk attributes minus un-needed data
+  
   def stats_hash
-    h = {}
-    h['instance_size'] = instance_size
-    h['bytes'] = bytes
-    h['sent_at'] = sent_at
-    h['started_at'] = started_at
-    h['finished_at'] = finished_at
+    h = attributes
+    h.delete("id")
+    h.delete("job_id")
+    h.delete("chunk_key")
+    h.delete("filename")
+    h.delete("parameter_filename")
+    h.delete("chunk_count")
+    h.delete("created_at")
+    h.delete("updated_at")
     h
   end
   

@@ -25,6 +25,31 @@ class OmssaParameterFile < ActiveRecord::Base
   before_save :set_modification_as_string
   after_destroy :delete
 
+  class << self
+    def page(page=1, limit=10)
+      paginate(:page => page,
+               :order => 'name',
+               :per_page => limit
+      )
+    end
+
+    def import
+      files = OmssaParameterFile.remote_file_list("omssa-parameter-records")
+      files.each do |file|
+        parameter_file = OmssaParameterFile.new
+        parameter_file.attributes = YAML.load(parameter_file.retreive(file))
+        parameter_file.modifications = parameter_file.convert_modifications_to_array
+        parameter_file.save
+      end
+    end
+  end
+
+  def stats_hash
+    h = parameter_hash
+    h['name'] = md5_item(name, false)
+    h
+  end
+
   def set_modification_as_string
     self.modifications = convert_modifications_to_string
   end
@@ -37,28 +62,8 @@ class OmssaParameterFile < ActiveRecord::Base
     self.modifications.split(',') unless self.modifications == nil
   end
 
-  def self.page(page=1, limit=10)
-    paginate(:page => page,
-             :order => 'name',
-             :per_page => limit
-    )
-  end
-
-  def self.import
-    files = OmssaParameterFile.remote_file_list("omssa-parameter-records")
-    files.each do |file|
-      parameter_file = OmssaParameterFile.new
-      parameter_file.attributes = YAML.load(parameter_file.retreive(file))
-      parameter_file.modifications = parameter_file.convert_modifications_to_array
-      parameter_file.save
-    end
-  end
-
   def parameter_hash
-    parameters = {}
-    attributes.keys.each do |key|
-      parameters["#{key}"] = attributes[key]
-    end
+    parameters = attributes
     parameters.delete("id")
     parameters
   end

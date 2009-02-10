@@ -445,14 +445,25 @@ describe Job do
   end
 
   describe "statistics" do
-    it "should return a json string of the statistical data" do
+    it "should return a hash of the statistical data" do
       @job.launched_at = 1.0
       @job.finished_at = 3.0
       @job.started_pack_at = 2.0
-      chunk = mock_model(Chunk)
-      chunk.should_receive(:stats_hash).and_return({'instance_size' => 'c1.medium'})
-      @job.should_receive(:chunks).and_return([chunk])
-      @job.statistics.should == {"launched_at"=>1.0, "searcher"=>"omssa", "finished_at"=>3.0, "spectra_count"=>200, "chunks"=>[{"instance_size"=>"c1.medium"}], "started_pack_at"=>2.0}
+      @job.hash_key = "abcdef"
+      @chunk = mock_model(Chunk)
+      @chunk.should_receive(:stats_hash).and_return({'instance_size' => 'c1.medium'})
+      @job.should_receive(:chunks).and_return([@chunk])
+      @job.should_receive(:create_parameter_file_hash).and_return({"ions" => "a,b,c"})
+      @job.statistics.should == {"launched_at"=>1.0, "searcher"=>"omssa", "finished_at"=>3.0, "parameters"=>{"ions" => "a,b,c"}, "hash_key"=>"abcdef", "spectra_count"=>200, "chunks"=>[{"instance_size"=>"c1.medium"}], "started_pack_at"=>2.0}
+    end
+  end
+
+  describe "create parameter file hash" do
+    it "should return a hash" do
+      pf = mock("parameter_file")
+      pf.should_receive(:stats_hash).and_return({'ions' =>'a,b'})
+      @job.should_receive(:load_parameter_file).and_return(pf)
+      @job.create_parameter_file_hash.should == {'ions' => 'a,b'}
     end
   end
 

@@ -16,7 +16,7 @@ describe OmssaParameterFile do
 
   describe "persist" do
     it "should send the yamlized parameters to s3" do
-      @omssa_parameter_file.should_receive(:send_verified_data).with("omssa-parameter-records/098f6bcd4621d373cade4e832627b4f6.yml", "--- \nname: test\nprecursor_tol: 2.5\nenzyme: 0\nions: \"1,4\"\nmissed_cleavages: 0\nproduct_search: 0\nmodifications: \"1,2,3,4\"\nproduct_tol: 0.8\nmax_charge: 3\ndatabase: human.fasta\nminimum_charge: 2\nprecursor_search: 0\n", "66d31cb9c957de63e7c1e6b55bfd5391", {}).and_return(true)
+      @omssa_parameter_file.should_receive(:send_verified_data).with("omssa-parameter-records/098f6bcd4621d373cade4e832627b4f6.yml", "--- \nprecursor_tol: 2.5\nname: test\nions: \"1,4\"\nenzyme: 0\nmissed_cleavages: 0\nproduct_search: 0\nproduct_tol: 0.8\nmodifications: \"1,2,3,4\"\nmax_charge: 3\nprecursor_search: 0\nminimum_charge: 2\ndatabase: human.fasta\n", "d6505a152d7a47ff3ed037319f455cfa", {}).and_return(true)
       @omssa_parameter_file.persist
     end
   end
@@ -51,6 +51,13 @@ describe OmssaParameterFile do
     it "should return an array of values" do
       pf = create_omssa_parameter_file(:modifications => "1,2,3,4")
       pf.convert_modifications_to_array.should == ["1", "2", "3", "4"]
+    end
+  end
+
+  describe "stats hash" do
+    it "should return a stats hash with the name md5'd" do
+      pf = create_omssa_parameter_file
+      pf.stats_hash.should == {"name"=>"098f6bcd4621d373cade4e832627b4f6", "precursor_tol"=>2.5, "enzyme"=>0, "ions"=>"1,4", "missed_cleavages"=>0, "product_search"=>0, "modifications"=>"1,2,3,4", "product_tol"=>0.8, "max_charge"=>3, "database"=>"human.fasta", "minimum_charge"=>2, "precursor_search"=>0}
     end
   end
 
