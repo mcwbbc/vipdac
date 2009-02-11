@@ -63,11 +63,3 @@
     :db_type: ebi
     :available: true
     :user_uploaded: false
-  - :name: yeastgenome.org Yeast
-    :search_database_file_name: orf_trans.fasta
-    :search_database_content_type: text/plain
-    :search_database_file_size: 4488038
-    :db_type: tbd
-    :version: 06-Jun-2008
-    :available: true
-    :user_uploaded: false

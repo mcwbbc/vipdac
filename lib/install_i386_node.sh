@@ -271,7 +271,6 @@ wget ftp://ftp.ebi.ac.uk/pub/databases/integr8/fasta/proteomes/59.M_musculus.fas
 wget ftp://ftp.ebi.ac.uk/pub/databases/integr8/fasta/proteomes/122.R_norvegicus.fasta.gz
 wget ftp://ftp.ebi.ac.uk/pub/databases/integr8/fasta/proteomes/40.S_cerevisiae_ATCC_204508.fasta.gz
 wget ftp://ftp.ebi.ac.uk/pub/databases/integr8/fasta/proteomes/18.E_coli_K12.fasta.gz
-wget http://downloads.yeastgenome.org/sequence/genomic_sequence/orf_protein/orf_trans.fasta.gz
 gunzip ipi.HUMAN.v3.54.fasta.gz
 gunzip ipi.MOUSE.v3.54.fasta.gz
 gunzip ipi.RAT.v3.54.fasta.gz
@@ -280,7 +279,6 @@ gunzip 59.M_musculus.fasta.gz
 gunzip 122.R_norvegicus.fasta.gz
 gunzip 40.S_cerevisiae_ATCC_204508.fasta.gz
 gunzip 18.E_coli_K12.fasta.gz
-gunzip orf_trans.fasta.gz
 
 perl /pipeline/vipdac/lib/reformat_db.pl 25.H_sapiens.fasta 25.H_sapiens.fasta-rev
 perl /pipeline/vipdac/lib/reformat_db.pl 59.M_musculus.fasta 59.M_musculus.fasta-rev
@@ -291,7 +289,6 @@ perl /pipeline/vipdac/lib/reformat_db.pl 18.E_coli_K12.fasta 18.E_coli_K12.fasta
 /usr/local/bin/formatdb -i ipi.HUMAN.v3.54.fasta -o T -n ipi.HUMAN.v3.54
 /usr/local/bin/formatdb -i ipi.MOUSE.v3.54.fasta -o T -n ipi.MOUSE.v3.54
 /usr/local/bin/formatdb -i ipi.RAT.v3.54.fasta -o T -n ipi.RAT.v3.54
-/usr/local/bin/formatdb -i orf_trans.fasta -o T -n orf_trans
 
 /usr/local/bin/formatdb -i 25.H_sapiens.fasta-rev -o T -n 25.H_sapiens
 /usr/local/bin/formatdb -i 59.M_musculus.fasta-rev -o T -n 59.M_musculus
