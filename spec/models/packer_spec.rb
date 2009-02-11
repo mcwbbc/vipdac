@@ -69,20 +69,42 @@ describe Packer do
 
   describe "run" do
     it "should complete all the steps" do
-      @packer = create_packer(:output_file => "file")
-      @packer.should_receive(:make_directory).and_return(true)
-      @packer.should_receive(:download_results_files).and_return(true)
-      @packer.should_receive(:local_zipfile).twice.and_return("local_zipfile.zip")
-      @packer.should_receive(:zip_files).and_return(true)
-      @packer.should_receive(:send_file).with("resultfiles/local_zipfile.zip", "local_zipfile.zip").and_return(true)
-      @packer.should_receive(:remove_item).and_return(true)
+      @packer = create_packer(:output_file => "file-results.zip")
+      @packer.should_receive(:make_directory).with(PACK_DIR).ordered.and_return(true)
+      @packer.should_receive(:download_results_files).ordered.and_return(true)
+      @packer.should_receive(:download_file).with(/pack\/datafile\.mgf$/, "datafiles/datafile.mgf").ordered.and_return(true)
+      @packer.should_receive(:download_file).with(/pack\/parameters\.conf$/, "hash_key/parameters.conf").ordered.and_return(true)
+      @packer.should_receive(:generate_ez2_file).ordered.and_return(true)
+      @packer.should_receive(:zip_files).ordered.and_return(true)
+      @packer.should_receive(:send_file).with("resultfiles/result_file.zip", /pack\/result_file\.zip$/).ordered.and_return(true)
+      @packer.should_receive(:remove_item).with(/\/pipeline\/tmp-(.+?)\/pack/).and_return(true)
       @packer.run
     end
   end
 
+  describe "local mgf file" do
+    it "should return a filename string" do
+      @packer.local_mgf_file.should match(/pack\/datafile\.mgf$/)
+    end
+  end
+
+  describe "local parameter file" do
+    it "should return a filename string" do
+      @packer.local_parameter_file.should match(/pack\/parameters\.conf$/)
+    end
+  end
+
+  it "should create an input string" do
+    @packer.ez2_input.should match(/--input=\/pipeline\/tmp-(.+?)\/pack$/)
+  end
+
+  it "should create an output string" do
+    @packer.ez2_output.should match(/--output=(.+?)result_file$/)
+  end
+
   protected
     def create_packer(options = {})
-      record = Packer.new({:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile", :resultfile_name => "result_file", :searcher => "omssa"}.merge(options))
+      record = Packer.new({:type => PACK, :bucket_name => "bucket", :job_id => 12, :hash_key => 'hash_key', :datafile => "datafile.mgf", :resultfile_name => "result_file", :searcher => "omssa"}.merge(options))
       record
     end
 
