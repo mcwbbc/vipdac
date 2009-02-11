@@ -72,6 +72,46 @@ describe JobsController do
     end
   end
 
+
+  describe "handling GET /jobs/1/statistics" do
+
+    before(:each) do
+      @job = mock_model(Job)
+      Job.stub!(:find).and_return(@job)
+    end
+  
+    def do_statistics
+      get :statistics, :id => "1"
+    end
+
+    it "should redirect to index" do
+      do_statistics
+      response.should redirect_to(jobs_url)
+    end
+
+    it "should include a flash message" do
+      do_statistics
+      response.flash[:notice].should == "Job statistics successfully submitted."
+    end
+  
+    it "should find the job requested" do
+      Job.should_receive(:find).with("1").and_return(@job)
+      do_statistics
+    end
+  
+    it "should assign the found job for the view" do
+      do_statistics
+      assigns[:job].should equal(@job)
+    end
+    
+    it "should show the index page for an invalid job" do
+      Job.stub!(:find).and_raise(ActiveRecord::RecordNotFound)
+      do_statistics
+      response.should redirect_to(jobs_url)
+    end
+  end
+
+
   describe "handling GET /jobs/update_parameter_files" do
     before(:each) do
       @job = mock_model(Job)

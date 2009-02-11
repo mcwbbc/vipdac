@@ -16,11 +16,9 @@ class JobsController < ApplicationController
 
   # GET /jobs/1/statistics
   def statistics
-    respond_to do |wants|
-      wants.js { render(:json => @job.statistics) }
-      wants.csv
-      wants.html
-    end
+    # TODO: background http request to vipstats.mcw.edu/jobs/create
+    flash[:notice] = 'Job statistics successfully submitted.'
+    redirect_to(jobs_url)
   end
 
   # GET /jobs/new
