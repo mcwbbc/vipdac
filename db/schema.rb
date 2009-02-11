@@ -15,13 +15,14 @@ ActiveRecord::Schema.define(:version => 20090206153711) do
     t.integer  "job_id"
     t.string   "chunk_key"
     t.string   "instance_id"
+    t.string   "instance_size",      :limit => 20
     t.string   "filename"
     t.string   "parameter_filename"
     t.integer  "bytes"
-    t.integer  "chunk_count",        :default => 0
-    t.float    "sent_at",            :default => 0.0
-    t.float    "started_at",         :default => 0.0
-    t.float    "finished_at",        :default => 0.0
+    t.integer  "chunk_count",                      :default => 0
+    t.float    "sent_at",                          :default => 0.0
+    t.float    "started_at",                       :default => 0.0
+    t.float    "finished_at",                      :default => 0.0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
