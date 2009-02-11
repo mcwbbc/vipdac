@@ -5,6 +5,9 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :jobs,
                 :collection => { 
                   :update_parameter_files => :post
+                },
+                :member => {
+                  :statistics => :get
                 }
 
   map.resources :nodes,

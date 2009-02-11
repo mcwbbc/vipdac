@@ -1,0 +1,10 @@
+Statistics for job <%= @job.statistics['hash_key'] %><br />
+<br />
+<%= job_header(@job.statistics) %><br />
+<%= job_values(@job.statistics) %><br />
+<br />
+<%= chunk_header(@job.statistics) %><br />
+<%= chunk_values(@job.statistics) %>
+<br />
+<%= parameter_header(@job.statistics) %><br />
+<%= parameter_values(@job.statistics) %>

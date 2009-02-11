@@ -2,7 +2,7 @@ class JobsController < ApplicationController
 
 #  before_filter :login_required
   before_filter :check_cancel, :only => [:create, :update]
-  before_filter :load_job, :only => [:show, :destroy]
+  before_filter :load_job, :only => [:show, :statistics, :destroy]
 
   # GET /jobs
   def index
@@ -12,6 +12,15 @@ class JobsController < ApplicationController
 
   # GET /jobs/1
   def show
+  end
+
+  # GET /jobs/1/statistics
+  def statistics
+    respond_to do |wants|
+      wants.js { render(:json => @job.statistics) }
+      wants.csv
+      wants.html
+    end
   end
 
   # GET /jobs/new
