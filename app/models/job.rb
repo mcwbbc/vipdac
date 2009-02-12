@@ -166,7 +166,7 @@ class Job < ActiveRecord::Base
     self.status = "Launching" #remove the launch link
     self.launched_at = Time.now.to_f
     self.save
-    send_background_upload_message
+    send_background_message(BACKGROUNDUPLOAD)
   end
 
   def background_s3_upload
@@ -215,8 +215,8 @@ class Job < ActiveRecord::Base
     string.gsub(/[^0-9A-Za-z.\-]/, '').downcase
   end
 
-  def send_background_upload_message
-    hash = {:type => BACKGROUNDUPLOAD, :job_id => id}
+  def send_background_message(type)
+    hash = {:type => type, :job_id => id}
     MessageQueue.put(:name => 'head', :message => hash.to_yaml, :priority => 50, :ttr => 1200)
   end
 

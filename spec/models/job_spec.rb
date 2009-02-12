@@ -353,7 +353,7 @@ describe Job do
     it "should send a background upload head message" do
       @job.should_receive(:id).and_return(12)
       MessageQueue.should_receive(:put).with(:name => 'head', :message => {:type => BACKGROUNDUPLOAD, :job_id => 12}.to_yaml, :priority => 50, :ttr => 1200).and_return(true)
-      @job.send_background_upload_message
+      @job.send_background_message(BACKGROUNDUPLOAD)
     end
   end
 
@@ -423,7 +423,7 @@ describe Job do
 
   describe "launch" do
     before(:each) do
-      @job.should_receive(:send_background_upload_message).and_return(true)
+      @job.should_receive(:send_background_message).with(BACKGROUNDUPLOAD).and_return(true)
       @job.should_receive(:save).and_return(true)
       Time.stub!(:now).and_return(1.0)
       @job.launch
