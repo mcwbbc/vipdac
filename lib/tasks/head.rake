@@ -1,5 +1,8 @@
 namespace :head do
 
+  desc "Do all the imports"
+  task(:import_all => [:import_datafiles, :import_resultfiles, :import_omssa, :import_tandem, :insert_default_search_databases, :import_search_databases])
+
   desc "Import all the resultfile records from S3"
   task(:import_resultfiles => :environment) do
     begin
