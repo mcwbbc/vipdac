@@ -218,8 +218,8 @@ describe SearchDatabase do
   describe "insert default databases" do
     it "should read in the yaml file and insert the default databases" do
       @database = mock("database")
-      @database.should_receive(:persist).exactly(9).times.and_return(true)
-      database_files = ["122.R_norvegicus.fasta", "18.E_coli_K12.fasta", "25.H_sapiens.fasta", "40.S_cerevisiae_ATCC_204508.fasta", "59.M_musculus.fasta", "ipi.HUMAN.v3.54.fasta", "ipi.MOUSE.v3.54.fasta", "ipi.RAT.v3.54.fasta", "orf_trans.fasta"]
+      @database.should_receive(:persist).exactly(8).times.and_return(true)
+      database_files = ["122.R_norvegicus.fasta", "18.E_coli_K12.fasta", "25.H_sapiens.fasta", "40.S_cerevisiae_ATCC_204508.fasta", "59.M_musculus.fasta", "ipi.HUMAN.v3.54.fasta", "ipi.MOUSE.v3.54.fasta", "ipi.RAT.v3.54.fasta"]
       database_files.each do |database|
         SearchDatabase.should_receive(:create).with(hash_including({:search_database_file_name => "#{database}"})).and_return(@database)
       end
