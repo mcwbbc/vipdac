@@ -7,12 +7,12 @@ class CreateJobs < ActiveRecord::Migration
       t.string :status
       t.string :searcher
       t.string :hash_key
-      t.string :link, :default => ""
       t.integer :spectra_count
       t.integer :priority
       t.float :launched_at, :limit => 53, :default => 0
       t.float :finished_at, :limit => 53, :default => 0
       t.float :started_pack_at, :limit => 53, :default => 0
+      t.boolean :statistics_sent
       t.timestamps
     end
   end

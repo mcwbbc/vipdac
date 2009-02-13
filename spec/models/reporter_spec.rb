@@ -84,6 +84,13 @@ describe Reporter do
       end
     end
 
+    describe "send statistics message" do
+      it "should have the job send the statistics to vipstats" do
+        @report.should_receive(:[]).with(:type).and_return(SENDSTATISTICS)
+        @reporter.should_receive(:statistics_to_vipstats).with(@report, @message).and_return(true)
+      end
+    end
+
     describe "process datafile message" do
       it "should process the search database" do
         @report.should_receive(:[]).with(:type).and_return(PROCESSDATAFILE)
@@ -353,6 +360,7 @@ describe Reporter do
       @report.should_receive(:[]).with(:job_id).and_return(1234)
       @job = mock_model(Job)
     end
+
     describe "processed and not complete" do
       it "should update the job status and send a pack request" do
         @reporter.should_receive(:load_job).with(1234).and_return(@job)
@@ -362,6 +370,7 @@ describe Reporter do
         @reporter.check_job_status(@report)
       end
     end
+
     describe "don't send message if not processed" do
       it "should not be processed" do
         @reporter.should_receive(:load_job).with(1234).and_return(@job)
@@ -380,6 +389,7 @@ describe Reporter do
         @reporter.check_job_status(@report)
       end
     end
+
     describe "don't send message if nil" do
       it "should not be processed" do
         @reporter.should_receive(:load_job).with(1234).and_return(nil)
@@ -526,6 +536,32 @@ describe Reporter do
         @job.should_not_receive(:status=)
         @job.should_not_receive(:background_s3_upload)
         @reporter.background_upload(@report, @message)
+      end
+    end
+  end
+
+  describe "statistics to vipstats" do
+    before(:each) do
+      @job = mock_model(Job)
+      @message = mock("message")
+      @report = mock("report")
+      @report.should_receive(:[]).with(:job_id).and_return(1234)
+      @message.should_receive(:delete).and_return(true)
+    end
+
+    describe "success" do
+      it "should update the status of the job" do
+        @reporter.should_receive(:load_job).with(1234).and_return(@job)
+        @job.should_receive(:submit_to_vipstats).and_return(true)
+        @reporter.statistics_to_vipstats(@report, @message)
+      end
+    end
+
+    describe "failure" do
+      it "should delete the message if the job doesn't exist" do
+        @reporter.should_receive(:load_job).with(1234).and_return(nil)
+        @job.should_not_receive(:submit_to_vipstats)
+        @reporter.statistics_to_vipstats(@report, @message)
       end
     end
   end

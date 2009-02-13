@@ -421,6 +421,32 @@ describe Job do
     end
   end
 
+  describe "send statistics" do
+    it "should set statistics to true" do
+      @job.should_receive(:statistics_sent=).with(true).and_return(true)
+      @job.should_receive(:save).and_return(true)
+      @job.should_receive(:send_background_message).with(SENDSTATISTICS).and_return(true)
+      @job.send_statistics
+    end
+  end
+
+  describe "submit to vipstats" do
+    before(:each) do
+      @job.should_receive(:statistics).and_return("stats")
+      URI.should_receive(:parse).with('http://vipstats.mcw.edu/jobs').and_return('http://vipstats.mcw.edu/jobs')
+    end
+
+    it "should rescue the timeout error" do
+      Net::HTTP.should_receive(:post_form).with('http://vipstats.mcw.edu/jobs', {'job' => "\"stats\""}).and_raise(Timeout::Error)
+      @job.submit_to_vipstats.should == "Timeout::Error"
+    end
+
+    it "should create a post request to vipstats" do
+      Net::HTTP.should_receive(:post_form).with('http://vipstats.mcw.edu/jobs', {'job' => "\"stats\""}).and_return("response")
+      @job.submit_to_vipstats.should == "response"
+    end
+  end
+
   describe "launch" do
     before(:each) do
       @job.should_receive(:send_background_message).with(BACKGROUNDUPLOAD).and_return(true)

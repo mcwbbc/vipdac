@@ -3,7 +3,7 @@
   <td><%=h job.status %></td>
   <td><%= complete_bar(job) %></td>
   <td>
-    <%= link_to('Submit statistics', statistics_job_url(job)) %> 
+    <%= link_to('Submit statistics', statistics_job_url(job)) if job.complete? && !job.statistics_sent %> 
     <%= link_to('Delete', job, :confirm => 'Are you sure?', :method => :delete) %>
   </td>
 </tr>

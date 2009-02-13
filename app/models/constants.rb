@@ -55,6 +55,8 @@
   PROCESSDATABASE = "PROCESSDATABASE".freeze unless self.class.const_defined? "PROCESSDATABASE"
   PROCESSDATAFILE = "PROCESSDATAFILE".freeze unless self.class.const_defined? "PROCESSDATAFILE"
 
+  SENDSTATISTICS = "SENDSTATISTICS".freeze unless self.class.const_defined? "SENDSTATISTICS"
+
   PACK = "PACK".freeze unless self.class.const_defined? "PACK"
   FINISHED = "FINISHED".freeze unless self.class.const_defined? "FINISHED"
 

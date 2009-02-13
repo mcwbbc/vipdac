@@ -82,12 +82,6 @@ class Reporter
           check_job_status(report)
         when CREATED
           update_chunk(report, message, true)
-        when BACKGROUNDUPLOAD
-          background_upload(report, message)
-        when PROCESSDATABASE
-          process_search_database(report, message)
-        when PROCESSDATAFILE
-          process_datafile(report, message)
         when JOBUNPACKING
           job_status(report, message, "Unpacking")
         when JOBUNPACKED
@@ -96,6 +90,14 @@ class Reporter
           job_status(report, message, "Packing")
         when JOBPACKED
           set_job_complete(report, message)
+        when SENDSTATISTICS
+          statistics_to_vipstats(report, message)
+        when BACKGROUNDUPLOAD
+          background_upload(report, message)
+        when PROCESSDATABASE
+          process_search_database(report, message)
+        when PROCESSDATAFILE
+          process_datafile(report, message)
         else
           message.delete
       end
@@ -155,6 +157,16 @@ class Reporter
     if (job && ((job.processed?) && !(job.complete?)))
       job.send_pack_request   # Send a job complete message to the workers, and have one of them download and zip up the results files
     end
+  end
+
+  # send the job statistics to vipstats
+
+  def statistics_to_vipstats(report, message)
+    job = load_job(report[:job_id])
+    if job
+      job.submit_to_vipstats
+    end
+    message.delete
   end
 
   # process the database in the background

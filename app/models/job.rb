@@ -47,6 +47,7 @@ class Job < ActiveRecord::Base
     h.delete("name")
     h.delete("status")
     h.delete("link")
+    h.delete("statistics_sent")
     h.delete("priority")
     h.delete("created_at")
     h.delete("updated_at")
@@ -167,6 +168,20 @@ class Job < ActiveRecord::Base
     self.launched_at = Time.now.to_f
     self.save
     send_background_message(BACKGROUNDUPLOAD)
+  end
+
+  def send_statistics
+    self.statistics_sent = true #remove the statistics link
+    self.save
+    send_background_message(SENDSTATISTICS)
+  end
+
+  def submit_to_vipstats
+    begin
+      response = Net::HTTP.post_form(URI.parse('http://vipstats.mcw.edu/jobs'), {'job' => statistics.to_json})
+    rescue Timeout::Error
+      "Timeout::Error"
+    end
   end
 
   def background_s3_upload

@@ -25,6 +25,8 @@ describe "/jobs/index.html.erb" do
       job.stub!(:name).and_return("name")
       job.stub!(:spectra_count).and_return(200)
       job.stub!(:priority).and_return(200)
+      job.stub!(:complete?).and_return(false)
+      job.stub!(:statistics_sent).and_return(false)
 
       @jobs << job
     end 
