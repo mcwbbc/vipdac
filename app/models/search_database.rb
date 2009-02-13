@@ -25,6 +25,11 @@ class SearchDatabase < ActiveRecord::Base
       )
     end
 
+    def size_of(database_name)
+      db = find(:first, :select => 'search_database_file_size', :conditions => ["search_database_file_name = ?", database_name])
+      db ? db.search_database_file_size : 0
+    end
+
     def import
       SearchDatabase.remote_database_array.each do |database|
         search_database = SearchDatabase.create(database)

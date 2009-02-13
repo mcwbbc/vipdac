@@ -57,7 +57,8 @@ describe OmssaParameterFile do
   describe "stats hash" do
     it "should return a stats hash with the name md5'd" do
       pf = create_omssa_parameter_file
-      pf.stats_hash.should == {"name"=>"098f6bcd4621d373cade4e832627b4f6", "precursor_tol"=>2.5, "enzyme"=>0, "ions"=>"1,4", "missed_cleavages"=>0, "product_search"=>0, "modifications"=>"1,2,3,4", "product_tol"=>0.8, "max_charge"=>3, "database"=>"human.fasta", "minimum_charge"=>2, "precursor_search"=>0}
+      SearchDatabase.should_receive(:size_of).with("human.fasta").and_return(12345)
+      pf.stats_hash.should == {"precursor_tol"=>2.5, "name"=>"098f6bcd4621d373cade4e832627b4f6", "ions"=>"1,4", "enzyme"=>0, "missed_cleavages"=>0, "product_search"=>0, "product_tol"=>0.8, "modifications"=>"1,2,3,4", "max_charge"=>3, "database_size"=>12345, "precursor_search"=>0, "minimum_charge"=>2, "database"=>"human.fasta"}
     end
   end
 

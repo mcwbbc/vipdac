@@ -47,6 +47,7 @@ class OmssaParameterFile < ActiveRecord::Base
   def stats_hash
     h = parameter_hash
     h['name'] = md5_item(name, false)
+    h['database_size'] = SearchDatabase.size_of(h['database'])
     h
   end
 

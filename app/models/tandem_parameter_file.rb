@@ -130,6 +130,7 @@ class TandemParameterFile < ActiveRecord::Base
     h.delete("created_at")
     h.delete("updated_at")
     h['name'] = md5_item(name, false)
+    h['database_size'] = SearchDatabase.size_of(h['database'])
     h
   end
 

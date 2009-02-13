@@ -37,7 +37,7 @@ describe TandemParameterFile do
 
   describe "persist" do
     it "should send the yamlized parameters to s3" do
-      @parameter_file.should_receive(:send_verified_data).with("tandem-parameter-records/209d808516a1c96827605429062f82e3.yml", "--- \nname: jobname\ncreated_at: \nn_terminal: \nenzyme: enzyme\nb_ion: true\nx_ion: \nupdated_at: \nc_ion: \ny_ion: true\nc_terminal: \nmodifications: \nz_ion: \ndatabase: human_ipi\na_ion: \n", "fbb490516b1f40f10eb6c06fe47ec173", {}).and_return(true)
+      @parameter_file.should_receive(:send_verified_data).with("tandem-parameter-records/209d808516a1c96827605429062f82e3.yml", "--- \nname: jobname\ncreated_at: \nn_terminal: \nenzyme: enzyme\nb_ion: true\nx_ion: \nupdated_at: \nc_ion: \ny_ion: true\nc_terminal: \nmodifications: \nz_ion: \ndatabase: human_ipi.fasta\na_ion: \n", "0fc01abb29bde6e3a01d3506fffc9633", {}).and_return(true)
       @parameter_file.persist
     end
   end
@@ -118,15 +118,16 @@ describe TandemParameterFile do
       m1 = mock_model(TandemModification, :mass => 12.0, :amino_acid => "abc")
       m2 = mock_model(TandemModification, :mass => -2.0, :amino_acid => "def")
       modifications = [m1, m2]
+      SearchDatabase.should_receive(:size_of).with("human_ipi.fasta").and_return(12345)
       pf.should_receive(:tandem_modifications).twice.and_return(modifications)
-      pf.stats_hash.should == {"name"=>"209d808516a1c96827605429062f82e3", "b_ion"=>true, "enzyme"=>"enzyme", "n_terminal"=>nil, "c_ion"=>nil, "x_ion"=>nil, "c_terminal"=>nil, "y_ion"=>true, "modifications"=>[{"mass"=>"12.0", "amino_acid"=>"abc"}, {"mass"=>"-2.0", "amino_acid"=>"def"}], "database"=>"human_ipi", "z_ion"=>nil, "a_ion"=>nil}
+      pf.stats_hash.should == {"name"=>"209d808516a1c96827605429062f82e3", "n_terminal"=>nil, "enzyme"=>"enzyme", "b_ion"=>true, "x_ion"=>nil, "c_ion"=>nil, "y_ion"=>true, "c_terminal"=>nil, "modifications"=>[{"mass"=>"12.0", "amino_acid"=>"abc"}, {"mass"=>"-2.0", "amino_acid"=>"def"}], "database_size"=>12345, "z_ion"=>nil, "database"=>"human_ipi.fasta", "a_ion"=>nil}
     end
   end
 
   describe "parameter hash" do
     it "should return a hash with the parameters" do
       pf = create_tandem_parameter_file
-      pf.parameter_hash.should == {"name"=>"jobname", "created_at"=>nil, "b_ion"=>true, "enzyme"=>"enzyme", "n_terminal"=>nil, "c_ion"=>nil, "updated_at"=>nil, "x_ion"=>nil, "c_terminal"=>nil, "y_ion"=>true, "modifications"=>nil, "database"=>"human_ipi", "z_ion"=>nil, "a_ion"=>nil}
+      pf.parameter_hash.should == {"name"=>"jobname", "created_at"=>nil, "b_ion"=>true, "enzyme"=>"enzyme", "n_terminal"=>nil, "c_ion"=>nil, "updated_at"=>nil, "x_ion"=>nil, "c_terminal"=>nil, "y_ion"=>true, "modifications"=>nil, "database"=>"human_ipi.fasta", "z_ion"=>nil, "a_ion"=>nil}
     end
 
     it "should return an array of modifications" do
@@ -135,7 +136,7 @@ describe TandemParameterFile do
       m2 = mock_model(TandemModification, :mass => -2.0, :amino_acid => "def")
       modifications = [m1, m2]
       pf.should_receive(:tandem_modifications).twice.and_return(modifications)
-      pf.parameter_hash.should == {"name"=>"jobname", "created_at"=>nil, "b_ion"=>true, "enzyme"=>"enzyme", "n_terminal"=>nil, "c_ion"=>nil, "updated_at"=>nil, "x_ion"=>nil, "c_terminal"=>nil, "y_ion"=>true, "modifications"=>[{"mass"=>"12.0", "amino_acid"=>"abc"}, {"mass"=>"-2.0", "amino_acid"=>"def"}], "database"=>"human_ipi", "z_ion"=>nil, "a_ion"=>nil}
+      pf.parameter_hash.should == {"name"=>"jobname", "created_at"=>nil, "b_ion"=>true, "enzyme"=>"enzyme", "n_terminal"=>nil, "c_ion"=>nil, "updated_at"=>nil, "x_ion"=>nil, "c_terminal"=>nil, "y_ion"=>true, "modifications"=>[{"mass"=>"12.0", "amino_acid"=>"abc"}, {"mass"=>"-2.0", "amino_acid"=>"def"}], "database"=>"human_ipi.fasta", "z_ion"=>nil, "a_ion"=>nil}
     end
   end
 
@@ -327,7 +328,7 @@ describe TandemParameterFile do
 
   protected
     def create_tandem_parameter_file(options = {})
-      record = TandemParameterFile.new({ :name => "jobname", :database => "human_ipi", :enzyme => "enzyme", :b_ion => true, :y_ion => true }.merge(options))
+      record = TandemParameterFile.new({ :name => "jobname", :database => "human_ipi.fasta", :enzyme => "enzyme", :b_ion => true, :y_ion => true }.merge(options))
       record
     end
 

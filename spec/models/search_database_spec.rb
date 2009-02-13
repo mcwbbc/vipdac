@@ -50,6 +50,19 @@ describe SearchDatabase do
     end
   end
 
+  describe "size of" do
+    it "should return the byte size of the database if valid" do
+      db = mock_model(SearchDatabase, :search_database_file_size => 12345)
+      SearchDatabase.should_receive(:find).with(:first, :select => 'search_database_file_size', :conditions => ["search_database_file_name = ?", "db.fasta"]).and_return(db)
+      SearchDatabase.size_of('db.fasta').should == 12345
+    end
+
+    it "should return 0 for an invalid db" do
+      SearchDatabase.should_receive(:find).with(:first, :select => 'search_database_file_size', :conditions => ["search_database_file_name = ?", "db.fasta"]).and_return(nil)
+      SearchDatabase.size_of('db.fasta').should == 0
+    end
+  end
+
   describe "send_background_upload_message" do
     it "should send a background upload head message" do
       @search_database.should_receive(:id).and_return(12)
