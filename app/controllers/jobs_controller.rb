@@ -16,7 +16,7 @@ class JobsController < ApplicationController
 
   # GET /jobs/1/statistics
   def statistics
-    # TODO: background http request to vipstats.mcw.edu/jobs/create
+    @job.send_statistics
     flash[:notice] = 'Job statistics successfully submitted.'
     redirect_to(jobs_url)
   end

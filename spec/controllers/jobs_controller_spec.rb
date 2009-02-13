@@ -84,24 +84,30 @@ describe JobsController do
       get :statistics, :id => "1"
     end
 
-    it "should redirect to index" do
-      do_statistics
-      response.should redirect_to(jobs_url)
-    end
+    describe "with success" do
+      before(:each) do
+        @job.should_receive(:send_statistics).and_return(true)
+      end
 
-    it "should include a flash message" do
-      do_statistics
-      response.flash[:notice].should == "Job statistics successfully submitted."
-    end
-  
-    it "should find the job requested" do
-      Job.should_receive(:find).with("1").and_return(@job)
-      do_statistics
-    end
-  
-    it "should assign the found job for the view" do
-      do_statistics
-      assigns[:job].should equal(@job)
+      it "should redirect to index" do
+        do_statistics
+        response.should redirect_to(jobs_url)
+      end
+
+      it "should include a flash message" do
+        do_statistics
+        response.flash[:notice].should == "Job statistics successfully submitted."
+      end
+
+      it "should find the job requested" do
+        Job.should_receive(:find).with("1").and_return(@job)
+        do_statistics
+      end
+
+      it "should assign the found job for the view" do
+        do_statistics
+        assigns[:job].should equal(@job)
+      end
     end
     
     it "should show the index page for an invalid job" do
