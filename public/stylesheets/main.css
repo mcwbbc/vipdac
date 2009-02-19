@@ -67,10 +67,18 @@ img {
   height: 500px;
   margin: 0px;
   padding: 10px;
+  color: #fff;
 }
 
 #navigation a {
   color: #fff;
+}
+
+#navigation h2 {
+  text-align: center;
+  background: #fff;
+  border: 1px solid #000;
+  color: #000;
 }
 
 #footer {

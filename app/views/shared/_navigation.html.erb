@@ -1,15 +1,31 @@
 <div id="navigation">
 <%= link_to("Home", home_path) %><br />
-<br />
-<%= link_to("Nodes", nodes_path) %><br />
-<br />
-<%= link_to("Search Databases", search_databases_path) %><br />
-<%= link_to("Tandem Parameter Files", tandem_parameter_files_path) %><br />
-<%= link_to("OMSSA Parameter Files", omssa_parameter_files_path) %><br />
-<%= link_to("Datafiles", datafiles_path) %><br />
-<br />
-<%= link_to("Jobs", jobs_path) %><br />
-<%= link_to("Result files", resultfiles_path) %><br />
+<h2>Start a new analysis</h2>
+<ol>
+  <li><%= link_to("Upload data file", new_datafile_path) %></li>
+  <li>Create parameter file</li>
+  <ul>
+    <li><%= link_to("Create new Tandem parameter file", new_tandem_parameter_file_path) %></li>
+    <li><%= link_to("Create new OMSSA parameter file", new_omssa_parameter_file_path) %></li>
+  </ul>
+  <li><%= link_to("Start new analysis job", new_job_path) %></li>
+  <li><%= link_to("Download analysis results", resultfiles_path) %></li>
+</ol>
+<h2>View available options</h2>
+<ul>
+  <li><%= link_to("View Search Databases", search_databases_path) %></li>
+  <li><%= link_to("View Data files", datafiles_path) %></li>
+  <li><%= link_to("View X!Tandem Parameter Files", tandem_parameter_files_path) %></li>
+  <li><%= link_to("View OMSSA Parameter Files", omssa_parameter_files_path) %></li>
+  <br />
+  <li><%= link_to("View Jobs", jobs_path) %></li>
+  <li><%= link_to("View Result files", resultfiles_path) %></li>
+</ul>
+<h2>Advanced Options</h2>
+<ul>
+  <li><%= link_to("Upload New Search Database", new_search_database_path) %></li>
+  <li><%= link_to("Manage Worker Nodes", nodes_path) %></li>
+<ol>
 </div>
 <div>
 <%= link_to("Report a bug", "http://mcwbbc.lighthouseapp.com/projects/21023-vipdac", :class => 'white', :style => 'padding: 10px') %>
