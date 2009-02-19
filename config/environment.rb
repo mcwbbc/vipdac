@@ -35,6 +35,7 @@ Rails::Initializer.run do |config|
   config.gem 'rubyist-aasm', :version => '~> 2.0.2', :lib => 'aasm', :source => 'http://gems.github.com'
   config.gem 'thoughtbot-paperclip', :version => '~> 2.2.2', :lib => 'paperclip', :source => 'http://gems.github.com'
   config.gem 'thoughtbot-hoptoad_notifier', :version => '~> 1.1', :lib => 'hoptoad_notifier', :source => 'http://gems.github.com'
+  config.gem "thoughtbot-shoulda", :lib => "shoulda", :source => "http://gems.github.com"
   config.gem 'beanstalk-client', :version => '~> 1.0.2'
   
   # Only load the plugins named here, in the order given. By default, all plugins 
