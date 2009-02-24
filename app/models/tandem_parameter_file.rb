@@ -27,7 +27,7 @@ class TandemParameterFile < ActiveRecord::Base
     ['Asp-N', '[X]|D'],
     ['Chymotrypsin', '[FY]|{P}'],
     ['Formic Acid', 'D|[X]'],
-    ['CNBr', 'N|[X]']
+    ['CNBr', 'M|[X]']
   ]
 
   def modification_attributes=(ma)
