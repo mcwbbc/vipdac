@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # CHANGELOG
+# 02/25/2009
+# update monit to beta7
+#
 # 01/26/2009
 # hoptoad as a gem
 # paperclip as a gem
@@ -173,9 +176,9 @@ apxs2 -c -i mod_upload_progress.c
 
 # download and build monit
 cd /usr/local/src
-wget http://mmonit.com/monit/dist/beta/monit-5.0_beta6.tar.gz
-tar xvfz monit-5.0_beta6.tar.gz
-cd monit-5.0_beta6
+wget http://mmonit.com/monit/dist/beta/monit-5.0_beta7.tar.gz
+tar xvfz monit-5.0_beta7.tar.gz
+cd monit-5.0_beta7
 ./configure
 make
 make install
