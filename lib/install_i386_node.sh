@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # CHANGELOG
+# 03/16/2009
+# update passenger to 2.1.2
+#
 # 02/25/2009
 # update monit to beta7
 #
@@ -253,10 +256,7 @@ gem install uuidtools --no-rdoc --no-ri
 gem install uuidtools --no-rdoc --no-ri
 
 # install the ruby/apache bridge (this will feed the enters to run it from a script)
-passenger-install-apache2-module << EOF
-
-
-EOF
+passenger-install-apache2-module -a
 
 # download the application from github
 cd /pipeline/
