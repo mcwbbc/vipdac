@@ -12,19 +12,19 @@ describe NodesController do
     end
   
     it "should map { :controller => 'nodes', :action => 'show', :id => 1 } to /nodes/1" do
-      route_for(:controller => "nodes", :action => "show", :id => 1).should == "/nodes/1"
+      route_for(:controller => "nodes", :action => "show", :id => '1').should == "/nodes/1"
     end
   
     it "should map { :controller => 'nodes', :action => 'edit', :id => 1 } to /nodes/1/edit" do
-      route_for(:controller => "nodes", :action => "edit", :id => 1).should == "/nodes/1/edit"
+      route_for(:controller => "nodes", :action => "edit", :id => '1').should == "/nodes/1/edit"
     end
   
     it "should map { :controller => 'nodes', :action => 'update', :id => 1} to /nodes/1" do
-      route_for(:controller => "nodes", :action => "update", :id => 1).should == "/nodes/1"
+      route_for(:controller => "nodes", :action => "update", :id => '1').should == {:path => "/nodes/1", :method => :put}
     end
   
     it "should map { :controller => 'nodes', :action => 'destroy', :id => 1} to /nodes/1" do
-      route_for(:controller => "nodes", :action => "destroy", :id => 1).should == "/nodes/1"
+      route_for(:controller => "nodes", :action => "destroy", :id => '1').should == {:path => "/nodes/1", :method => :delete}
     end
   end
 

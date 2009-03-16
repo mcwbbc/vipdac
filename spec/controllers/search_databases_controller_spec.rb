@@ -34,44 +34,6 @@ describe SearchDatabasesController do
     end
   end
 
-  describe "handling GET /search_databases/1" do
-
-    before(:each) do
-      @search_database = mock_model(SearchDatabase)
-      SearchDatabase.stub!(:find).and_return(@search_database)
-    end
-  
-    def do_get
-      get :show, :id => "1"
-    end
-
-    it "should be successful" do
-      do_get
-      response.should be_success
-    end
-  
-    it "should render show template" do
-      do_get
-      response.should render_template('show')
-    end
-  
-    it "should find the search_database requested" do
-      SearchDatabase.should_receive(:find).with("1").and_return(@search_database)
-      do_get
-    end
-  
-    it "should assign the found search_database for the view" do
-      do_get
-      assigns[:search_database].should equal(@search_database)
-    end
-    
-    it "should show the index page for an invalid search_database" do
-      SearchDatabase.stub!(:find).and_raise(ActiveRecord::RecordNotFound)
-      do_get
-      response.should redirect_to(search_databases_url)
-    end
-  end
-
   describe "handling GET /search_databases/new" do
 
     before(:each) do

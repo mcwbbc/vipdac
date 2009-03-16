@@ -9,10 +9,6 @@ class SearchDatabasesController < ApplicationController
     @search_databases = SearchDatabase.page(@page)
   end
 
-  # GET /search_databases/1
-  def show
-  end
-
   # GET /search_databases/new
   def new
     @search_database = SearchDatabase.new
