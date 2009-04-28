@@ -14,3 +14,4 @@ rm -rf /var/log/user.log
 rm -rf /root/.bash_history
 rm -rf /usr/local/src/*
 rm -rf /root/install.sh
+rm -rf /root/.ssh/authorized_keys
